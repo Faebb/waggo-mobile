@@ -1,11 +1,20 @@
-/** Error raised by the HTTP client. `code` mirrors the backend ProblemDetails `code` (e.g. "Pricing.InvalidDuration"). */
+import type { WaggoApiMessage } from './waggoApiResponse';
+
+/**
+ * Raised when waggo-api answers `success: false` (or not with a valid envelope).
+ * `code` is the first error code (e.g. "Pricing.InvalidDuration"); `errors` has all of them.
+ */
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
-    message: string,
-    public readonly code?: string,
+    public readonly errors: WaggoApiMessage[],
+    public readonly traceId: string | null = null,
   ) {
-    super(message);
+    super(errors[0]?.message ?? `HTTP ${status}`);
     this.name = 'ApiError';
+  }
+
+  get code(): string | undefined {
+    return this.errors[0]?.code;
   }
 }

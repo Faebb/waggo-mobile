@@ -15,8 +15,9 @@ function fakeApi(url: string) {
   const [base, perMinute] = walkType === 'Group' ? [5000, 150] : [8000, 250];
   const total = Math.round((base + perMinute * minutes) / 100) * 100;
   const commission = Math.round(total * 0.2);
+  const data = { walkType, durationMinutes: minutes, currency: 'COP', total, commission, walkerPayout: total - commission };
   return new Response(
-    JSON.stringify({ walkType, durationMinutes: minutes, currency: 'COP', total, commission, walkerPayout: total - commission }),
+    JSON.stringify({ success: true, data, pagination: null, errors: [], warnings: [], infos: [], traceId: 't' }),
     { status: 200 },
   );
 }
@@ -48,7 +49,20 @@ describe('FareQuoteScreen (RF-019)', () => {
   });
 
   it('shows a friendly error when the API fails', async () => {
-    fetchSpy.mockResolvedValue(new Response(JSON.stringify({ detail: 'Boom' }), { status: 500 }));
+    fetchSpy.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          success: false,
+          data: null,
+          pagination: null,
+          errors: [{ code: 'Server.Unexpected', message: 'Boom' }],
+          warnings: [],
+          infos: [],
+          traceId: 't',
+        }),
+        { status: 500 },
+      ),
+    );
 
     await renderWithProviders(<FareQuoteScreen />);
 

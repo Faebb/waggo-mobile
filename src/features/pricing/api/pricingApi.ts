@@ -16,6 +16,7 @@ export const fareQuoteSchema = z.object({
 export type FareQuoteRequest = { walkType: WalkType; durationMinutes: number };
 
 /** RF-019 — GET /api/v1/pricing/quote */
-export function getFareQuote(request: FareQuoteRequest, client: HttpClient = httpClient): Promise<FareQuote> {
-  return client.get('/api/v1/pricing/quote', fareQuoteSchema, request);
+export async function getFareQuote(request: FareQuoteRequest, client: HttpClient = httpClient): Promise<FareQuote> {
+  const { data } = await client.get('/api/v1/pricing/quote', fareQuoteSchema, request);
+  return data;
 }
