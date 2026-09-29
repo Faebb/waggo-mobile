@@ -15,7 +15,14 @@ function fakeApi(url: string) {
   const [base, perMinute] = walkType === 'Group' ? [5000, 150] : [8000, 250];
   const total = Math.round((base + perMinute * minutes) / 100) * 100;
   const commission = Math.round(total * 0.2);
-  const data = { walkType, durationMinutes: minutes, currency: 'COP', total, commission, walkerPayout: total - commission };
+  const data = {
+    walkType,
+    durationMinutes: minutes,
+    currency: 'COP',
+    total,
+    commission,
+    walkerPayout: total - commission,
+  };
   return new Response(
     JSON.stringify({ success: true, data, pagination: null, errors: [], warnings: [], infos: [], traceId: 't' }),
     { status: 200 },

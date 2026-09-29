@@ -6,13 +6,7 @@ import { colors, spacing } from '@/shared/ui/theme';
 
 import { FareQuoteCard } from '../components/FareQuoteCard';
 import { useFareQuote } from '../hooks/useFareQuote';
-import {
-  DURATION_OPTIONS,
-  WALK_TYPE_LABELS,
-  WALK_TYPES,
-  type DurationMinutes,
-  type WalkType,
-} from '../model/types';
+import { DURATION_OPTIONS, WALK_TYPE_LABELS, WALK_TYPES, type DurationMinutes, type WalkType } from '../model/types';
 
 const walkTypeOptions = WALK_TYPES.map((value) => ({ value, label: WALK_TYPE_LABELS[value] }));
 const durationOptions = DURATION_OPTIONS.map((value) => ({ value, label: `${value} min` }));

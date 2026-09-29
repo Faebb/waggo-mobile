@@ -37,7 +37,10 @@ describe('httpClient.get', () => {
 
   it('unwraps the WaggoApiResponse envelope', async () => {
     const warnings = [{ code: 'W.1', message: 'careful' }];
-    const client = createHttpClient('http://api.test', jest.fn().mockResolvedValue(jsonResponse(envelope({ warnings }))));
+    const client = createHttpClient(
+      'http://api.test',
+      jest.fn().mockResolvedValue(jsonResponse(envelope({ warnings }))),
+    );
 
     const result = await client.get('/x', schema);
 
@@ -69,7 +72,13 @@ describe('httpClient.get', () => {
     const error = await client.get('/x', schema).catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ApiError);
-    expect(error).toMatchObject({ status: 400, code: 'Pagination.InvalidPage', message: 'Bad page', errors, traceId: 'trace-1' });
+    expect(error).toMatchObject({
+      status: 400,
+      code: 'Pagination.InvalidPage',
+      message: 'Bad page',
+      errors,
+      traceId: 'trace-1',
+    });
   });
 
   it('throws ApiError when the server does not answer with an envelope', async () => {
@@ -85,7 +94,10 @@ describe('httpClient.get', () => {
   });
 
   it('throws when data does not match the contract', async () => {
-    const client = createHttpClient('http://api.test', jest.fn().mockResolvedValue(jsonResponse(envelope({ data: { id: 'nope' } }))));
+    const client = createHttpClient(
+      'http://api.test',
+      jest.fn().mockResolvedValue(jsonResponse(envelope({ data: { id: 'nope' } }))),
+    );
 
     await expect(client.get('/x', schema)).rejects.toThrow();
   });

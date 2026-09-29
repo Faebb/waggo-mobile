@@ -34,7 +34,9 @@ export function createHttpClient(baseUrl: string, fetchFn: typeof fetch = global
       if (!envelope.success) {
         if (!response.ok) {
           // Not an envelope (proxy error, server down...).
-          throw new ApiError(response.status, [{ code: `Http.${response.status}`, message: `HTTP ${response.status}` }]);
+          throw new ApiError(response.status, [
+            { code: `Http.${response.status}`, message: `HTTP ${response.status}` },
+          ]);
         }
         // 2xx with an unexpected shape: the contract changed. Fail loudly here, not deep in the UI.
         throw envelope.error;

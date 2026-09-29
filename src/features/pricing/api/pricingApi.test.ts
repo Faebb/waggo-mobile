@@ -53,8 +53,13 @@ describe('getFareQuote', () => {
   });
 
   it('propagates business errors from the API', async () => {
-    const client = createHttpClient('http://api', respond(envelope(null, [{ code: 'Pricing.InvalidDuration', message: 'Invalid' }]), 400));
+    const client = createHttpClient(
+      'http://api',
+      respond(envelope(null, [{ code: 'Pricing.InvalidDuration', message: 'Invalid' }]), 400),
+    );
 
-    await expect(getFareQuote({ walkType: 'Individual', durationMinutes: 60 }, client)).rejects.toBeInstanceOf(ApiError);
+    await expect(getFareQuote({ walkType: 'Individual', durationMinutes: 60 }, client)).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 });
