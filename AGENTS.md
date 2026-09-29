@@ -42,9 +42,14 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Waggo project rules
 
+This section is enough to work inside this repo. For the full workflow (specs, TDD agents, checklists), open Claude from the sibling repo `../waggo-workspace` (see its README).
+
+- **API envelope**: every backend response is a `WaggoApiResponse` (`success`, `data`, `pagination`, `errors`, `warnings`, `infos`, `traceId`). `src/shared/api/httpClient.ts` unwraps it and throws `ApiError` on errors; features never parse the envelope themselves.
+- **Code conventions (ADR-008, enforced by ESLint + Prettier)**: named exports only (default only in `src/app/**`), `type` not `interface`, no `any`, `import type`, import a feature only through its `index.ts`, `===`, no `console.log`. Files: `PascalCase.tsx` components, `useX.ts` hooks, `camelCase.ts` modules. UI text in Spanish. Run `npm run format` and `npm run lint`. Guide: vault `03 Desarrollo/Convenciones de código.md`.
 - **TDD is mandatory**: write the failing test first (`*.test.ts(x)` next to the file), then the code, then refactor.
 - Architecture is **feature-based**: `src/app` (routes only) → `src/features/<feature>` → `src/shared`. A feature exposes its public API through `index.ts`; never import another feature's internals.
 - Server state with TanStack Query hooks inside the feature; API responses validated with Zod.
 - Tests use React Native Testing Library v14 (`await render(...)`, `userEvent`, query by role/label/text).
 - Run `npm run typecheck`, `npm run lint` and `npm test` before declaring a task done.
-- Project docs (architecture, ADRs, TDD flow) live in the team's Obsidian vault "Vault Waggo".
+- Project docs (Spanish) live in the Obsidian vault "Vault Waggo", expected at `../../../Vault Waggo` from this repo (disk layout in `waggo-workspace/README.md`; another path can be set with `WAGGO_VAULT`). Index: `00 - MOC Waggo.md`. Relevant notes: `02 Arquitectura/Frontend - Expo feature-based.md`, ADRs in `02 Arquitectura/ADR/`, `03 Desarrollo/Flujo TDD.md`, glossary `01 Proyecto/Glosario.md`. If the vault is not available, work from this file and the code, and say which note you could not read.
+- When a change closes or alters an RF, update `04 Planeación/Estado de implementación.md`. When it changes a decision, dependencies or structure, update the matching note or ADR.

@@ -1,9 +1,12 @@
 # waggo-mobile
 
 App de **Waggo — Plataforma Inteligente para Paseo Seguro de Perros** para iOS, Android y Web.
+
+Waggo conecta a dueños de perros con paseadores **verificados**: el dueño solicita un paseo, sigue el recorrido en vivo y paga solo cuando el servicio termina bien. Esta app es lo que usan dueños y paseadores; todos los datos vienen de [waggo-api](https://github.com/Faebb/waggo-api).
+
 Expo (SDK 57) · React Native · TypeScript · Expo Router · TanStack Query · Zod · Jest + React Native Testing Library · TDD.
 
-> Backend: [Faebb/waggo-api](https://github.com/Faebb/waggo-api)
+> Backend: [Faebb/waggo-api](https://github.com/Faebb/waggo-api) · Cómo usar todo en conjunto: [Faebb/waggo-workspace](https://github.com/Faebb/waggo-workspace)
 
 ## Requisitos
 - Node.js 22 LTS
@@ -13,7 +16,7 @@ Expo (SDK 57) · React Native · TypeScript · Expo Router · TanStack Query · 
 ## Inicio rápido
 ```bash
 npm install
-cp .env.example .env        # ajusta EXPO_PUBLIC_API_URL
+cp .env.example .env        # ajusta EXPO_PUBLIC_API_URL (por defecto http://localhost:8080)
 npm start                   # a = Android, i = iOS, w = Web
 ```
 
@@ -24,7 +27,8 @@ npm start                   # a = Android, i = iOS, w = Web
 | `npm run test:watch` | Loop TDD |
 | `npm run test:coverage` | Cobertura (mínimo 80 % líneas) |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint (config de Expo) |
+| `npm run lint` | ESLint (config de Expo + convenciones del proyecto) |
+| `npm run format` / `format:check` | Prettier |
 | `npm run export:web` | Build web estático en `dist/` |
 
 ## Arquitectura (feature-based)
@@ -39,17 +43,25 @@ src/
       screens/         → pantallas que orquestan datos
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
-  shared/              → api (httpClient), config (env), ui (componentes base, tema)
+  shared/              → api (httpClient, ApiError), config (env), ui (componentes base, tema)
   test/                → utilidades de prueba
 ```
-Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
+- Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
+- Toda respuesta del backend viene en `WaggoApiResponse`; `shared/api/httpClient` la desenvuelve y lanza `ApiError` con los mensajes en español y el `traceId`.
+
+## Convenciones (ADR-008)
+Solo exports con nombre (default solo en `src/app`), `type` en lugar de `interface`, sin `any`, textos de la UI en español. ESLint y Prettier las hacen cumplir en local y en CI.
 
 ## Flujo TDD
 1. 🔴 Prueba que falla (de afuera hacia adentro: pantalla → componente/hook → lógica pura).
 2. 🟢 Código mínimo para pasar.
 3. 🔵 Refactor con las pruebas en verde.
 
-Commits: `test(pricing): …` → `feat(pricing): …` → `refactor(pricing): …`
+Commits: `test(pricing): …` → `feat(pricing): …` → `refactor(pricing): …`. Los PR entran con *squash and merge* y su título se valida en CI.
+
+## Trabajar con Claude Code
+- `AGENTS.md` (cargado por `CLAUDE.md`) tiene las reglas del repo: basta con clonar y abrir `claude` aquí para trabajar solo en la app.
+- Para el flujo completo (specs, agentes TDD, checklists, backend + mobile) abre Claude desde [waggo-workspace](https://github.com/Faebb/waggo-workspace).
 
 ## Slice de ejemplo: cotización de tarifa (RF-019)
 `src/features/pricing` — el dueño elige tipo y duración y ve el precio antes de confirmar. Consume `GET /api/v1/pricing/quote`.
