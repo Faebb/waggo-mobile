@@ -43,7 +43,7 @@ src/
     home/              → inicio del dueño, estilo Uber: "¿Quién sale a pasear hoy?" (RF-007)
     walks/             → pedir paseo, estado del paseo y mis paseos (RF-007)
     walker/            → lado del paseador: solicitudes cercanas, aceptar, iniciar y terminar (RF-007, RF-008)
-    tracking/          → ruta en vivo (SVG), métricas y envío de la posición del paseador (RF-008, RF-011)
+    tracking/          → ruta en vivo (SVG), métricas, envío de la posición y emergencias (RF-008, RF-011, RF-012)
     pets/              → mis perros y agregar perro (RF-004)
     pricing/           → un folder por módulo de negocio (cotizador RF-019)
       api/             → llamadas HTTP + esquemas Zod
