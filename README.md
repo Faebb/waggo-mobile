@@ -34,9 +34,11 @@ npm start                   # a = Android, i = iOS, w = Web
 ## Arquitectura (feature-based)
 ```
 src/
-  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /cotizar tarifa · /mascotas mis perros · /mascotas/nueva
+  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /inicio · /paseos · /paseos/nuevo · /paseos/[id] · /mascotas · /mascotas/nueva · /cotizar
   features/
     onboarding/        → pantalla de bienvenida (UX-001)
+    home/              → inicio del dueño, estilo Uber: "¿Quién sale a pasear hoy?" (RF-007)
+    walks/             → pedir paseo, estado del paseo y mis paseos (RF-007)
     pets/              → mis perros y agregar perro (RF-004)
     pricing/           → un folder por módulo de negocio (cotizador RF-019)
       api/             → llamadas HTTP + esquemas Zod
@@ -46,7 +48,7 @@ src/
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
   shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, tema oscuro con amarillo y Helvetica)
-  test/                → utilidades de prueba
+  test/                → utilidades de prueba: renderWithProviders, mockApi (API falsa por ruta), fixtures
 ```
 - Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
 - Toda respuesta del backend viene en `WaggoApiResponse`; `shared/api/httpClient` la desenvuelve y lanza `ApiError` con los mensajes en español y el `traceId`.
