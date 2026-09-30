@@ -65,3 +65,18 @@ export const fareQuote = {
   commission: 4600,
   walkerPayout: 18400,
 };
+
+/** RF-002/RF-003: a walker profile waiting for verification. */
+export const pendingWalkerProfile = {
+  id: 'wp-1',
+  fullName: 'Andrés Gómez',
+  documentType: 'CC',
+  documentLast4: '4050',
+  phone: '3001234567',
+  experience: '3 años con perros grandes',
+  status: 'Pending',
+  rejectionReason: null,
+  registeredAt: '2026-09-30T08:00:00Z',
+};
+
+export const approvedWalkerProfile = { ...pendingWalkerProfile, status: 'Approved' };
