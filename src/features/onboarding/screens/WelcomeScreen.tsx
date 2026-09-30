@@ -44,7 +44,15 @@ export function WelcomeScreen({ onQuotePress }: Props) {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
-  content: { flexGrow: 1, justifyContent: 'center', gap: spacing.xl, padding: spacing.lg },
+  content: {
+    flexGrow: 1,
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    gap: spacing.xl,
+    padding: spacing.lg,
+  },
   hero: { alignItems: 'center', gap: spacing.sm },
   logo: {
     width: 88,
@@ -53,7 +61,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
   logoText: { fontSize: 44 },
   brand: { ...typography.display, color: colors.primary },
