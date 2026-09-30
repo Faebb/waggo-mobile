@@ -72,3 +72,6 @@ docker build -t waggo-web --build-arg EXPO_PUBLIC_API_URL=http://localhost:8080 
 docker run -p 8081:80 waggo-web      # http://localhost:8081
 ```
 Las apps nativas se compilan con **EAS Build** (`npx eas-cli@latest build`), no con Docker.
+
+## Licencia
+[MIT](LICENSE)
