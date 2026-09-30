@@ -4,7 +4,6 @@ import { Platform } from 'react-native';
 export const colors = {
   primary: '#FFC527',
   primaryText: '#14120A',
-  primarySoft: '#2A2412',
   text: '#F4F1E8',
   muted: '#9A968A',
   surface: '#1A1A17',

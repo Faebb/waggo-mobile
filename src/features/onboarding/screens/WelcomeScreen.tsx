@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   column: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
   content: { gap: spacing.xl, padding: spacing.lg },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  brandMark: { width: 14, height: 14, borderRadius: radius.sm / 2, backgroundColor: colors.primary },
+  brandMark: { width: 16, height: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
   brand: { ...typography.subtitle, color: colors.text },
   hero: { gap: spacing.md, paddingTop: spacing.lg },
   eyebrow: { ...typography.eyebrow, color: colors.muted },
