@@ -1,0 +1,48 @@
+/** Data of the spec examples (RF-004, RF-007) as waggo-api returns it. */
+export const luna = {
+  id: 'pet-luna',
+  name: 'Luna',
+  breed: 'Criolla',
+  size: 'Medium',
+  birthDate: null,
+  weightKg: 14.5,
+  medicalNotes: 'Alérgica al pollo',
+};
+
+export const max = {
+  id: 'pet-max',
+  name: 'Max',
+  breed: null,
+  size: 'Small',
+  birthDate: null,
+  weightKg: null,
+  medicalNotes: null,
+};
+
+export const requestedWalk = {
+  id: 'walk-1',
+  status: 'Requested',
+  petIds: ['pet-luna'],
+  walkType: 'Individual',
+  durationMinutes: 60,
+  pickupAddress: 'Cra 7 # 45-10, Bogotá',
+  latitude: 4.6361,
+  longitude: -74.0645,
+  scheduledFor: '2026-09-30T15:00:00+00:00',
+  notes: 'Timbre dañado',
+  currency: 'COP',
+  total: 23000,
+  commission: 4600,
+  walkerPayout: 18400,
+  walkerId: null,
+  requestedAt: '2026-09-30T15:00:00+00:00',
+};
+
+export const fareQuote = {
+  walkType: 'Individual',
+  durationMinutes: 60,
+  currency: 'COP',
+  total: 23000,
+  commission: 4600,
+  walkerPayout: 18400,
+};
