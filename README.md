@@ -46,6 +46,7 @@ src/
     tracking/          → ruta en vivo (SVG), métricas, envío de la posición, emergencias y alertas automáticas (RF-008 – RF-012)
     messaging/         → chat del dueño con el paseador durante el paseo (RF-013)
     pets/              → mis perros y agregar perro (RF-004)
+    payments/          → estado del pago de cada paseo y ganancias del paseador (RF-015 – RF-018)
     pricing/           → un folder por módulo de negocio (cotizador RF-019)
       api/             → llamadas HTTP + esquemas Zod
       hooks/           → hooks de TanStack Query
