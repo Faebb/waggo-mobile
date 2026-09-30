@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useMyPets } from '@/features/pets';
 import { ACTIVE_STATUSES, useMyWalks, WalkRow } from '@/features/walks';
+import { BrandMark } from '@/shared/ui/BrandMark';
 import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
 
 type Props = {
@@ -25,10 +26,7 @@ export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={[styles.column, styles.content]}>
-        <View style={styles.brandRow}>
-          <View style={styles.brandMark} />
-          <Text style={styles.brand}>Waggo</Text>
-        </View>
+        <BrandMark />
 
         <Pressable
           accessibilityRole="button"
@@ -86,9 +84,6 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   column: layout.column,
   content: { gap: spacing.xl, padding: spacing.lg },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  brandMark: { width: 16, height: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
-  brand: { ...typography.subtitle, color: colors.text },
   ask: {
     flexDirection: 'row',
     alignItems: 'center',

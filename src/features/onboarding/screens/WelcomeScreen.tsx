@@ -3,7 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { BrandMark } from '@/shared/ui/BrandMark';
+import { colors, layout, spacing, typography } from '@/shared/ui/theme';
 
 import { ValueCard } from '../components/ValueCard';
 import { VALUE_PILLARS } from '../model/valuePillars';
@@ -16,10 +17,7 @@ export function WelcomeScreen({ onStart }: Props) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.column}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.brandRow}>
-            <View style={styles.brandMark} />
-            <Text style={styles.brand}>Waggo</Text>
-          </View>
+          <BrandMark />
 
           <View style={styles.hero}>
             <Text style={styles.eyebrow}>PASEO SEGURO DE PERROS</Text>
@@ -51,9 +49,6 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   column: layout.column,
   content: { gap: spacing.xl, padding: spacing.lg },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  brandMark: { width: 16, height: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
-  brand: { ...typography.subtitle, color: colors.text },
   hero: { gap: spacing.md, paddingTop: spacing.lg },
   eyebrow: { ...typography.eyebrow, color: colors.muted },
   headline: { ...typography.display, color: colors.text },
