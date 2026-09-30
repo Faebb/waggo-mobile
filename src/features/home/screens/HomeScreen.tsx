@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { NotificationBell } from '@/features/notifications';
 import { useMyPets } from '@/features/pets';
 import { ACTIVE_STATUSES, useMyWalks, WalkRow } from '@/features/walks';
 import { BrandMark } from '@/shared/ui/BrandMark';
@@ -11,13 +12,14 @@ type Props = {
   onOpenPets: () => void;
   onOpenWalks: () => void;
   onOpenWalk: (id: string) => void;
+  onOpenNotifications: () => void;
 };
 
 /**
  * Owner home, inspired by a ride app: one big "where to?" entry to ask for a walk, the walk going on (if any)
  * and shortcuts to the owner's dogs and walks.
  */
-export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk }: Props) {
+export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk, onOpenNotifications }: Props) {
   const pets = useMyPets();
   const walks = useMyWalks();
   const activeWalk = walks.data?.find((walk) => ACTIVE_STATUSES.includes(walk.status));
@@ -26,7 +28,10 @@ export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={[styles.column, styles.content]}>
-        <BrandMark />
+        <View style={styles.topBar}>
+          <BrandMark />
+          <NotificationBell onPress={onOpenNotifications} />
+        </View>
 
         <Pressable
           accessibilityRole="button"
@@ -81,6 +86,7 @@ function Shortcut({ title, detail, onPress }: { title: string; detail: string; o
 }
 
 const styles = StyleSheet.create({
+  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   safeArea: { flex: 1, backgroundColor: colors.background },
   column: layout.column,
   content: { gap: spacing.xl, padding: spacing.lg },

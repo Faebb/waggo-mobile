@@ -15,6 +15,7 @@ function renderHome(props: Partial<Props> = {}) {
       onOpenPets={jest.fn()}
       onOpenWalks={jest.fn()}
       onOpenWalk={jest.fn()}
+      onOpenNotifications={jest.fn()}
       {...props}
     />,
   );
@@ -81,5 +82,20 @@ describe('HomeScreen (RF-007)', () => {
     expect(onOpenPets).toHaveBeenCalledTimes(1);
     expect(onOpenWalks).toHaveBeenCalledTimes(1);
     expect(await screen.findByText('2 perros')).toBeOnTheScreen();
+  });
+
+  it('opens the notices from the bell (RF-014)', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks', data: [] },
+      { path: '/api/v1/pets', data: [] },
+      { path: '/api/v1/notifications', data: { unreadCount: 1, items: [] } },
+    ]);
+    const onOpenNotifications = jest.fn();
+    const user = userEvent.setup();
+    await renderHome({ onOpenNotifications });
+
+    await user.press(await screen.findByRole('button', { name: 'Avisos, 1 sin leer' }));
+
+    expect(onOpenNotifications).toHaveBeenCalledTimes(1);
   });
 });
