@@ -8,10 +8,10 @@ import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
 import { ValueCard } from '../components/ValueCard';
 import { VALUE_PILLARS } from '../model/valuePillars';
 
-type Props = { onQuotePress: () => void; onPetsPress: () => void };
+type Props = { onStart: () => void };
 
-/** UX-001: first screen of the app. Presents Waggo and leads to the fare quote (RF-019). */
-export function WelcomeScreen({ onQuotePress, onPetsPress }: Props) {
+/** UX-001: first screen of the app. Presents Waggo and leads to the owner home. */
+export function WelcomeScreen({ onStart }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.column}>
@@ -39,8 +39,7 @@ export function WelcomeScreen({ onQuotePress, onPetsPress }: Props) {
         </ScrollView>
 
         <ActionFooter>
-          <Button label="Cotizar un paseo" onPress={onQuotePress} />
-          <Button label="Mis perros" variant="secondary" onPress={onPetsPress} />
+          <Button label="Empezar" onPress={onStart} />
           <Text style={styles.note}>Muy pronto podrás crear tu cuenta como dueño o paseador.</Text>
         </ActionFooter>
       </View>

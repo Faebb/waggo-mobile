@@ -48,11 +48,11 @@ describe('WalkStatusScreen (RF-007)', () => {
     const pets = fetchSpy.getMockImplementation()!;
     fetchSpy.mockImplementation(async (input, init) =>
       String(input).endsWith('/api/v1/walks/walk-1')
-        ? envelopeResponse(answers.shift() ?? answers[0])
+        ? envelopeResponse(answers.length > 1 ? answers.shift() : answers[0])
         : pets(input, init),
     );
 
-    await renderWithProviders(<WalkStatusScreen walkId="walk-1" pollIntervalMs={20} />);
+    await renderWithProviders(<WalkStatusScreen walkId="walk-1" pollIntervalMs={300} />);
 
     expect(await screen.findByRole('header', { name: 'Buscando paseador…' })).toBeOnTheScreen();
     expect(await screen.findByRole('header', { name: 'Tu paseador va en camino' })).toBeOnTheScreen();
