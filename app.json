@@ -25,7 +25,15 @@
       "output": "single",
       "bundler": "metro"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Waggo usa tu ubicación para que el paseador sepa dónde recoger a tu perro."
+        }
+      ]
+    ],
     "scheme": "waggo",
     "experiments": {
       "typedRoutes": true

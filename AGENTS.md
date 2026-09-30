@@ -51,7 +51,8 @@ This section is enough to work inside this repo. For the full workflow (specs, T
 - **TDD is mandatory**: write the failing test first (`*.test.ts(x)` next to the file), then the code, then refactor.
 - Architecture is **feature-based**: `src/app` (routes only) → `src/features/<feature>` → `src/shared`. A feature exposes its public API through `index.ts`; never import another feature's internals.
 - Server state with TanStack Query hooks inside the feature; API responses validated with Zod.
-- Tests use React Native Testing Library v14 (`await render(...)`, `userEvent`, query by role/label/text).
+- Tests use React Native Testing Library v14 (`await render(...)`, `userEvent`, query by role/label/text). Screens that call the API use `renderWithProviders` + `mockApi` (fake waggo-api by method and path) and the data in `src/test/fixtures.ts`.
+- Device services live in `src/shared` behind a small function (e.g. `shared/location/getCurrentLocation`), so screens mock that function instead of the Expo module.
 - Run `npm run typecheck`, `npm run lint` and `npm test` before declaring a task done.
 - Project docs (Spanish) live in the Obsidian vault "Vault Waggo", expected at `../../../Vault Waggo` from this repo (disk layout in `waggo-workspace/README.md`; another path can be set with `WAGGO_VAULT`). Index: `00 - MOC Waggo.md`. Relevant notes: `02 Arquitectura/Frontend - Expo feature-based.md`, ADRs in `02 Arquitectura/ADR/`, `03 Desarrollo/Flujo TDD.md`, glossary `01 Proyecto/Glosario.md`. If the vault is not available, work from this file and the code, and say which note you could not read.
 - When a change closes or alters an RF, update `04 Planeación/Estado de implementación.md`. When it changes a decision, dependencies or structure, update the matching note or ADR.

@@ -3,23 +3,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { BrandMark } from '@/shared/ui/BrandMark';
+import { colors, layout, spacing, typography } from '@/shared/ui/theme';
 
 import { ValueCard } from '../components/ValueCard';
 import { VALUE_PILLARS } from '../model/valuePillars';
 
-type Props = { onQuotePress: () => void; onPetsPress: () => void };
+type Props = { onStart: () => void };
 
-/** UX-001: first screen of the app. Presents Waggo and leads to the fare quote (RF-019). */
-export function WelcomeScreen({ onQuotePress, onPetsPress }: Props) {
+/** UX-001: first screen of the app. Presents Waggo and leads to the owner home. */
+export function WelcomeScreen({ onStart }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.column}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.brandRow}>
-            <View style={styles.brandMark} />
-            <Text style={styles.brand}>Waggo</Text>
-          </View>
+          <BrandMark />
 
           <View style={styles.hero}>
             <Text style={styles.eyebrow}>PASEO SEGURO DE PERROS</Text>
@@ -39,8 +37,7 @@ export function WelcomeScreen({ onQuotePress, onPetsPress }: Props) {
         </ScrollView>
 
         <ActionFooter>
-          <Button label="Cotizar un paseo" onPress={onQuotePress} />
-          <Button label="Mis perros" variant="secondary" onPress={onPetsPress} />
+          <Button label="Empezar" onPress={onStart} />
           <Text style={styles.note}>Muy pronto podrás crear tu cuenta como dueño o paseador.</Text>
         </ActionFooter>
       </View>
@@ -52,9 +49,6 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   column: layout.column,
   content: { gap: spacing.xl, padding: spacing.lg },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  brandMark: { width: 16, height: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
-  brand: { ...typography.subtitle, color: colors.text },
   hero: { gap: spacing.md, paddingTop: spacing.lg },
   eyebrow: { ...typography.eyebrow, color: colors.muted },
   headline: { ...typography.display, color: colors.text },
