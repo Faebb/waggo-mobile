@@ -19,6 +19,11 @@ export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 
 export const radius = { sm: 6, md: 12, pill: 999 } as const;
 
+/** Mobile first (ADR-013): on tablets and web every screen keeps a phone-width column. */
+export const layout = {
+  column: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
+} as const;
+
 export const typography = {
   display: { fontFamily, fontSize: 44, lineHeight: 46, fontWeight: '700', letterSpacing: -1.5 },
   title: { fontFamily, fontSize: 24, lineHeight: 28, fontWeight: '700', letterSpacing: -0.5 },

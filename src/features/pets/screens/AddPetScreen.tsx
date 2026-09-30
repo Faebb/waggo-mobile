@@ -5,7 +5,8 @@ import { ApiError } from '@/shared/api/ApiError';
 import { Button } from '@/shared/ui/Button';
 import { ChipGroup } from '@/shared/ui/ChipGroup';
 import { TextField } from '@/shared/ui/TextField';
-import { colors, spacing, typography } from '@/shared/ui/theme';
+import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { colors, layout, spacing, typography } from '@/shared/ui/theme';
 
 import { useRegisterPet } from '../hooks/usePets';
 import { EMPTY_PET_FORM, toPetDraft, type PetForm, type PetFormErrors } from '../model/petForm';
@@ -79,28 +80,20 @@ export function AddPetScreen({ onSaved }: Props) {
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <ActionFooter>
         <Button
           label={registerPet.isPending ? 'Guardando…' : 'Guardar perro'}
           onPress={save}
           disabled={registerPet.isPending}
         />
-      </View>
+      </ActionFooter>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Mobile first: on tablets and web the content keeps a phone-width column.
-  screen: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
+  screen: layout.column,
   content: { gap: spacing.lg, padding: spacing.lg },
   title: { ...typography.display, color: colors.text },
   error: { ...typography.body, color: colors.danger },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
 });

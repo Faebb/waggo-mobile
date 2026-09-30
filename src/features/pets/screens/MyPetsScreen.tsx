@@ -1,7 +1,8 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/shared/ui/Button';
-import { colors, spacing, typography } from '@/shared/ui/theme';
+import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { colors, layout, spacing, typography } from '@/shared/ui/theme';
 
 import { PetRow } from '../components/PetRow';
 import { useMyPets } from '../hooks/usePets';
@@ -41,16 +42,15 @@ export function MyPetsScreen({ onAddPress }: Props) {
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <ActionFooter>
         <Button label="Agregar perro" onPress={onAddPress} />
-      </View>
+      </ActionFooter>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Mobile first: on tablets and web the content keeps a phone-width column.
-  screen: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
+  screen: layout.column,
   content: { gap: spacing.md, padding: spacing.lg },
   eyebrow: { ...typography.eyebrow, color: colors.muted },
   title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
@@ -58,11 +58,4 @@ const styles = StyleSheet.create({
   empty: { gap: spacing.xs, paddingVertical: spacing.lg },
   emptyTitle: { ...typography.subtitle, color: colors.text },
   emptyText: { ...typography.body, color: colors.muted },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
 });
