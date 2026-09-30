@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PaymentSummary } from '@/features/payments';
 import { useMyPets } from '@/features/pets';
 import { formatMoney } from '@/features/pricing';
 import { WalkRoute, WalkSafety } from '@/features/tracking';
@@ -64,6 +65,7 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
           <DetailRow label="Recogida" value={data.pickupAddress} />
           {data.notes !== null && <DetailRow label="Indicaciones" value={data.notes} />}
           <DetailRow label="Total" value={formatMoney(data.total, data.currency)} highlight />
+          <PaymentSummary walkId={data.id} walkStatus={data.status} viewer="Owner" />
         </View>
 
         {cancel.isError && (

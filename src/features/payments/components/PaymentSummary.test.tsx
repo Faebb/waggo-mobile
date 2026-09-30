@@ -28,7 +28,13 @@ describe('PaymentSummary (RF-016)', () => {
   });
 
   it('shows nothing for a walk without payment', async () => {
-    fetchSpy = mockApi([]);
+    fetchSpy = mockApi([
+      {
+        path: '/api/v1/walks/walk-1/payment',
+        status: 404,
+        errors: [{ code: 'Payments.NotFound', message: 'Este paseo no tiene un pago registrado.' }],
+      },
+    ]);
 
     await renderWithProviders(<PaymentSummary walkId="walk-1" walkStatus="Accepted" viewer="Owner" />);
 

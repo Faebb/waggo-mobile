@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { EarningsCard } from '@/features/payments';
 import { formatMoney } from '@/features/pricing';
 import { formatWhen } from '@/features/walks';
 import { ApiError } from '@/shared/api/ApiError';
@@ -49,6 +50,8 @@ export function WalkerHomeScreen({ onOpenAssigned }: Props) {
             Solicitudes
           </Text>
         </View>
+
+        <EarningsCard />
 
         <Button
           label={near ? 'Actualizar mi ubicación' : 'Ver las más cercanas'}

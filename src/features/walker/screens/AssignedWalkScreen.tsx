@@ -1,5 +1,6 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PaymentSummary } from '@/features/payments';
 import { formatMoney } from '@/features/pricing';
 import { BEACON_INTERVAL_MS, useTrackingBeacon, WalkRoute, WalkSafety } from '@/features/tracking';
 import { formatWhen, useWalk, type WalkStatus } from '@/features/walks';
@@ -71,6 +72,7 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
           <DetailRow label="Paseo" value={offerKindOf({ ...data, petCount: data.petIds.length })} />
           {data.notes !== null && <DetailRow label="Indicaciones" value={data.notes} />}
           <DetailRow label="Ganas" value={formatMoney(data.walkerPayout, data.currency)} highlight />
+          <PaymentSummary walkId={data.id} walkStatus={data.status} viewer="Walker" />
         </View>
 
         {progressFailed && (

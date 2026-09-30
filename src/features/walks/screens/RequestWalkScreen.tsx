@@ -159,6 +159,7 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
             {quote.data ? formatMoney(quote.data.total, quote.data.currency) : 'Calculando…'}
           </Text>
         </View>
+        <Text style={styles.holdNote}>Se retiene en tu método de pago y solo se cobra si el paseo ocurre.</Text>
         <Button label={request.isPending ? 'Pidiendo…' : 'Pedir paseo'} onPress={submit} disabled={request.isPending} />
       </ActionFooter>
     </View>
@@ -177,4 +178,5 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   priceLabel: { ...typography.body, color: colors.muted },
   price: { ...typography.title, color: colors.primary },
+  holdNote: { ...typography.caption, color: colors.muted },
 });
