@@ -13,13 +13,13 @@ import { useCancelWalk, useWalk, WALK_POLL_INTERVAL_MS } from '../hooks/useWalks
 import { formatWhen, petNamesOf, walkKindOf } from '../model/describeWalk';
 import { CANCELLABLE_STATUSES, WALK_STATUS_HEADLINES, type WalkStatus } from '../model/types';
 
-type Props = { walkId: string; pollIntervalMs?: number };
+type Props = { walkId: string; pollIntervalMs?: number; onOpenChat?: () => void };
 
 /**
  * RF-007/RF-008: the walk after asking for it. Refreshes by itself until a walker accepts, like waiting for a ride,
  * and shows the live route while the walk is in progress (and its summary when it ends, RF-011).
  */
-export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_MS }: Props) {
+export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_MS, onOpenChat }: Props) {
   const walk = useWalk(walkId, pollIntervalMs);
   const pets = useMyPets();
   const cancel = useCancelWalk(walkId);
@@ -49,6 +49,10 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
 
         {(data.status === 'InProgress' || data.status === 'Completed') && (
           <WalkRoute walkId={data.id} live={data.status === 'InProgress'} />
+        )}
+
+        {onOpenChat && data.walkerId !== null && data.status !== 'Cancelled' && (
+          <Button label="Mensajes" variant="secondary" onPress={onOpenChat} />
         )}
 
         {(data.status === 'Accepted' || data.status === 'InProgress') && <WalkSafety walkId={data.id} viewer="Owner" />}
