@@ -44,6 +44,7 @@ Docs: https://docs.expo.dev/eas/index.md
 
 This section is enough to work inside this repo. For the full workflow (specs, TDD agents, checklists), open Claude from the sibling repo `../waggo-workspace` (see its README).
 
+- **Development identity (temporary, ADR-011)**: `src/app/_layout.tsx` calls `setDevRole` from the route (`/paseador` → walker, the rest → owner); `httpClient` adds `X-Dev-User-Id`/`X-Dev-Roles`. Remove it when the login exists.
 - **API calls**: `httpClient.get(path, schema, params)` and `httpClient.post(path, body, schema)`; forms show the Spanish `message` of each `ApiError` error as it comes.
 - **API envelope**: every backend response is a `WaggoApiResponse` (`success`, `data`, `pagination`, `errors`, `warnings`, `infos`, `traceId`). `src/shared/api/httpClient.ts` unwraps it and throws `ApiError` on errors; features never parse the envelope themselves.
 - **Code conventions (ADR-008, enforced by ESLint + Prettier)**: named exports only (default only in `src/app/**`), `type` not `interface`, no `any`, `import type`, import a feature only through its `index.ts`, `===`, no `console.log`. Files: `PascalCase.tsx` components, `useX.ts` hooks, `camelCase.ts` modules. UI text in Spanish. Run `npm run format` and `npm run lint`. Guide: vault `03 Desarrollo/Convenciones de código.md`.
