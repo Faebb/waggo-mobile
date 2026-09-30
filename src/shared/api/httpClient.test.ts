@@ -102,3 +102,32 @@ describe('httpClient.get', () => {
     await expect(client.get('/x', schema)).rejects.toThrow();
   });
 });
+
+describe('httpClient.post', () => {
+  it('sends the body as JSON and unwraps the envelope', async () => {
+    const fetchFn = jest.fn().mockResolvedValue(jsonResponse(envelope()));
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const result = await client.post('/api/v1/things', { name: 'Luna' }, schema);
+
+    expect(fetchFn).toHaveBeenCalledWith('http://api.test/api/v1/things', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Luna' }),
+    });
+    expect(result.data).toEqual({ id: 7 });
+  });
+
+  it('throws ApiError with the validation errors when success is false', async () => {
+    const errors = [{ code: 'Pets.InvalidWeight', message: 'El peso debe estar entre 0.5 y 100 kg.' }];
+    const client = createHttpClient(
+      'http://api.test',
+      jest.fn().mockResolvedValue(jsonResponse(envelope({ success: false, data: null, errors }), 400)),
+    );
+
+    const error = await client.post('/x', {}, schema).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ status: 400, code: 'Pets.InvalidWeight', errors });
+  });
+});

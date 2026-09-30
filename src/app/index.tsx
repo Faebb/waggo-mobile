@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <WelcomeScreen onQuotePress={() => router.push('/cotizar')} />
+      <WelcomeScreen onQuotePress={() => router.push('/cotizar')} onPetsPress={() => router.push('/mascotas')} />
     </>
   );
 }
