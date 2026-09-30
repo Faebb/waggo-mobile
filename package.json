@@ -45,6 +45,7 @@
     "format:check": "prettier --check ."
   },
   "private": true,
+  "license": "MIT",
   "jest": {
     "preset": "jest-expo",
     "clearMocks": true,
