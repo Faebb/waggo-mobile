@@ -22,6 +22,8 @@ export const walkSchema = z.object({
   walkerPayout: z.number(),
   walkerId: z.string().nullable(),
   requestedAt: z.string(),
+  startedAt: z.string().nullable(),
+  finishedAt: z.string().nullable(),
 }) satisfies z.ZodType<Walk>;
 
 /** RF-007 — POST /api/v1/walks */

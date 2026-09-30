@@ -36,6 +36,18 @@ export async function acceptWalk(id: string, client: HttpClient = httpClient): P
   return data;
 }
 
+/** RF-008 — POST /api/v1/walks/{id}/start: the walker picked the dogs up. */
+export async function startWalk(id: string, client: HttpClient = httpClient): Promise<Walk> {
+  const { data } = await client.post(`/api/v1/walks/${encodeURIComponent(id)}/start`, {}, walkSchema);
+  return data;
+}
+
+/** RF-008 — POST /api/v1/walks/{id}/finish: the walker brought the dogs back. */
+export async function finishWalk(id: string, client: HttpClient = httpClient): Promise<Walk> {
+  const { data } = await client.post(`/api/v1/walks/${encodeURIComponent(id)}/finish`, {}, walkSchema);
+  return data;
+}
+
 /** RF-007 — GET /api/v1/walks/assigned: the walks this walker accepted. */
 export async function listAssignedWalks(client: HttpClient = httpClient): Promise<Walk[]> {
   const { data } = await client.get('/api/v1/walks/assigned', z.array(walkSchema));

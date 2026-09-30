@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { walkKeys } from '@/features/walks';
 import type { Coordinates } from '@/shared/location/getCurrentLocation';
 
-import { acceptWalk, listAssignedWalks, listAvailableWalks } from '../api/walkerApi';
+import { acceptWalk, finishWalk, listAssignedWalks, listAvailableWalks, startWalk } from '../api/walkerApi';
 
 export const walkerKeys = {
   available: (near: Coordinates | null) => ['walker', 'available', near?.latitude, near?.longitude] as const,
@@ -36,4 +36,17 @@ export function useAcceptWalk() {
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['walker', 'available'] }),
   });
+}
+
+/** RF-008: start or finish the walk; the screen shows the new state right away. */
+export function useWalkProgress(id: string) {
+  const queryClient = useQueryClient();
+  const onSuccess = (walk: Awaited<ReturnType<typeof startWalk>>) => {
+    queryClient.setQueryData(walkKeys.one(walk.id), walk);
+    return queryClient.invalidateQueries({ queryKey: walkerKeys.assigned });
+  };
+  return {
+    start: useMutation({ mutationFn: () => startWalk(id), onSuccess }),
+    finish: useMutation({ mutationFn: () => finishWalk(id), onSuccess }),
+  };
 }
