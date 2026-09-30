@@ -46,6 +46,7 @@ This section is enough to work inside this repo. For the full workflow (specs, T
 
 - **API envelope**: every backend response is a `WaggoApiResponse` (`success`, `data`, `pagination`, `errors`, `warnings`, `infos`, `traceId`). `src/shared/api/httpClient.ts` unwraps it and throws `ApiError` on errors; features never parse the envelope themselves.
 - **Code conventions (ADR-008, enforced by ESLint + Prettier)**: named exports only (default only in `src/app/**`), `type` not `interface`, no `any`, `import type`, import a feature only through its `index.ts`, `===`, no `console.log`. Files: `PascalCase.tsx` components, `useX.ts` hooks, `camelCase.ts` modules. UI text in Spanish. Run `npm run format` and `npm run lint`. Guide: vault `03 Desarrollo/Convenciones de código.md`.
+- **Visual design (ADR-013)**: mobile first (content in a column of at most 480 px, main action at the bottom), dark theme with yellow `#FFC527` as the only accent, Helvetica, Swiss style without emojis or decorative icons. Screens use only the tokens in `src/shared/ui/theme.ts` (`colors`, `typography`, `spacing`, `radius`).
 - **TDD is mandatory**: write the failing test first (`*.test.ts(x)` next to the file), then the code, then refactor.
 - Architecture is **feature-based**: `src/app` (routes only) → `src/features/<feature>` → `src/shared`. A feature exposes its public API through `index.ts`; never import another feature's internals.
 - Server state with TanStack Query hooks inside the feature; API responses validated with Zod.
