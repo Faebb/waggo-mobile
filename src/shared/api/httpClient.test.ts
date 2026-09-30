@@ -105,7 +105,7 @@ describe('httpClient.get', () => {
 
 describe('httpClient headers', () => {
   it('adds the extra headers of every request (development identity)', async () => {
-    const fetchFn = jest.fn().mockResolvedValue(jsonResponse(envelope()));
+    const fetchFn = jest.fn().mockImplementation(async () => jsonResponse(envelope()));
     const client = createHttpClient('http://api.test', fetchFn, () => ({ 'X-Dev-Roles': 'walker' }));
 
     await client.get('/x', schema);

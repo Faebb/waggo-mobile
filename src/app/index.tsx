@@ -7,7 +7,10 @@ export default function Welcome() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <WelcomeScreen onStart={() => router.replace('/inicio')} />
+      <WelcomeScreen
+        onStartAsOwner={() => router.replace('/inicio')}
+        onStartAsWalker={() => router.replace('/paseador')}
+      />
     </>
   );
 }

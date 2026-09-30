@@ -2,6 +2,7 @@ import type { z } from 'zod';
 
 import { env } from '../config/env';
 import { ApiError } from './ApiError';
+import { devIdentityHeaders } from './devIdentity';
 import { waggoApiResponseSchema, type WaggoApiResponse } from './waggoApiResponse';
 
 type QueryParams = Record<string, string | number | boolean | undefined>;
@@ -9,7 +10,12 @@ type QueryParams = Record<string, string | number | boolean | undefined>;
 // Resolve the global fetch lazily so it can be replaced at runtime (interceptors, test spies).
 const globalFetch: typeof fetch = (input, init) => globalThis.fetch(input, init);
 
-export function createHttpClient(baseUrl: string, fetchFn: typeof fetch = globalFetch) {
+/** `extraHeaders` is read on every request (today: the development identity). */
+export function createHttpClient(
+  baseUrl: string,
+  fetchFn: typeof fetch = globalFetch,
+  extraHeaders: () => Record<string, string> = devIdentityHeaders,
+) {
   const root = baseUrl.replace(/\/+$/, '');
 
   function buildUrl(path: string, params?: QueryParams) {
@@ -47,7 +53,11 @@ export function createHttpClient(baseUrl: string, fetchFn: typeof fetch = global
   return {
     /** GET an endpoint of waggo-api. */
     get<T>(path: string, dataSchema: z.ZodType<T>, params?: QueryParams): Promise<WaggoApiResponse<T>> {
-      return send(buildUrl(path, params), { method: 'GET', headers: { Accept: 'application/json' } }, dataSchema);
+      return send(
+        buildUrl(path, params),
+        { method: 'GET', headers: { Accept: 'application/json', ...extraHeaders() } },
+        dataSchema,
+      );
     },
 
     /** POST a JSON body to an endpoint of waggo-api. */
@@ -56,7 +66,7 @@ export function createHttpClient(baseUrl: string, fetchFn: typeof fetch = global
         buildUrl(path),
         {
           method: 'POST',
-          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...extraHeaders() },
           body: JSON.stringify(body),
         },
         dataSchema,
