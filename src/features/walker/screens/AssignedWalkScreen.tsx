@@ -1,10 +1,14 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { formatMoney } from '@/features/pricing';
+import { BEACON_INTERVAL_MS, RouteView, useRoute, useTrackingBeacon } from '@/features/tracking';
 import { formatWhen, useWalk, type WalkStatus } from '@/features/walks';
+import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
 import { colors, layout, spacing, typography } from '@/shared/ui/theme';
 
+import { useWalkProgress } from '../hooks/useWalker';
 import { offerKindOf } from '../model/describeOffer';
 
 const HEADLINES: Record<WalkStatus, string> = {
@@ -15,11 +19,17 @@ const HEADLINES: Record<WalkStatus, string> = {
   Cancelled: 'El dueño canceló el paseo',
 };
 
-type Props = { walkId: string };
+type Props = { walkId: string; beaconIntervalMs?: number };
 
-/** RF-007, walker side: a walk the walker accepted, with the exact pickup and the owner's notes. */
-export function AssignedWalkScreen({ walkId }: Props) {
+/**
+ * RF-007/RF-008, walker side: a walk the walker accepted, with the exact pickup and the owner's notes. The walker
+ * starts it when picking the dogs up, the phone shares its position while it goes on, and finishes it at the end.
+ */
+export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_MS }: Props) {
   const walk = useWalk(walkId);
+  const { start, finish } = useWalkProgress(walkId);
+  const inProgress = walk.data?.status === 'InProgress';
+  useTrackingBeacon(walkId, inProgress, beaconIntervalMs);
 
   if (walk.isPending) {
     return <ActivityIndicator accessibilityLabel="Cargando el paseo" color={colors.primary} style={styles.loading} />;
@@ -33,6 +43,7 @@ export function AssignedWalkScreen({ walkId }: Props) {
   }
 
   const data = walk.data;
+  const progressFailed = start.isError || finish.isError;
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -40,6 +51,11 @@ export function AssignedWalkScreen({ walkId }: Props) {
         <Text accessibilityRole="header" style={styles.headline}>
           {HEADLINES[data.status]}
         </Text>
+        {inProgress && <Text style={styles.sharing}>Compartiendo tu ubicación con el dueño</Text>}
+
+        {(data.status === 'InProgress' || data.status === 'Completed') && (
+          <WalkerRoute walkId={data.id} live={inProgress} />
+        )}
 
         <View>
           <DetailRow label="Recogida" value={data.pickupAddress} />
@@ -48,9 +64,39 @@ export function AssignedWalkScreen({ walkId }: Props) {
           {data.notes !== null && <DetailRow label="Indicaciones" value={data.notes} />}
           <DetailRow label="Ganas" value={formatMoney(data.walkerPayout, data.currency)} highlight />
         </View>
+
+        {progressFailed && (
+          <Text accessibilityRole="alert" style={styles.error}>
+            No pudimos actualizar el paseo. Intenta de nuevo.
+          </Text>
+        )}
       </ScrollView>
+
+      {data.status === 'Accepted' && (
+        <ActionFooter>
+          <Button
+            label={start.isPending ? 'Iniciando…' : 'Iniciar paseo'}
+            onPress={() => start.mutate()}
+            disabled={start.isPending}
+          />
+        </ActionFooter>
+      )}
+      {inProgress && (
+        <ActionFooter>
+          <Button
+            label={finish.isPending ? 'Terminando…' : 'Terminar paseo'}
+            onPress={() => finish.mutate()}
+            disabled={finish.isPending}
+          />
+        </ActionFooter>
+      )}
     </View>
   );
+}
+
+function WalkerRoute({ walkId, live }: { walkId: string; live: boolean }) {
+  const route = useRoute(walkId, live);
+  return route.data ? <RouteView route={route.data} /> : null;
 }
 
 const styles = StyleSheet.create({
@@ -59,5 +105,6 @@ const styles = StyleSheet.create({
   content: { gap: spacing.lg, padding: spacing.lg },
   eyebrow: { ...typography.eyebrow, color: colors.muted },
   headline: { ...typography.display, color: colors.text },
+  sharing: { ...typography.caption, fontWeight: '700', color: colors.primary },
   error: { ...typography.body, color: colors.danger },
 });

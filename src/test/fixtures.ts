@@ -36,6 +36,8 @@ export const requestedWalk = {
   walkerPayout: 18400,
   walkerId: null,
   requestedAt: '2026-09-30T15:00:00+00:00',
+  startedAt: null as string | null,
+  finishedAt: null as string | null,
 };
 
 /** An open request as a walker sees it (`AvailableWalkResponse`). */

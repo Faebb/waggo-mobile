@@ -46,6 +46,8 @@ export type Walk = {
   walkerPayout: number;
   walkerId: string | null;
   requestedAt: string;
+  startedAt: string | null;
+  finishedAt: string | null;
 };
 
 /** Body of `POST /api/v1/walks`. `scheduledFor` null means now. */

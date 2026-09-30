@@ -3,6 +3,7 @@ import { ActivityIndicator, Animated, ScrollView, StyleSheet, Text, View } from 
 
 import { useMyPets } from '@/features/pets';
 import { formatMoney } from '@/features/pricing';
+import { RouteView, useRoute } from '@/features/tracking';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
@@ -14,7 +15,10 @@ import { CANCELLABLE_STATUSES, WALK_STATUS_HEADLINES, type WalkStatus } from '..
 
 type Props = { walkId: string; pollIntervalMs?: number };
 
-/** RF-007: the walk after asking for it. Refreshes by itself until a walker accepts, like waiting for a ride. */
+/**
+ * RF-007/RF-008: the walk after asking for it. Refreshes by itself until a walker accepts, like waiting for a ride,
+ * and shows the live route while the walk is in progress (and its summary when it ends, RF-011).
+ */
 export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_MS }: Props) {
   const walk = useWalk(walkId, pollIntervalMs);
   const pets = useMyPets();
@@ -42,6 +46,10 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
         <Text accessibilityRole="header" style={styles.headline}>
           {WALK_STATUS_HEADLINES[data.status]}
         </Text>
+
+        {(data.status === 'InProgress' || data.status === 'Completed') && (
+          <LiveRoute walkId={data.id} live={data.status === 'InProgress'} />
+        )}
 
         <View>
           <DetailRow label="Perros" value={petNamesOf(data.petIds, pets.data ?? [])} />
@@ -71,6 +79,11 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
       )}
     </View>
   );
+}
+
+function LiveRoute({ walkId, live }: { walkId: string; live: boolean }) {
+  const route = useRoute(walkId, live);
+  return route.data ? <RouteView route={route.data} /> : null;
 }
 
 /** Yellow dot that pulses while the walk is looking for a walker. Decorative. */
