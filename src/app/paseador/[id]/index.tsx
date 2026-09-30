@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 
 import { AssignedWalkScreen } from '@/features/walker';
 
@@ -7,7 +7,10 @@ export default function AssignedWalk() {
   return (
     <>
       <Stack.Screen options={{ headerTitle: '' }} />
-      <AssignedWalkScreen walkId={id} />
+      <AssignedWalkScreen
+        walkId={id}
+        onOpenChat={() => router.push({ pathname: '/paseador/[id]/chat', params: { id } })}
+      />
     </>
   );
 }

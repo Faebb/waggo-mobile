@@ -19,13 +19,13 @@ const HEADLINES: Record<WalkStatus, string> = {
   Cancelled: 'El dueño canceló el paseo',
 };
 
-type Props = { walkId: string; beaconIntervalMs?: number };
+type Props = { walkId: string; beaconIntervalMs?: number; onOpenChat?: () => void };
 
 /**
  * RF-007/RF-008, walker side: a walk the walker accepted, with the exact pickup and the owner's notes. The walker
  * starts it when picking the dogs up, the phone shares its position while it goes on, and finishes it at the end.
  */
-export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_MS }: Props) {
+export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_MS, onOpenChat }: Props) {
   const walk = useWalk(walkId);
   const { start, finish } = useWalkProgress(walkId);
   const inProgress = walk.data?.status === 'InProgress';
@@ -55,6 +55,10 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
 
         {(data.status === 'InProgress' || data.status === 'Completed') && (
           <WalkRoute walkId={data.id} live={inProgress} />
+        )}
+
+        {onOpenChat && data.status !== 'Cancelled' && (
+          <Button label="Mensajes" variant="secondary" onPress={onOpenChat} />
         )}
 
         {(data.status === 'Accepted' || data.status === 'InProgress') && (

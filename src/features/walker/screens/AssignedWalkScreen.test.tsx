@@ -32,6 +32,20 @@ describe('AssignedWalkScreen (RF-007, RF-008)', () => {
     expect(screen.getByText('$ 18.400')).toBeOnTheScreen();
   });
 
+  it('opens the chat with the owner (RF-013)', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: acceptedWalk },
+      { path: '/api/v1/walks/walk-1/alerts', data: [] },
+    ]);
+    const onOpenChat = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(<AssignedWalkScreen walkId="walk-1" onOpenChat={onOpenChat} />);
+
+    await user.press(await screen.findByRole('button', { name: 'Mensajes' }));
+
+    expect(onOpenChat).toHaveBeenCalledTimes(1);
+  });
+
   it('tells the walker when the owner cancelled', async () => {
     fetchSpy = mockApi([{ path: '/api/v1/walks/walk-1', data: { ...acceptedWalk, status: 'Cancelled' } }]);
 

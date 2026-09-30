@@ -37,13 +37,14 @@ npm start                   # a = Android, i = iOS, w = Web
 ## Arquitectura (feature-based)
 ```
 src/
-  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /inicio · /paseos · /paseos/nuevo · /paseos/[id] · /mascotas · /mascotas/nueva · /paseador · /paseador/[id] · /cotizar
+  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /inicio · /paseos · /paseos/nuevo · /paseos/[id] · /mascotas · /mascotas/nueva · /paseador · /paseador/[id] · /paseos/[id]/chat · /paseador/[id]/chat · /cotizar
   features/
     onboarding/        → pantalla de bienvenida (UX-001)
     home/              → inicio del dueño, estilo Uber: "¿Quién sale a pasear hoy?" (RF-007)
     walks/             → pedir paseo, estado del paseo y mis paseos (RF-007)
     walker/            → lado del paseador: solicitudes cercanas, aceptar, iniciar y terminar (RF-007, RF-008)
     tracking/          → ruta en vivo (SVG), métricas, envío de la posición y emergencias (RF-008, RF-011, RF-012)
+    messaging/         → chat del dueño con el paseador durante el paseo (RF-013)
     pets/              → mis perros y agregar perro (RF-004)
     pricing/           → un folder por módulo de negocio (cotizador RF-019)
       api/             → llamadas HTTP + esquemas Zod
