@@ -34,9 +34,10 @@ npm start                   # a = Android, i = iOS, w = Web
 ## Arquitectura (feature-based)
 ```
 src/
-  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /cotizar tarifa
+  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /cotizar tarifa · /mascotas mis perros · /mascotas/nueva
   features/
     onboarding/        → pantalla de bienvenida (UX-001)
+    pets/              → mis perros y agregar perro (RF-004)
     pricing/           → un folder por módulo de negocio (cotizador RF-019)
       api/             → llamadas HTTP + esquemas Zod
       hooks/           → hooks de TanStack Query
@@ -44,7 +45,7 @@ src/
       screens/         → pantallas que orquestan datos
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
-  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, tema oscuro con amarillo y Helvetica)
+  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, tema oscuro con amarillo y Helvetica)
   test/                → utilidades de prueba
 ```
 - Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
@@ -53,7 +54,7 @@ src/
 ## Convenciones (ADR-008, ADR-013)
 Solo exports con nombre (default solo en `src/app`), `type` en lugar de `interface`, sin `any`, textos de la UI en español. ESLint y Prettier las hacen cumplir en local y en CI.
 
-Diseño (ADR-013): mobile first, tema oscuro con amarillo como único acento y Helvetica. Las pantallas solo usan los tokens de `src/shared/ui/theme.ts`.
+Diseño (ADR-013): mobile first, tema oscuro con amarillo como único acento y Helvetica. Las pantallas solo usan los tokens de `src/shared/ui/theme.ts` (`layout.column` para la columna de 480 px) y ponen sus acciones principales en `ActionFooter`.
 
 ## Flujo TDD
 1. 🔴 Prueba que falla (de afuera hacia adentro: pantalla → componente/hook → lógica pura).
