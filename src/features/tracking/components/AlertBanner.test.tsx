@@ -4,8 +4,8 @@ import { AlertBanner } from './AlertBanner';
 
 const alert = {
   id: 'alert-1',
-  kind: 'Emergency' as const,
-  raisedBy: 'Walker' as const,
+  kind: 'Emergency' as 'Emergency' | 'Geofence' | 'Anomaly',
+  raisedBy: 'Walker' as 'Owner' | 'Walker' | null,
   message: 'Luna se soltó',
   latitude: null,
   longitude: null,
@@ -25,6 +25,18 @@ describe('AlertBanner (RF-012)', () => {
     await render(<AlertBanner alert={{ ...alert, raisedBy: 'Owner', message: null }} viewer="Walker" />);
 
     expect(screen.getByRole('alert')).toHaveTextContent(/El dueño reportó una emergencia/);
+  });
+
+  it('tells both that the walk left the agreed zone (RF-009)', async () => {
+    await render(<AlertBanner alert={{ ...alert, kind: 'Geofence', raisedBy: null, message: null }} viewer="Owner" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/El paseo salió de la zona acordada/);
+  });
+
+  it('tells both that the walker has been stopped for a while (RF-010)', async () => {
+    await render(<AlertBanner alert={{ ...alert, kind: 'Anomaly', raisedBy: null, message: null }} viewer="Walker" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/El paseo lleva 10 minutos detenido/);
   });
 
   it('confirms to whoever raised it', async () => {

@@ -7,7 +7,7 @@ import { ALERT_KINDS, ALERT_PARTIES, type EmergencyDraft, type WalkAlert } from 
 export const walkAlertSchema = z.object({
   id: z.string(),
   kind: z.enum(ALERT_KINDS),
-  raisedBy: z.enum(ALERT_PARTIES),
+  raisedBy: z.enum(ALERT_PARTIES).nullable(),
   message: z.string().nullable(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
