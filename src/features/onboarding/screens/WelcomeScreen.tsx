@@ -9,10 +9,10 @@ import { colors, layout, spacing, typography } from '@/shared/ui/theme';
 import { ValueCard } from '../components/ValueCard';
 import { VALUE_PILLARS } from '../model/valuePillars';
 
-type Props = { onStart: () => void };
+type Props = { onStartAsOwner: () => void; onStartAsWalker: () => void };
 
-/** UX-001: first screen of the app. Presents Waggo and leads to the owner home. */
-export function WelcomeScreen({ onStart }: Props) {
+/** UX-001: first screen of the app. Presents Waggo; owners and walkers enter from here, like a ride app. */
+export function WelcomeScreen({ onStartAsOwner, onStartAsWalker }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.column}>
@@ -37,7 +37,8 @@ export function WelcomeScreen({ onStart }: Props) {
         </ScrollView>
 
         <ActionFooter>
-          <Button label="Empezar" onPress={onStart} />
+          <Button label="Quiero pasear a mi perro" onPress={onStartAsOwner} />
+          <Button label="Soy paseador" variant="secondary" onPress={onStartAsWalker} />
           <Text style={styles.note}>Muy pronto podrás crear tu cuenta como dueño o paseador.</Text>
         </ActionFooter>
       </View>

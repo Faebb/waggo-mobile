@@ -103,6 +103,20 @@ describe('httpClient.get', () => {
   });
 });
 
+describe('httpClient headers', () => {
+  it('adds the extra headers of every request (development identity)', async () => {
+    const fetchFn = jest.fn().mockImplementation(async () => jsonResponse(envelope()));
+    const client = createHttpClient('http://api.test', fetchFn, () => ({ 'X-Dev-Roles': 'walker' }));
+
+    await client.get('/x', schema);
+    await client.post('/x', {}, schema);
+
+    for (const [, init] of fetchFn.mock.calls) {
+      expect((init as RequestInit).headers).toMatchObject({ 'X-Dev-Roles': 'walker' });
+    }
+  });
+});
+
 describe('httpClient.post', () => {
   it('sends the body as JSON and unwraps the envelope', async () => {
     const fetchFn = jest.fn().mockResolvedValue(jsonResponse(envelope()));

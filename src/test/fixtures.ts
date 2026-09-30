@@ -38,6 +38,23 @@ export const requestedWalk = {
   requestedAt: '2026-09-30T15:00:00+00:00',
 };
 
+/** An open request as a walker sees it (`AvailableWalkResponse`). */
+export const availableWalk = {
+  id: 'walk-1',
+  walkType: 'Individual',
+  durationMinutes: 60,
+  petCount: 1,
+  pickupAddress: 'Cra 7 # 45-10, Bogotá',
+  latitude: 4.6361,
+  longitude: -74.0645,
+  scheduledFor: '2026-09-30T15:00:00+00:00',
+  currency: 'COP',
+  walkerPayout: 18400,
+  distanceKm: null as number | null,
+};
+
+export const acceptedWalk = { ...requestedWalk, status: 'Accepted', walkerId: 'dev-walker' };
+
 export const fareQuote = {
   walkType: 'Individual',
   durationMinutes: 60,
