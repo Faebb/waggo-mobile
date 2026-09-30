@@ -134,4 +134,13 @@ describe('RequestWalkScreen (RF-007)', () => {
       'Programa el paseo para ahora o para los próximos 14 días.',
     );
   });
+
+  it('tells the owner the total is held, not charged, until the walk happens (RF-016)', async () => {
+    fetchSpy = api();
+    await renderScreen();
+
+    expect(
+      await screen.findByText('Se retiene en tu método de pago y solo se cobra si el paseo ocurre.'),
+    ).toBeOnTheScreen();
+  });
 });
