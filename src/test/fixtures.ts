@@ -80,3 +80,18 @@ export const pendingWalkerProfile = {
 };
 
 export const approvedWalkerProfile = { ...pendingWalkerProfile, status: 'Approved' };
+
+/** RF-016: the fare of `requestedWalk` held on the owner's payment method. */
+export const heldPayment = {
+  walkId: 'walk-1',
+  status: 'Held',
+  currency: 'COP',
+  total: 23000,
+  commission: 4600,
+  walkerPayout: 18400,
+  heldAt: '2026-09-30T15:00:00+00:00',
+  capturedAt: null as string | null,
+  releasedAt: null as string | null,
+};
+
+export const capturedPayment = { ...heldPayment, status: 'Captured', capturedAt: '2026-09-30T16:05:00+00:00' };
