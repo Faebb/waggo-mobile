@@ -1,7 +1,7 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { formatMoney } from '@/features/pricing';
-import { BEACON_INTERVAL_MS, RouteView, useRoute, useTrackingBeacon } from '@/features/tracking';
+import { BEACON_INTERVAL_MS, useTrackingBeacon, WalkRoute } from '@/features/tracking';
 import { formatWhen, useWalk, type WalkStatus } from '@/features/walks';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
@@ -54,7 +54,7 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
         {inProgress && <Text style={styles.sharing}>Compartiendo tu ubicación con el dueño</Text>}
 
         {(data.status === 'InProgress' || data.status === 'Completed') && (
-          <WalkerRoute walkId={data.id} live={inProgress} />
+          <WalkRoute walkId={data.id} live={inProgress} />
         )}
 
         <View>
@@ -92,11 +92,6 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
       )}
     </View>
   );
-}
-
-function WalkerRoute({ walkId, live }: { walkId: string; live: boolean }) {
-  const route = useRoute(walkId, live);
-  return route.data ? <RouteView route={route.data} /> : null;
 }
 
 const styles = StyleSheet.create({

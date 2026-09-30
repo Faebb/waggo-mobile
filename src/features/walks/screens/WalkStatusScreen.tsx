@@ -3,7 +3,7 @@ import { ActivityIndicator, Animated, ScrollView, StyleSheet, Text, View } from 
 
 import { useMyPets } from '@/features/pets';
 import { formatMoney } from '@/features/pricing';
-import { RouteView, useRoute } from '@/features/tracking';
+import { WalkRoute } from '@/features/tracking';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
@@ -48,7 +48,7 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
         </Text>
 
         {(data.status === 'InProgress' || data.status === 'Completed') && (
-          <LiveRoute walkId={data.id} live={data.status === 'InProgress'} />
+          <WalkRoute walkId={data.id} live={data.status === 'InProgress'} />
         )}
 
         <View>
@@ -79,11 +79,6 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
       )}
     </View>
   );
-}
-
-function LiveRoute({ walkId, live }: { walkId: string; live: boolean }) {
-  const route = useRoute(walkId, live);
-  return route.data ? <RouteView route={route.data} /> : null;
 }
 
 /** Yellow dot that pulses while the walk is looking for a walker. Decorative. */
