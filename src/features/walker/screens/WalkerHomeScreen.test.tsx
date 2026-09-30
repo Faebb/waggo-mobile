@@ -23,7 +23,7 @@ describe('WalkerHomeScreen (RF-007)', () => {
       { path: '/api/v1/walks/assigned', data: [] },
     ]);
 
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} />);
+    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} />);
 
     expect(await screen.findByText('Individual · 60 min · 1 perro')).toBeOnTheScreen();
     expect(screen.getByText('Grupal · 45 min · 2 perros')).toBeOnTheScreen();
@@ -37,7 +37,7 @@ describe('WalkerHomeScreen (RF-007)', () => {
       { path: '/api/v1/walks/assigned', data: [] },
     ]);
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} />);
+    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} />);
 
     await user.press(await screen.findByRole('button', { name: 'Ver las más cercanas' }));
 
@@ -72,7 +72,7 @@ describe('WalkerHomeScreen (RF-007)', () => {
       },
     ]);
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} />);
+    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} />);
 
     await user.press(await screen.findByRole('button', { name: 'Aceptar' }));
 
@@ -94,5 +94,22 @@ describe('WalkerHomeScreen (RF-007)', () => {
     await user.press(await screen.findByRole('button', { name: /Cra 7 # 45-10, Bogotá/ }));
 
     expect(onOpenAssigned).toHaveBeenCalledWith('walk-1');
+  });
+
+  it('opens the notices from the bell (RF-014)', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/available', data: [] },
+      { path: '/api/v1/walks/assigned', data: [] },
+      { path: '/api/v1/notifications', data: { unreadCount: 0, items: [] } },
+    ]);
+    const onOpenNotifications = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={onOpenNotifications} />,
+    );
+
+    await user.press(await screen.findByRole('button', { name: 'Avisos' }));
+
+    expect(onOpenNotifications).toHaveBeenCalledTimes(1);
   });
 });

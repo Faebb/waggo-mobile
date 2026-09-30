@@ -95,3 +95,26 @@ export const heldPayment = {
 };
 
 export const capturedPayment = { ...heldPayment, status: 'Captured', capturedAt: '2026-09-30T16:05:00+00:00' };
+
+/** RF-014: the owner's notice that a walker accepted `requestedWalk`. */
+export const acceptedNotification = {
+  id: 'n-1',
+  walkId: 'walk-1',
+  recipientParty: 'Owner',
+  kind: 'WalkAccepted',
+  priority: 'Normal',
+  title: 'Tu paseo fue aceptado',
+  body: 'Un paseador verificado va a recoger a tu perro.',
+  createdAt: '2026-09-30T15:05:00+00:00',
+  readAt: null as string | null,
+};
+
+export const emergencyNotification = {
+  ...acceptedNotification,
+  id: 'n-2',
+  kind: 'Emergency',
+  priority: 'High',
+  title: 'Emergencia en el paseo',
+  body: 'Abre el paseo para ver la alerta y la ubicación.',
+  createdAt: '2026-09-30T15:20:00+00:00',
+};
