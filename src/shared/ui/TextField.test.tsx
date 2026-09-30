@@ -1,12 +1,28 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
+import { useState } from 'react';
 
 import { TextField } from './TextField';
+
+/** Controlled field, as screens use it. */
+function NameField({ onChangeText }: { onChangeText: (text: string) => void }) {
+  const [value, setValue] = useState('');
+  return (
+    <TextField
+      label="Nombre"
+      value={value}
+      onChangeText={(text) => {
+        setValue(text);
+        onChangeText(text);
+      }}
+    />
+  );
+}
 
 describe('TextField', () => {
   it('is found by its label and reports what the user types', async () => {
     const onChangeText = jest.fn();
     const user = userEvent.setup();
-    await render(<TextField label="Nombre" value="" onChangeText={onChangeText} />);
+    await render(<NameField onChangeText={onChangeText} />);
 
     await user.type(screen.getByLabelText('Nombre'), 'Luna');
 
