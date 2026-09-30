@@ -1,18 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { colors, spacing, typography } from '@/shared/ui/theme';
 
 import type { ValuePillar } from '../model/valuePillars';
 
-type Props = { pillar: ValuePillar };
+type Props = { index: number; pillar: ValuePillar };
 
-/** Presentational: one pillar of the value proposition. The icon is decorative. */
-export function ValueCard({ pillar }: Props) {
+/** Presentational: one numbered pillar of the value proposition, separated by a hairline. */
+export function ValueCard({ index, pillar }: Props) {
   return (
-    <View style={styles.card}>
-      <View style={styles.icon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Text style={styles.iconText}>{pillar.icon}</Text>
-      </View>
+    <View style={styles.row}>
+      <Text style={styles.number}>{String(index + 1).padStart(2, '0')}</Text>
       <View style={styles.body}>
         <Text style={styles.title}>{pillar.title}</Text>
         <Text style={styles.description}>{pillar.description}</Text>
@@ -22,25 +20,14 @@ export function ValueCard({ pillar }: Props) {
 }
 
 const styles = StyleSheet.create({
-  card: {
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
-  icon: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primarySoft,
-  },
-  iconText: { fontSize: 22 },
+  number: { ...typography.eyebrow, width: 24, paddingTop: 3, color: colors.primary },
   body: { flex: 1, gap: spacing.xs },
   title: { ...typography.subtitle, color: colors.text },
   description: { ...typography.body, color: colors.muted },

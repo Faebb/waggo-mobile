@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, spacing } from '@/shared/ui/theme';
+import { colors, radius, spacing, typography } from '@/shared/ui/theme';
 
 import { formatMoney } from '../model/formatMoney';
 import { WALK_TYPE_LABELS, type FareQuote } from '../model/types';
@@ -30,14 +30,14 @@ export function FareQuoteCard({ quote }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.md,
     padding: spacing.lg,
     gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  subtitle: { color: colors.muted, fontSize: 15 },
-  total: { color: colors.text, fontSize: 36, fontWeight: '700' },
+  subtitle: { ...typography.body, color: colors.muted },
+  total: { ...typography.display, color: colors.primary },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
-  muted: { color: colors.muted, fontSize: 14 },
+  muted: { ...typography.caption, color: colors.muted },
 });
