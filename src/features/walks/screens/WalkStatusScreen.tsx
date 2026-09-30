@@ -5,6 +5,7 @@ import { useMyPets } from '@/features/pets';
 import { formatMoney } from '@/features/pricing';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
+import { DetailRow } from '@/shared/ui/DetailRow';
 import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
 
 import { useCancelWalk, useWalk, WALK_POLL_INTERVAL_MS } from '../hooks/useWalks';
@@ -43,12 +44,12 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
         </Text>
 
         <View>
-          <Detail label="Perros" value={petNamesOf(data.petIds, pets.data ?? [])} />
-          <Detail label="Paseo" value={walkKindOf(data)} />
-          <Detail label="Cuándo" value={formatWhen(data.scheduledFor)} />
-          <Detail label="Recogida" value={data.pickupAddress} />
-          {data.notes !== null && <Detail label="Indicaciones" value={data.notes} />}
-          <Detail label="Total" value={formatMoney(data.total, data.currency)} highlight />
+          <DetailRow label="Perros" value={petNamesOf(data.petIds, pets.data ?? [])} />
+          <DetailRow label="Paseo" value={walkKindOf(data)} />
+          <DetailRow label="Cuándo" value={formatWhen(data.scheduledFor)} />
+          <DetailRow label="Recogida" value={data.pickupAddress} />
+          {data.notes !== null && <DetailRow label="Indicaciones" value={data.notes} />}
+          <DetailRow label="Total" value={formatMoney(data.total, data.currency)} highlight />
         </View>
 
         {cancel.isError && (
@@ -68,15 +69,6 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
           />
         </ActionFooter>
       )}
-    </View>
-  );
-}
-
-function Detail({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <View style={styles.detail}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={[styles.detailValue, highlight && styles.detailHighlight]}>{value}</Text>
     </View>
   );
 }
@@ -117,16 +109,5 @@ const styles = StyleSheet.create({
   mark: { width: 20, height: 20, borderRadius: radius.pill, backgroundColor: colors.primary },
   markOff: { backgroundColor: colors.muted },
   headline: { ...typography.display, color: colors.text },
-  detail: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  detailLabel: { ...typography.body, color: colors.muted },
-  detailValue: { ...typography.body, flexShrink: 1, color: colors.text, textAlign: 'right' },
-  detailHighlight: { ...typography.subtitle, color: colors.primary },
   error: { ...typography.body, color: colors.danger },
 });
