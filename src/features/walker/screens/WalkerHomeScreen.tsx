@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { NotificationBell } from '@/features/notifications';
 import { EarningsCard } from '@/features/payments';
 import { formatMoney } from '@/features/pricing';
 import { formatWhen } from '@/features/walks';
@@ -14,13 +15,13 @@ import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
 import { OfferCard } from '../components/OfferCard';
 import { useAcceptWalk, useAssignedWalks, useAvailableWalks } from '../hooks/useWalker';
 
-type Props = { onOpenAssigned: (id: string) => void };
+type Props = { onOpenAssigned: (id: string) => void; onOpenNotifications: () => void };
 
 /**
  * RF-007, walker side: open requests (the nearest first once the walker shares the location) with what they earn,
  * accepted with one tap; below, the walks already accepted.
  */
-export function WalkerHomeScreen({ onOpenAssigned }: Props) {
+export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props) {
   const [near, setNear] = useState<Coordinates | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
   const available = useAvailableWalks(near);
@@ -43,7 +44,10 @@ export function WalkerHomeScreen({ onOpenAssigned }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={[styles.column, styles.content]}>
-        <BrandMark />
+        <View style={styles.topBar}>
+          <BrandMark />
+          <NotificationBell onPress={onOpenNotifications} />
+        </View>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>MODO PASEADOR</Text>
           <Text accessibilityRole="header" style={styles.title}>
@@ -113,6 +117,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   column: layout.column,
   content: { gap: spacing.lg, padding: spacing.lg },
+  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   header: { gap: spacing.xs },
   eyebrow: { ...typography.eyebrow, color: colors.muted },
   title: { ...typography.display, color: colors.text },

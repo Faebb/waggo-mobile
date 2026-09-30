@@ -53,7 +53,7 @@ describe('WalkerHomeScreen (RF-007)', () => {
     ]);
     const onOpenAssigned = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={onOpenAssigned} />);
+    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={onOpenAssigned} onOpenNotifications={jest.fn()} />);
 
     await user.press(await screen.findByRole('button', { name: 'Aceptar' }));
 
@@ -88,7 +88,7 @@ describe('WalkerHomeScreen (RF-007)', () => {
     ]);
     const onOpenAssigned = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={onOpenAssigned} />);
+    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={onOpenAssigned} onOpenNotifications={jest.fn()} />);
 
     expect(await screen.findByText('No hay solicitudes por ahora.')).toBeOnTheScreen();
     await user.press(await screen.findByRole('button', { name: /Cra 7 # 45-10, Bogotá/ }));

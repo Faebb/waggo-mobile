@@ -11,6 +11,7 @@ export default function Home() {
         onOpenPets={() => router.push('/mascotas')}
         onOpenWalks={() => router.push('/paseos')}
         onOpenWalk={(id) => router.push({ pathname: '/paseos/[id]', params: { id } })}
+        onOpenNotifications={() => router.push('/notificaciones')}
       />
     </>
   );
