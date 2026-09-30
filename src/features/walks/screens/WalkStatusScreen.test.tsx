@@ -27,6 +27,33 @@ describe('WalkStatusScreen (RF-007)', () => {
     expect(screen.getByText('Timbre dañado')).toBeOnTheScreen();
   });
 
+  it('opens the chat with the walker once someone accepted (RF-013)', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: { ...requestedWalk, status: 'Accepted', walkerId: 'w' } },
+      { path: '/api/v1/pets', data: [luna] },
+      { path: '/api/v1/walks/walk-1/alerts', data: [] },
+    ]);
+    const onOpenChat = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(<WalkStatusScreen walkId="walk-1" onOpenChat={onOpenChat} />);
+
+    await user.press(await screen.findByRole('button', { name: 'Mensajes' }));
+
+    expect(onOpenChat).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no chat while looking for a walker', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: requestedWalk },
+      { path: '/api/v1/pets', data: [luna] },
+    ]);
+
+    await renderWithProviders(<WalkStatusScreen walkId="walk-1" onOpenChat={jest.fn()} />);
+
+    await screen.findByRole('header', { name: 'Buscando paseador…' });
+    expect(screen.queryByRole('button', { name: 'Mensajes' })).not.toBeOnTheScreen();
+  });
+
   it('cancels the walk', async () => {
     fetchSpy = mockApi([
       { path: '/api/v1/walks/walk-1', data: requestedWalk },
