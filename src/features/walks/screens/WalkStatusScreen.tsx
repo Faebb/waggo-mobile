@@ -3,7 +3,7 @@ import { ActivityIndicator, Animated, ScrollView, StyleSheet, Text, View } from 
 
 import { useMyPets } from '@/features/pets';
 import { formatMoney } from '@/features/pricing';
-import { WalkRoute } from '@/features/tracking';
+import { WalkRoute, WalkSafety } from '@/features/tracking';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
@@ -50,6 +50,8 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
         {(data.status === 'InProgress' || data.status === 'Completed') && (
           <WalkRoute walkId={data.id} live={data.status === 'InProgress'} />
         )}
+
+        {(data.status === 'Accepted' || data.status === 'InProgress') && <WalkSafety walkId={data.id} viewer="Owner" />}
 
         <View>
           <DetailRow label="Perros" value={petNamesOf(data.petIds, pets.data ?? [])} />

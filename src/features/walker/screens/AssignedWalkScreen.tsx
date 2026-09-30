@@ -1,7 +1,7 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { formatMoney } from '@/features/pricing';
-import { BEACON_INTERVAL_MS, useTrackingBeacon, WalkRoute } from '@/features/tracking';
+import { BEACON_INTERVAL_MS, useTrackingBeacon, WalkRoute, WalkSafety } from '@/features/tracking';
 import { formatWhen, useWalk, type WalkStatus } from '@/features/walks';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
@@ -55,6 +55,10 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
 
         {(data.status === 'InProgress' || data.status === 'Completed') && (
           <WalkRoute walkId={data.id} live={inProgress} />
+        )}
+
+        {(data.status === 'Accepted' || data.status === 'InProgress') && (
+          <WalkSafety walkId={data.id} viewer="Walker" />
         )}
 
         <View>
