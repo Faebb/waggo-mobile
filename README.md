@@ -55,7 +55,7 @@ src/
       screens/         → pantallas que orquestan datos
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
-  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, tema oscuro con amarillo y Helvetica)
+  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, ThemeToggle; tema oscuro/claro con amarillo y Helvetica, UX-002)
   test/                → utilidades de prueba: renderWithProviders, mockApi (API falsa por ruta), fixtures
 ```
 - Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
