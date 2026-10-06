@@ -1,6 +1,6 @@
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { colors, radius, spacing, typography } from './theme';
+import { radius, spacing, typography, useColors, useThemedStyles } from './theme';
 
 type Props = {
   label: string;
@@ -12,6 +12,27 @@ type Props = {
 
 /** Labeled text input. Shows the error below the field, or the hint when there is no error. */
 export function TextField({ label, value, onChangeText, hint, error, multiline, ...inputProps }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    container: { gap: spacing.xs },
+    label: { ...typography.caption, fontWeight: '700', color: colors.muted },
+    input: {
+      ...typography.body,
+      minHeight: 48,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      color: colors.text,
+    },
+    multiline: { minHeight: 96, textAlignVertical: 'top' },
+    inputError: { borderColor: colors.danger },
+    error: { ...typography.caption, color: colors.danger },
+    hint: { ...typography.caption, color: colors.muted },
+  }));
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -33,23 +54,3 @@ export function TextField({ label, value, onChangeText, hint, error, multiline, 
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { gap: spacing.xs },
-  label: { ...typography.caption, fontWeight: '700', color: colors.muted },
-  input: {
-    ...typography.body,
-    minHeight: 48,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    color: colors.text,
-  },
-  multiline: { minHeight: 96, textAlignVertical: 'top' },
-  inputError: { borderColor: colors.danger },
-  error: { ...typography.caption, color: colors.danger },
-  hint: { ...typography.caption, color: colors.muted },
-});

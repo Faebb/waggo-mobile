@@ -1,8 +1,8 @@
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { PetRow } from '../components/PetRow';
 import { useMyPets } from '../hooks/usePets';
@@ -11,6 +11,17 @@ type Props = { onAddPress: () => void };
 
 /** RF-004: the owner sees their dogs and can add a new one. */
 export function MyPetsScreen({ onAddPress }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    content: { gap: spacing.md, padding: spacing.lg },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
+    error: { ...typography.body, color: colors.danger },
+    empty: { gap: spacing.xs, paddingVertical: spacing.lg },
+    emptyTitle: { ...typography.subtitle, color: colors.text },
+    emptyText: { ...typography.body, color: colors.muted },
+  }));
   const { data: pets, isPending, isError } = useMyPets();
 
   return (
@@ -48,14 +59,3 @@ export function MyPetsScreen({ onAddPress }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  content: { gap: spacing.md, padding: spacing.lg },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
-  error: { ...typography.body, color: colors.danger },
-  empty: { gap: spacing.xs, paddingVertical: spacing.lg },
-  emptyTitle: { ...typography.subtitle, color: colors.text },
-  emptyText: { ...typography.body, color: colors.muted },
-});

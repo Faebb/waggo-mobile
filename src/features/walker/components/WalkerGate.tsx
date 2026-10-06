@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/shared/ui/BrandMark';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMyWalkerProfile } from '../hooks/useWalkerProfile';
 import type { WalkerProfile } from '../model/types';
@@ -18,6 +18,12 @@ type Props = { children: ReactNode };
  * one sees why. The API enforces the same rule; this only avoids showing a screen that would fail.
  */
 export function WalkerGate({ children }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    error: { ...typography.body, color: colors.danger },
+    reason: { ...typography.subtitle, color: colors.danger },
+    lead: { ...typography.body, color: colors.muted },
+  }));
   const profile = useMyWalkerProfile();
 
   if (profile.isPending) {
@@ -75,6 +81,15 @@ export function WalkerGate({ children }: Props) {
 }
 
 function Frame({ title, children }: { title?: string; children: ReactNode }) {
+  const styles = useThemedStyles((colors) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    column: layout.column,
+    content: { gap: spacing.lg, padding: spacing.lg },
+    header: { gap: spacing.xs },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    title: { ...typography.display, color: colors.text },
+  }));
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={[styles.column, styles.content]}>
@@ -102,15 +117,3 @@ function ProfileDetails({ profile }: { profile: WalkerProfile }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  column: layout.column,
-  content: { gap: spacing.lg, padding: spacing.lg },
-  header: { gap: spacing.xs },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  title: { ...typography.display, color: colors.text },
-  lead: { ...typography.body, color: colors.muted },
-  reason: { ...typography.subtitle, color: colors.danger },
-  error: { ...typography.body, color: colors.danger },
-});

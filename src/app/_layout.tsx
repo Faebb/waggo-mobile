@@ -4,10 +4,15 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 
 import { setDevRole } from '@/shared/api/devIdentity';
-import { colors, typography } from '@/shared/ui/theme';
+import { typography, useColors, useThemeMode } from '@/shared/ui/theme';
+import { ThemeToggle } from '@/shared/ui/ThemeToggle';
+import { useHydrateThemeMode } from '@/shared/ui/useHydrateThemeMode';
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
+  useHydrateThemeMode();
+  const mode = useThemeMode();
+  const colors = useColors();
 
   // Development identity until the login exists (ADR-011): the walker side (/paseador) goes as the development
   // walker, everything else as the development owner. Set during render so the first request already has it.
@@ -16,7 +21,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style="light" />
+      <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerTitle: 'Waggo',
@@ -24,6 +29,7 @@ export default function RootLayout() {
           headerTintColor: colors.text,
           headerTitleStyle: { fontFamily: typography.subtitle.fontFamily, fontWeight: '700' },
           headerShadowVisible: false,
+          headerRight: () => <ThemeToggle />,
           contentStyle: { backgroundColor: colors.background },
         }}
       />

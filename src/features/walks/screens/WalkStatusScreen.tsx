@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, ScrollView, Text, View } from 'react-native';
 
 import { PaymentSummary } from '@/features/payments';
 import { useMyPets } from '@/features/pets';
@@ -8,7 +8,7 @@ import { WalkRoute, WalkSafety } from '@/features/tracking';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { layout, radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { useCancelWalk, useWalk, WALK_POLL_INTERVAL_MS } from '../hooks/useWalks';
 import { formatWhen, petNamesOf, walkKindOf } from '../model/describeWalk';
@@ -21,6 +21,14 @@ type Props = { walkId: string; pollIntervalMs?: number; onOpenChat?: () => void 
  * and shows the live route while the walk is in progress (and its summary when it ends, RF-011).
  */
 export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_MS, onOpenChat }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    loading: { margin: spacing.xl },
+    content: { gap: spacing.lg, padding: spacing.lg },
+    headline: { ...typography.display, color: colors.text },
+    error: { ...typography.body, color: colors.danger },
+  }));
   const walk = useWalk(walkId, pollIntervalMs);
   const pets = useMyPets();
   const cancel = useCancelWalk(walkId);
@@ -91,6 +99,10 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
 
 /** Yellow dot that pulses while the walk is looking for a walker. Decorative. */
 function StatusMark({ status }: { status: WalkStatus }) {
+  const styles = useThemedStyles((colors) => ({
+    mark: { width: 20, height: 20, borderRadius: radius.pill, backgroundColor: colors.primary },
+    markOff: { backgroundColor: colors.muted },
+  }));
   const [pulse] = useState(() => new Animated.Value(1));
   const searching = status === 'Requested';
 
@@ -117,13 +129,3 @@ function StatusMark({ status }: { status: WalkStatus }) {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  loading: { margin: spacing.xl },
-  content: { gap: spacing.lg, padding: spacing.lg },
-  mark: { width: 20, height: 20, borderRadius: radius.pill, backgroundColor: colors.primary },
-  markOff: { backgroundColor: colors.muted },
-  headline: { ...typography.display, color: colors.text },
-  error: { ...typography.body, color: colors.danger },
-});

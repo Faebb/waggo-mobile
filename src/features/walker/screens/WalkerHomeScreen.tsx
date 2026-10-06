@@ -10,7 +10,7 @@ import { ApiError } from '@/shared/api/ApiError';
 import { getCurrentLocation, type Coordinates } from '@/shared/location/getCurrentLocation';
 import { BrandMark } from '@/shared/ui/BrandMark';
 import { Button } from '@/shared/ui/Button';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { layout, radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { OfferCard } from '../components/OfferCard';
 import { useAcceptWalk, useAssignedWalks, useAvailableWalks } from '../hooks/useWalker';
@@ -22,6 +22,32 @@ type Props = { onOpenAssigned: (id: string) => void; onOpenNotifications: () => 
  * accepted with one tap; below, the walks already accepted.
  */
 export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    column: layout.column,
+    content: { gap: spacing.lg, padding: spacing.lg },
+    topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    header: { gap: spacing.xs },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    title: { ...typography.display, color: colors.text },
+    error: { ...typography.body, color: colors.danger },
+    empty: { ...typography.body, color: colors.muted },
+    section: { gap: spacing.sm, marginTop: spacing.md },
+    assigned: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    assignedText: { flex: 1, gap: 2 },
+    assignedAddress: { ...typography.subtitle, color: colors.text },
+    assignedMeta: { ...typography.caption, color: colors.muted },
+    assignedPayout: { ...typography.body, fontWeight: '700', color: colors.primary },
+    pressed: { opacity: 0.85, borderRadius: radius.sm },
+  }));
   const [near, setNear] = useState<Coordinates | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
   const available = useAvailableWalks(near);
@@ -112,29 +138,3 @@ export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props)
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  column: layout.column,
-  content: { gap: spacing.lg, padding: spacing.lg },
-  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  header: { gap: spacing.xs },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  title: { ...typography.display, color: colors.text },
-  error: { ...typography.body, color: colors.danger },
-  empty: { ...typography.body, color: colors.muted },
-  section: { gap: spacing.sm, marginTop: spacing.md },
-  assigned: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  assignedText: { flex: 1, gap: 2 },
-  assignedAddress: { ...typography.subtitle, color: colors.text },
-  assignedMeta: { ...typography.caption, color: colors.muted },
-  assignedPayout: { ...typography.body, fontWeight: '700', color: colors.primary },
-  pressed: { opacity: 0.85, borderRadius: radius.sm },
-});

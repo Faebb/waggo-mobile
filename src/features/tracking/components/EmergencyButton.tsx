@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Button } from '@/shared/ui/Button';
-import { colors, spacing, typography } from '@/shared/ui/theme';
+import { spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 type Props = { onConfirm: () => void; sending: boolean };
 
 /** RF-012: red emergency button with a confirmation step, so a pocket tap does not raise a false alarm. */
 export function EmergencyButton({ onConfirm, sending }: Props) {
   const [confirming, setConfirming] = useState(false);
+  const styles = useThemedStyles((colors) => ({
+    confirm: { gap: spacing.sm },
+    question: { ...typography.body, color: colors.text },
+  }));
 
   if (!confirming) {
     return <Button label="Emergencia" variant="danger" onPress={() => setConfirming(true)} />;
@@ -30,8 +34,3 @@ export function EmergencyButton({ onConfirm, sending }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  confirm: { gap: spacing.sm },
-  question: { ...typography.body, color: colors.text },
-});

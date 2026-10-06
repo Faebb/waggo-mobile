@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { ChipGroup } from '@/shared/ui/ChipGroup';
-import { colors, spacing, typography } from '@/shared/ui/theme';
+import { spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { FareQuoteCard } from '../components/FareQuoteCard';
 import { useFareQuote } from '../hooks/useFareQuote';
@@ -13,6 +13,12 @@ const durationOptions = DURATION_OPTIONS.map((value) => ({ value, label: `${valu
 
 /** RF-019: the owner picks type and duration and sees the price before confirming. */
 export function FareQuoteScreen() {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    container: { flex: 1, padding: spacing.lg, gap: spacing.lg, backgroundColor: colors.background },
+    title: { ...typography.title, color: colors.text },
+    error: { ...typography.body, color: colors.danger },
+  }));
   const [walkType, setWalkType] = useState<WalkType>('Individual');
   const [durationMinutes, setDurationMinutes] = useState<DurationMinutes>(60);
   const { data, isPending, isError } = useFareQuote({ walkType, durationMinutes });
@@ -36,9 +42,3 @@ export function FareQuoteScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, gap: spacing.lg, backgroundColor: colors.background },
-  title: { ...typography.title, color: colors.text },
-  error: { ...typography.body, color: colors.danger },
-});

@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { colors, spacing, typography } from '@/shared/ui/theme';
+import { spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useRaiseEmergency, useWalkAlerts } from '../hooks/useWalkAlerts';
 import type { AlertParty } from '../model/alerts';
@@ -14,6 +14,11 @@ export function WalkSafety({ walkId, viewer }: Props) {
   const alerts = useWalkAlerts(walkId);
   const raise = useRaiseEmergency(walkId);
   const latest = alerts.data?.[0];
+  const styles = useThemedStyles((colors) => ({
+    container: { gap: spacing.md },
+    sent: { ...typography.caption, fontWeight: '700', color: colors.text },
+    error: { ...typography.caption, color: colors.danger },
+  }));
 
   return (
     <View style={styles.container}>
@@ -24,9 +29,3 @@ export function WalkSafety({ walkId, viewer }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { gap: spacing.md },
-  sent: { ...typography.caption, fontWeight: '700', color: colors.text },
-  error: { ...typography.caption, color: colors.danger },
-});

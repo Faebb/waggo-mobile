@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { formatWhen } from '@/features/walks';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { layout, radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMarkNotificationsRead, useNotifications } from '../hooks/useNotifications';
 import type { AppNotification } from '../model/types';
@@ -11,6 +11,14 @@ type Props = { onOpenWalk: (walkId: string) => void };
 
 /** RF-014: the inbox. Opening it marks everything as read; each notice opens its walk. */
 export function NotificationsScreen({ onOpenWalk }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    column: layout.column,
+    content: { gap: spacing.lg, padding: spacing.lg },
+    title: { ...typography.display, color: colors.text },
+    error: { ...typography.body, color: colors.danger },
+    empty: { ...typography.body, color: colors.muted },
+  }));
+  const colors = useColors();
   const inbox = useNotifications();
   const { mutate: markRead } = useMarkNotificationsRead();
 
@@ -46,6 +54,20 @@ export function NotificationsScreen({ onOpenWalk }: Props) {
 }
 
 function NoticeRow({ notification, onPress }: { notification: AppNotification; onPress: () => void }) {
+  const styles = useThemedStyles((colors) => ({
+    row: {
+      gap: 2,
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    pressed: { opacity: 0.85, borderRadius: radius.sm },
+    urgent: { ...typography.eyebrow, color: colors.danger },
+    rowTitle: { ...typography.subtitle, color: colors.text },
+    rowTitleUrgent: { color: colors.danger },
+    rowBody: { ...typography.body, color: colors.muted },
+    rowTime: { ...typography.caption, color: colors.muted },
+  }));
   const urgent = notification.priority === 'High';
   return (
     <Pressable
@@ -61,23 +83,3 @@ function NoticeRow({ notification, onPress }: { notification: AppNotification; o
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  column: layout.column,
-  content: { gap: spacing.lg, padding: spacing.lg },
-  title: { ...typography.display, color: colors.text },
-  error: { ...typography.body, color: colors.danger },
-  empty: { ...typography.body, color: colors.muted },
-  row: {
-    gap: 2,
-    paddingVertical: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  pressed: { opacity: 0.85, borderRadius: radius.sm },
-  urgent: { ...typography.eyebrow, color: colors.danger },
-  rowTitle: { ...typography.subtitle, color: colors.text },
-  rowTitleUrgent: { color: colors.danger },
-  rowBody: { ...typography.body, color: colors.muted },
-  rowTime: { ...typography.caption, color: colors.muted },
-});

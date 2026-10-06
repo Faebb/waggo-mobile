@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { ApiError } from '@/shared/api/ApiError';
 import { Button } from '@/shared/ui/Button';
 import { ChipGroup } from '@/shared/ui/ChipGroup';
 import { TextField } from '@/shared/ui/TextField';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useRegisterPet } from '../hooks/usePets';
 import { EMPTY_PET_FORM, toPetDraft, type PetForm, type PetFormErrors } from '../model/petForm';
@@ -18,6 +18,12 @@ type Props = { onSaved: (pet: Pet) => void };
 
 /** RF-004: the owner registers a dog. The medical notes are stored encrypted by the API (RNF-003). */
 export function AddPetScreen({ onSaved }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    content: { gap: spacing.lg, padding: spacing.lg },
+    title: { ...typography.display, color: colors.text },
+    error: { ...typography.body, color: colors.danger },
+  }));
   const [form, setForm] = useState<PetForm>(EMPTY_PET_FORM);
   const [errors, setErrors] = useState<PetFormErrors>({});
   const registerPet = useRegisterPet();
@@ -90,10 +96,3 @@ export function AddPetScreen({ onSaved }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  content: { gap: spacing.lg, padding: spacing.lg },
-  title: { ...typography.display, color: colors.text },
-  error: { ...typography.body, color: colors.danger },
-});

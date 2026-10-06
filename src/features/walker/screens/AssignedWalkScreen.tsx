@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 
 import { PaymentSummary } from '@/features/payments';
 import { formatMoney } from '@/features/pricing';
@@ -7,7 +7,7 @@ import { formatWhen, useWalk, type WalkStatus } from '@/features/walks';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { useWalkProgress } from '../hooks/useWalker';
 import { offerKindOf } from '../model/describeOffer';
@@ -27,6 +27,16 @@ type Props = { walkId: string; beaconIntervalMs?: number; onOpenChat?: () => voi
  * starts it when picking the dogs up, the phone shares its position while it goes on, and finishes it at the end.
  */
 export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_MS, onOpenChat }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    loading: { margin: spacing.xl },
+    content: { gap: spacing.lg, padding: spacing.lg },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    headline: { ...typography.display, color: colors.text },
+    sharing: { ...typography.caption, fontWeight: '700', color: colors.primary },
+    error: { ...typography.body, color: colors.danger },
+  }));
   const walk = useWalk(walkId);
   const { start, finish } = useWalkProgress(walkId);
   const inProgress = walk.data?.status === 'InProgress';
@@ -103,13 +113,3 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  loading: { margin: spacing.xl },
-  content: { gap: spacing.lg, padding: spacing.lg },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  headline: { ...typography.display, color: colors.text },
-  sharing: { ...typography.caption, fontWeight: '700', color: colors.primary },
-  error: { ...typography.body, color: colors.danger },
-});

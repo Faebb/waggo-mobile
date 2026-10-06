@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { formatMoney } from '@/features/pricing';
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { formatWhen, petNamesOf, walkKindOf } from '../model/describeWalk';
 import { ACTIVE_STATUSES, WALK_STATUS_LABELS, type Walk } from '../model/types';
@@ -10,6 +10,24 @@ type Props = { walk: Walk; pets: readonly { id: string; name: string }[]; onPres
 
 /** One walk in a list: status, dogs, when and price. Active walks get the yellow mark. */
 export function WalkRow({ walk, pets, onPress }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    mark: { width: 10, height: 10, borderRadius: radius.pill, backgroundColor: colors.border },
+    markActive: { backgroundColor: colors.primary },
+    body: { flex: 1, gap: 2 },
+    status: { ...typography.eyebrow, color: colors.muted },
+    statusActive: { color: colors.primary },
+    pets: { ...typography.subtitle, color: colors.text },
+    meta: { ...typography.caption, color: colors.muted },
+    price: { ...typography.body, fontWeight: '700', color: colors.text },
+  }));
   const active = ACTIVE_STATUSES.includes(walk.status);
 
   return (
@@ -24,22 +42,3 @@ export function WalkRow({ walk, pets, onPress }: Props) {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  mark: { width: 10, height: 10, borderRadius: radius.pill, backgroundColor: colors.border },
-  markActive: { backgroundColor: colors.primary },
-  body: { flex: 1, gap: 2 },
-  status: { ...typography.eyebrow, color: colors.muted },
-  statusActive: { color: colors.primary },
-  pets: { ...typography.subtitle, color: colors.text },
-  meta: { ...typography.caption, color: colors.muted },
-  price: { ...typography.body, fontWeight: '700', color: colors.text },
-});

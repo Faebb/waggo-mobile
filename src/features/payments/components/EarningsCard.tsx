@@ -1,12 +1,26 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { formatMoney } from '@/features/pricing';
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMyEarnings } from '../hooks/usePayments';
 
 /** RF-017: what the walker has earned, like the earnings screen of a driver. Hidden while loading or on error. */
 export function EarningsCard() {
+  const styles = useThemedStyles((colors) => ({
+    card: {
+      gap: spacing.xs,
+      padding: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    total: { ...typography.title, color: colors.primary },
+    count: { ...typography.caption, color: colors.muted },
+    empty: { ...typography.body, color: colors.text },
+  }));
   const earnings = useMyEarnings();
   if (earnings.data === undefined) {
     return null;
@@ -27,18 +41,3 @@ export function EarningsCard() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    gap: spacing.xs,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  total: { ...typography.title, color: colors.primary },
-  count: { ...typography.caption, color: colors.muted },
-  empty: { ...typography.body, color: colors.text },
-});

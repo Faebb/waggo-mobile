@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { useWalk } from '@/features/walks';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { layout, radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { MessageBubble } from '../components/MessageBubble';
 import { useChat, useSendMessage } from '../hooks/useChat';
@@ -16,6 +16,41 @@ type Props = { walkId: string; viewer: WalkParty };
  * or in progress; afterwards it stays readable.
  */
 export function ChatScreen({ walkId, viewer }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    content: { gap: spacing.md, padding: spacing.lg },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    title: { ...typography.display, color: colors.text },
+    messages: { gap: spacing.sm },
+    empty: { ...typography.body, color: colors.muted },
+    error: { ...typography.caption, color: colors.danger },
+    closed: { ...typography.body, color: colors.muted, textAlign: 'center' },
+    composer: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
+    input: {
+      ...typography.body,
+      flex: 1,
+      minHeight: 44,
+      maxHeight: 120,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      color: colors.text,
+    },
+    send: {
+      height: 44,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary,
+    },
+    sendText: { ...typography.subtitle, color: colors.primaryText },
+    pressed: { opacity: 0.85 },
+  }));
   const walk = useWalk(walkId);
   const chat = useChat(walkId);
   const send = useSendMessage(walkId);
@@ -88,38 +123,3 @@ export function ChatScreen({ walkId, viewer }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  content: { gap: spacing.md, padding: spacing.lg },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  title: { ...typography.display, color: colors.text },
-  messages: { gap: spacing.sm },
-  empty: { ...typography.body, color: colors.muted },
-  error: { ...typography.caption, color: colors.danger },
-  closed: { ...typography.body, color: colors.muted, textAlign: 'center' },
-  composer: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
-  input: {
-    ...typography.body,
-    flex: 1,
-    minHeight: 44,
-    maxHeight: 120,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    color: colors.text,
-  },
-  send: {
-    height: 44,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-  },
-  sendText: { ...typography.subtitle, color: colors.primaryText },
-  pressed: { opacity: 0.85 },
-});

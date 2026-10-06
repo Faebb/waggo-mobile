@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 
 import { useMyPets } from '@/features/pets';
 import {
@@ -17,7 +17,7 @@ import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Button } from '@/shared/ui/Button';
 import { ChipGroup } from '@/shared/ui/ChipGroup';
 import { TextField } from '@/shared/ui/TextField';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { PetPicker } from '../components/PetPicker';
 import { useRequestWalk } from '../hooks/useWalks';
@@ -35,6 +35,21 @@ type Props = { onRequested: (walk: Walk) => void; onAddPet: () => void };
 
 /** RF-007: the owner asks for a walk — who, how long, when and where — and sees the price before confirming. */
 export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    content: { gap: spacing.lg, padding: spacing.lg },
+    title: { ...typography.display, color: colors.text },
+    noPets: { gap: spacing.md },
+    noPetsText: { ...typography.body, color: colors.muted },
+    group: { gap: spacing.sm },
+    ok: { ...typography.caption, fontWeight: '700', color: colors.primary },
+    error: { ...typography.caption, color: colors.danger },
+    priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+    priceLabel: { ...typography.body, color: colors.muted },
+    price: { ...typography.title, color: colors.primary },
+    holdNote: { ...typography.caption, color: colors.muted },
+  }));
   const pets = useMyPets();
   const [petIds, setPetIds] = useState<string[]>([]);
   const [walkType, setWalkType] = useState<WalkType>('Individual');
@@ -165,18 +180,3 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  content: { gap: spacing.lg, padding: spacing.lg },
-  title: { ...typography.display, color: colors.text },
-  noPets: { gap: spacing.md },
-  noPetsText: { ...typography.body, color: colors.muted },
-  group: { gap: spacing.sm },
-  ok: { ...typography.caption, fontWeight: '700', color: colors.primary },
-  error: { ...typography.caption, color: colors.danger },
-  priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  priceLabel: { ...typography.body, color: colors.muted },
-  price: { ...typography.title, color: colors.primary },
-  holdNote: { ...typography.caption, color: colors.muted },
-});

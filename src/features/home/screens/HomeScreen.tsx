@@ -5,7 +5,7 @@ import { NotificationBell } from '@/features/notifications';
 import { useMyPets } from '@/features/pets';
 import { ACTIVE_STATUSES, useMyWalks, WalkRow } from '@/features/walks';
 import { BrandMark } from '@/shared/ui/BrandMark';
-import { colors, layout, radius, spacing, typography } from '@/shared/ui/theme';
+import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 type Props = {
   onRequestWalk: () => void;
@@ -20,6 +20,37 @@ type Props = {
  * and shortcuts to the owner's dogs and walks.
  */
 export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk, onOpenNotifications }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    column: layout.column,
+    content: { gap: spacing.xl, padding: spacing.lg },
+    ask: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.lg,
+      borderRadius: radius.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    askText: { flex: 1, gap: spacing.xs },
+    askTitle: { ...typography.title, color: colors.text },
+    askSubtitle: { ...typography.body, color: colors.muted },
+    arrow: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary,
+    },
+    arrowText: { ...typography.title, color: colors.primaryText },
+    pressed: { opacity: 0.85 },
+    section: { gap: spacing.sm },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+  }));
   const pets = useMyPets();
   const walks = useMyWalks();
   const activeWalk = walks.data?.find((walk) => ACTIVE_STATUSES.includes(walk.status));
@@ -70,6 +101,20 @@ export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk,
 }
 
 function Shortcut({ title, detail, onPress }: { title: string; detail: string; onPress: () => void }) {
+  const styles = useThemedStyles((colors) => ({
+    pressed: { opacity: 0.85 },
+    shortcut: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    shortcutText: { flex: 1, gap: 2 },
+    shortcutTitle: { ...typography.subtitle, color: colors.text },
+    shortcutDetail: { ...typography.caption, color: colors.muted },
+    chevron: { ...typography.title, color: colors.muted },
+  }));
   return (
     <Pressable
       accessibilityRole="button"
@@ -84,46 +129,3 @@ function Shortcut({ title, detail, onPress }: { title: string; detail: string; o
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  column: layout.column,
-  content: { gap: spacing.xl, padding: spacing.lg },
-  ask: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  askText: { flex: 1, gap: spacing.xs },
-  askTitle: { ...typography.title, color: colors.text },
-  askSubtitle: { ...typography.body, color: colors.muted },
-  arrow: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-  },
-  arrowText: { ...typography.title, color: colors.primaryText },
-  pressed: { opacity: 0.85 },
-  section: { gap: spacing.sm },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  shortcut: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  shortcutText: { flex: 1, gap: 2 },
-  shortcutTitle: { ...typography.subtitle, color: colors.text },
-  shortcutDetail: { ...typography.caption, color: colors.muted },
-  chevron: { ...typography.title, color: colors.muted },
-});

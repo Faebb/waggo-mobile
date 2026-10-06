@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { PARTY_NAMES, type WalkMessage, type WalkParty } from '../model/types';
 
@@ -8,6 +8,21 @@ type Props = { message: WalkMessage; viewer: WalkParty };
 
 /** A chat bubble: mine on the right in yellow, the other person's on the left. */
 export function MessageBubble({ message, viewer }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    bubble: {
+      maxWidth: '80%',
+      gap: 2,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.md,
+    },
+    mine: { alignSelf: 'flex-end', backgroundColor: colors.primary },
+    theirs: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+    text: { ...typography.body, color: colors.text },
+    mineText: { color: colors.primaryText },
+    time: { ...typography.caption, alignSelf: 'flex-end', color: colors.muted },
+    mineTime: { color: colors.primaryText },
+  }));
   const mine = message.sentBy === viewer;
   const author = mine ? 'Tú' : PARTY_NAMES[message.sentBy];
   const date = new Date(message.sentAt);
@@ -24,19 +39,3 @@ export function MessageBubble({ message, viewer }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bubble: {
-    maxWidth: '80%',
-    gap: 2,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-  },
-  mine: { alignSelf: 'flex-end', backgroundColor: colors.primary },
-  theirs: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-  text: { ...typography.body, color: colors.text },
-  mineText: { color: colors.primaryText },
-  time: { ...typography.caption, alignSelf: 'flex-end', color: colors.muted },
-  mineTime: { color: colors.primaryText },
-});

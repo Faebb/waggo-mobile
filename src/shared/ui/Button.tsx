@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
-import { colors, radius, spacing, typography } from './theme';
+import { radius, spacing, typography, useThemedStyles } from './theme';
 
 type Props = {
   label: string;
@@ -14,6 +14,26 @@ type Props = {
  * only for emergencies (RF-012).
  */
 export function Button({ label, onPress, variant = 'primary', disabled = false }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    button: {
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.md,
+    },
+    primary: { backgroundColor: colors.primary },
+    secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.primary },
+    danger: { backgroundColor: colors.danger },
+    pressed: { opacity: 0.85 },
+    disabled: { opacity: 0.5 },
+    label: typography.subtitle,
+  }));
+  const labelStyles = useThemedStyles((colors) => ({
+    primary: { color: colors.primaryText },
+    secondary: { color: colors.primary },
+    danger: { color: colors.text },
+  }));
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -26,24 +46,3 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
-  },
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.primary },
-  danger: { backgroundColor: colors.danger },
-  pressed: { opacity: 0.85 },
-  disabled: { opacity: 0.5 },
-  label: typography.subtitle,
-});
-
-const labelStyles = StyleSheet.create({
-  primary: { color: colors.primaryText },
-  secondary: { color: colors.primary },
-  danger: { color: colors.text },
-});

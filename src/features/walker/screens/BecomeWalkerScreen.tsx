@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ApiError } from '@/shared/api/ApiError';
@@ -8,7 +8,7 @@ import { BrandMark } from '@/shared/ui/BrandMark';
 import { Button } from '@/shared/ui/Button';
 import { ChipGroup } from '@/shared/ui/ChipGroup';
 import { TextField } from '@/shared/ui/TextField';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useRegisterWalker } from '../hooks/useWalkerProfile';
 import { EMPTY_WALKER_FORM, toWalkerDraft, type WalkerForm, type WalkerFormErrors } from '../model/walkerForm';
@@ -23,6 +23,16 @@ type Props = { onRegistered?: (profile: WalkerProfile) => void };
  * profile is verified (RF-003). The document number is stored encrypted and only its last 4 digits are shown.
  */
 export function BecomeWalkerScreen({ onRegistered }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    screen: { ...layout.column, flex: 1 },
+    content: { gap: spacing.lg, padding: spacing.lg },
+    header: { gap: spacing.xs },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    title: { ...typography.display, color: colors.text },
+    lead: { ...typography.body, color: colors.muted },
+    error: { ...typography.body, color: colors.danger },
+  }));
   const [form, setForm] = useState<WalkerForm>(EMPTY_WALKER_FORM);
   const [errors, setErrors] = useState<WalkerFormErrors>({});
   const register = useRegisterWalker();
@@ -119,14 +129,3 @@ export function BecomeWalkerScreen({ onRegistered }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  screen: { ...layout.column, flex: 1 },
-  content: { gap: spacing.lg, padding: spacing.lg },
-  header: { gap: spacing.xs },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  title: { ...typography.display, color: colors.text },
-  lead: { ...typography.body, color: colors.muted },
-  error: { ...typography.body, color: colors.danger },
-});

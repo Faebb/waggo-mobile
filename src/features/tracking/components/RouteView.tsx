@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import Svg, { Circle, Polyline } from 'react-native-svg';
 
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { formatKm, formatMinutes } from '../model/formatMetrics';
 import { projectRoute } from '../model/routeGeometry';
@@ -19,6 +19,22 @@ export function RouteView({ route }: Props) {
   const points = projectRoute(route.points, BOX);
   const first = points[0];
   const last = points[points.length - 1];
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    container: { gap: spacing.md },
+    canvas: {
+      aspectRatio: BOX.width / BOX.height,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      overflow: 'hidden',
+    },
+    waiting: { ...typography.body, color: colors.muted },
+    metrics: { flexDirection: 'row', gap: spacing.md },
+  }));
 
   return (
     <View style={styles.container}>
@@ -52,6 +68,12 @@ export function RouteView({ route }: Props) {
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
+  const styles = useThemedStyles((colors) => ({
+    metric: { flex: 1, gap: 2 },
+    metricLabel: { ...typography.eyebrow, color: colors.muted },
+    metricValue: { ...typography.title, color: colors.text },
+  }));
+
   return (
     <View style={styles.metric}>
       <Text style={styles.metricLabel}>{label}</Text>
@@ -59,22 +81,3 @@ function Metric({ label, value }: { label: string; value: string }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { gap: spacing.md },
-  canvas: {
-    aspectRatio: BOX.width / BOX.height,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
-  },
-  waiting: { ...typography.body, color: colors.muted },
-  metrics: { flexDirection: 'row', gap: spacing.md },
-  metric: { flex: 1, gap: 2 },
-  metricLabel: { ...typography.eyebrow, color: colors.muted },
-  metricValue: { ...typography.title, color: colors.text },
-});

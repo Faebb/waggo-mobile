@@ -1,10 +1,10 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { BrandMark } from '@/shared/ui/BrandMark';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { ValueCard } from '../components/ValueCard';
 import { VALUE_PILLARS } from '../model/valuePillars';
@@ -13,6 +13,18 @@ type Props = { onStartAsOwner: () => void; onStartAsWalker: () => void };
 
 /** UX-001: first screen of the app. Presents Waggo; owners and walkers enter from here, like a ride app. */
 export function WelcomeScreen({ onStartAsOwner, onStartAsWalker }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    column: layout.column,
+    content: { gap: spacing.xl, padding: spacing.lg },
+    hero: { gap: spacing.md, paddingTop: spacing.lg },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    headline: { ...typography.display, color: colors.text },
+    highlight: { color: colors.primary },
+    lead: { ...typography.body, color: colors.muted },
+    note: { ...typography.caption, color: colors.muted, textAlign: 'center' },
+  }));
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.column}>
@@ -45,15 +57,3 @@ export function WelcomeScreen({ onStartAsOwner, onStartAsWalker }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  column: layout.column,
-  content: { gap: spacing.xl, padding: spacing.lg },
-  hero: { gap: spacing.md, paddingTop: spacing.lg },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  headline: { ...typography.display, color: colors.text },
-  highlight: { color: colors.primary },
-  lead: { ...typography.body, color: colors.muted },
-  note: { ...typography.caption, color: colors.muted, textAlign: 'center' },
-});

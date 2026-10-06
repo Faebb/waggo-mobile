@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 type Props = {
   label: string;
@@ -12,6 +12,39 @@ type Props = {
 
 /** Multiple choice of the owner's dogs. Each dog is a chip button with a `selected` state. */
 export function PetPicker({ label, pets, selected, onToggle, error }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    container: { gap: spacing.sm },
+    label: { ...typography.caption, fontWeight: '700', color: colors.muted },
+    row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.xs,
+      paddingLeft: spacing.xs,
+      paddingRight: spacing.md,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    chipSelected: { borderColor: colors.primary },
+    initial: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.border,
+    },
+    initialSelected: { backgroundColor: colors.primary },
+    initialText: { ...typography.caption, fontWeight: '700', color: colors.text },
+    initialTextSelected: { color: colors.primaryText },
+    name: { ...typography.body, color: colors.text },
+    nameSelected: { fontWeight: '700' },
+    error: { ...typography.caption, color: colors.danger },
+  }));
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -41,36 +74,3 @@ export function PetPicker({ label, pets, selected, onToggle, error }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { gap: spacing.sm },
-  label: { ...typography.caption, fontWeight: '700', color: colors.muted },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    paddingLeft: spacing.xs,
-    paddingRight: spacing.md,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  chipSelected: { borderColor: colors.primary },
-  initial: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.border,
-  },
-  initialSelected: { backgroundColor: colors.primary },
-  initialText: { ...typography.caption, fontWeight: '700', color: colors.text },
-  initialTextSelected: { color: colors.primaryText },
-  name: { ...typography.body, color: colors.text },
-  nameSelected: { fontWeight: '700' },
-  error: { ...typography.caption, color: colors.danger },
-});

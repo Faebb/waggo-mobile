@@ -1,7 +1,7 @@
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 
 import { useMyPets } from '@/features/pets';
-import { colors, layout, spacing, typography } from '@/shared/ui/theme';
+import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { WalkRow } from '../components/WalkRow';
 import { useMyWalks } from '../hooks/useWalks';
@@ -10,6 +10,15 @@ type Props = { onOpenWalk: (id: string) => void };
 
 /** RF-007: the owner's walks, newest first. */
 export function MyWalksScreen({ onOpenWalk }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles((colors) => ({
+    screen: layout.column,
+    content: { gap: spacing.md, padding: spacing.lg },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
+    error: { ...typography.body, color: colors.danger },
+    empty: { ...typography.body, color: colors.muted },
+  }));
   const walks = useMyWalks();
   const pets = useMyPets();
 
@@ -39,12 +48,3 @@ export function MyWalksScreen({ onOpenWalk }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: layout.column,
-  content: { gap: spacing.md, padding: spacing.lg },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
-  error: { ...typography.body, color: colors.danger },
-  empty: { ...typography.body, color: colors.muted },
-});
