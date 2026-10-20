@@ -8,7 +8,10 @@ type Props = {
   onChangeText: (text: string) => void;
   hint?: string;
   error?: string;
-} & Pick<TextInputProps, 'keyboardType' | 'multiline' | 'placeholder' | 'autoCapitalize' | 'maxLength'>;
+} & Pick<
+  TextInputProps,
+  'keyboardType' | 'multiline' | 'placeholder' | 'autoCapitalize' | 'maxLength' | 'secureTextEntry' | 'autoComplete'
+>;
 
 /** Labeled text input. Shows the error below the field, or the hint when there is no error. */
 export function TextField({ label, value, onChangeText, hint, error, multiline, ...inputProps }: Props) {

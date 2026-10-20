@@ -22,7 +22,6 @@ export function WelcomeScreen({ onStartAsOwner, onStartAsWalker }: Props) {
     headline: { ...typography.display, color: colors.text },
     highlight: { color: colors.primary },
     lead: { ...typography.body, color: colors.muted },
-    note: { ...typography.caption, color: colors.muted, textAlign: 'center' },
   }));
 
   return (
@@ -51,7 +50,6 @@ export function WelcomeScreen({ onStartAsOwner, onStartAsWalker }: Props) {
         <ActionFooter>
           <Button label="Quiero pasear a mi perro" onPress={onStartAsOwner} />
           <Button label="Soy paseador" variant="secondary" onPress={onStartAsWalker} />
-          <Text style={styles.note}>Muy pronto podrás crear tu cuenta como dueño o paseador.</Text>
         </ActionFooter>
       </View>
     </SafeAreaView>

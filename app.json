@@ -32,7 +32,8 @@
         {
           "locationWhenInUsePermission": "Waggo usa tu ubicación para que el paseador sepa dónde recoger a tu perro."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "scheme": "waggo",
     "experiments": {

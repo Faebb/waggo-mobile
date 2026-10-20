@@ -1,23 +1,32 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack, useSegments } from 'expo-router';
+import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { setDevRole } from '@/shared/api/devIdentity';
+import { useIsAuthenticated } from '@/shared/auth/session';
+import { useHydrateSession } from '@/shared/auth/useHydrateSession';
 import { typography, useColors, useThemeMode } from '@/shared/ui/theme';
 import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { useHydrateThemeMode } from '@/shared/ui/useHydrateThemeMode';
 
+/** Reachable with no session: the welcome screen, the whole sign-in flow and the public fare quote (RF-019). */
+const PUBLIC_SEGMENTS = new Set(['', 'login', 'registro', 'confirmar', 'verificar', 'cotizar']);
+
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
   useHydrateThemeMode();
+  const sessionHydrated = useHydrateSession();
+  const isAuthenticated = useIsAuthenticated();
   const mode = useThemeMode();
   const colors = useColors();
 
-  // Development identity until the login exists (ADR-011): the walker side (/paseador) goes as the development
-  // walker, everything else as the development owner. Set during render so the first request already has it.
   const segments = useSegments();
-  setDevRole(segments[0] === 'paseador' ? 'walker' : 'owner');
+  useEffect(() => {
+    if (!sessionHydrated || isAuthenticated) return;
+    if (!PUBLIC_SEGMENTS.has(segments[0] ?? '')) {
+      router.replace({ pathname: '/login', params: { redirect: `/${segments.join('/')}` } });
+    }
+  }, [sessionHydrated, isAuthenticated, segments]);
 
   return (
     <QueryClientProvider client={queryClient}>
