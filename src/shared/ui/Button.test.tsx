@@ -23,6 +23,16 @@ describe('Button', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
+  it('runs the action when pressed (danger, for emergencies)', async () => {
+    const onPress = jest.fn();
+    const user = userEvent.setup();
+    await render(<Button label="Emergencia" variant="danger" onPress={onPress} />);
+
+    await user.press(screen.getByRole('button', { name: 'Emergencia' }));
+
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores presses and exposes the disabled state when disabled', async () => {
     const onPress = jest.fn();
     const user = userEvent.setup();

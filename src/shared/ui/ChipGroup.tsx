@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from './theme';
+import { radius, spacing, typography, useThemedStyles } from './theme';
 
 type Option<T extends string | number> = { value: T; label: string };
 
@@ -13,6 +13,23 @@ type Props<T extends string | number> = {
 
 /** Single-choice group of chips. Accessible: each chip is a button with `selected` state. */
 export function ChipGroup<T extends string | number>({ label, options, value, onChange }: Props<T>) {
+  const styles = useThemedStyles((colors) => ({
+    container: { gap: spacing.sm },
+    label: { ...typography.caption, fontWeight: '700', color: colors.muted },
+    row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    chip: {
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+    chipText: { ...typography.body, color: colors.text },
+    chipTextSelected: { color: colors.primaryText, fontWeight: '700' },
+  }));
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -35,20 +52,3 @@ export function ChipGroup<T extends string | number>({ label, options, value, on
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { gap: spacing.sm },
-  label: { ...typography.caption, fontWeight: '700', color: colors.muted },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { ...typography.body, color: colors.text },
-  chipTextSelected: { color: colors.primaryText, fontWeight: '700' },
-});
