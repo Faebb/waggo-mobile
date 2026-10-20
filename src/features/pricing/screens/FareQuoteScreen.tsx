@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { ChipGroup } from '@/shared/ui/ChipGroup';
-import { colors, spacing } from '@/shared/ui/theme';
+import { colors, spacing, typography } from '@/shared/ui/theme';
 
 import { FareQuoteCard } from '../components/FareQuoteCard';
 import { useFareQuote } from '../hooks/useFareQuote';
@@ -39,6 +39,6 @@ export function FareQuoteScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, gap: spacing.lg, backgroundColor: colors.background },
-  title: { fontSize: 24, fontWeight: '700', color: colors.text },
-  error: { color: colors.danger, fontSize: 15 },
+  title: { ...typography.title, color: colors.text },
+  error: { ...typography.body, color: colors.danger },
 });

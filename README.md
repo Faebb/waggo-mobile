@@ -34,23 +34,26 @@ npm start                   # a = Android, i = iOS, w = Web
 ## Arquitectura (feature-based)
 ```
 src/
-  app/                 → SOLO rutas de Expo Router (pantallas delgadas)
+  app/                 → SOLO rutas de Expo Router (pantallas delgadas): / bienvenida · /cotizar tarifa
   features/
-    pricing/           → un folder por módulo de negocio
+    onboarding/        → pantalla de bienvenida (UX-001)
+    pricing/           → un folder por módulo de negocio (cotizador RF-019)
       api/             → llamadas HTTP + esquemas Zod
       hooks/           → hooks de TanStack Query
       components/      → UI presentacional
       screens/         → pantallas que orquestan datos
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
-  shared/              → api (httpClient, ApiError), config (env), ui (componentes base, tema)
+  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, tema oscuro con amarillo y Helvetica)
   test/                → utilidades de prueba
 ```
 - Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
 - Toda respuesta del backend viene en `WaggoApiResponse`; `shared/api/httpClient` la desenvuelve y lanza `ApiError` con los mensajes en español y el `traceId`.
 
-## Convenciones (ADR-008)
+## Convenciones (ADR-008, ADR-013)
 Solo exports con nombre (default solo en `src/app`), `type` en lugar de `interface`, sin `any`, textos de la UI en español. ESLint y Prettier las hacen cumplir en local y en CI.
+
+Diseño (ADR-013): mobile first, tema oscuro con amarillo como único acento y Helvetica. Las pantallas solo usan los tokens de `src/shared/ui/theme.ts`.
 
 ## Flujo TDD
 1. 🔴 Prueba que falla (de afuera hacia adentro: pantalla → componente/hook → lógica pura).

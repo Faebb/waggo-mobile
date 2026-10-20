@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, spacing } from './theme';
+import { colors, radius, spacing, typography } from './theme';
 
 type Option<T extends string | number> = { value: T; label: string };
 
@@ -38,17 +38,17 @@ export function ChipGroup<T extends string | number>({ label, options, value, on
 
 const styles = StyleSheet.create({
   container: { gap: spacing.sm },
-  label: { fontSize: 14, fontWeight: '600', color: colors.muted },
+  label: { ...typography.caption, fontWeight: '700', color: colors.muted },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
   chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 15 },
-  chipTextSelected: { color: colors.primaryText, fontWeight: '600' },
+  chipText: { ...typography.body, color: colors.text },
+  chipTextSelected: { color: colors.primaryText, fontWeight: '700' },
 });
