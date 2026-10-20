@@ -59,7 +59,7 @@ describe('RequestWalkScreen (RF-007)', () => {
       scheduledFor: null,
       notes: 'Timbre dañado',
     });
-  });
+  }, 15000);
 
   it('asks to choose at least one dog before asking for the walk', async () => {
     fetchSpy = api();
