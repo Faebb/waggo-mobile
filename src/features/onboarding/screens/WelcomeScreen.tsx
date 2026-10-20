@@ -1,24 +1,35 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/shared/ui/Button';
-import { colors, radius, spacing, typography } from '@/shared/ui/theme';
+import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { BrandMark } from '@/shared/ui/BrandMark';
+import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { ValueCard } from '../components/ValueCard';
 import { VALUE_PILLARS } from '../model/valuePillars';
 
-type Props = { onQuotePress: () => void };
+type Props = { onStartAsOwner: () => void; onStartAsWalker: () => void };
 
-/** UX-001: first screen of the app. Presents Waggo and leads to the fare quote (RF-019). */
-export function WelcomeScreen({ onQuotePress }: Props) {
+/** UX-001: first screen of the app. Presents Waggo; owners and walkers enter from here, like a ride app. */
+export function WelcomeScreen({ onStartAsOwner, onStartAsWalker }: Props) {
+  const styles = useThemedStyles((colors) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    column: layout.column,
+    content: { gap: spacing.xl, padding: spacing.lg },
+    hero: { gap: spacing.md, paddingTop: spacing.lg },
+    eyebrow: { ...typography.eyebrow, color: colors.muted },
+    headline: { ...typography.display, color: colors.text },
+    highlight: { color: colors.primary },
+    lead: { ...typography.body, color: colors.muted },
+    note: { ...typography.caption, color: colors.muted, textAlign: 'center' },
+  }));
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.column}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.brandRow}>
-            <View style={styles.brandMark} />
-            <Text style={styles.brand}>Waggo</Text>
-          </View>
+          <BrandMark />
 
           <View style={styles.hero}>
             <Text style={styles.eyebrow}>PASEO SEGURO DE PERROS</Text>
@@ -37,35 +48,12 @@ export function WelcomeScreen({ onQuotePress }: Props) {
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
-          <Button label="Cotizar un paseo" onPress={onQuotePress} />
+        <ActionFooter>
+          <Button label="Quiero pasear a mi perro" onPress={onStartAsOwner} />
+          <Button label="Soy paseador" variant="secondary" onPress={onStartAsWalker} />
           <Text style={styles.note}>Muy pronto podrás crear tu cuenta como dueño o paseador.</Text>
-        </View>
+        </ActionFooter>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  // Mobile first: on tablets and web the content keeps a phone-width column.
-  column: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
-  content: { gap: spacing.xl, padding: spacing.lg },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  brandMark: { width: 16, height: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
-  brand: { ...typography.subtitle, color: colors.text },
-  hero: { gap: spacing.md, paddingTop: spacing.lg },
-  eyebrow: { ...typography.eyebrow, color: colors.muted },
-  headline: { ...typography.display, color: colors.text },
-  highlight: { color: colors.primary },
-  lead: { ...typography.body, color: colors.muted },
-  footer: {
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  note: { ...typography.caption, color: colors.muted, textAlign: 'center' },
-});
