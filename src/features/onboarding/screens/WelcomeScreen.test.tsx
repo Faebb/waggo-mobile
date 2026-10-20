@@ -38,10 +38,9 @@ describe('WelcomeScreen (UX-001)', () => {
     expect(onStartAsWalker).toHaveBeenCalledTimes(1);
   });
 
-  it('announces that sign-up is coming', async () => {
+  it('offers exactly the owner and walker entry points', async () => {
     await renderWelcome();
 
-    expect(screen.getByText('Muy pronto podrás crear tu cuenta como dueño o paseador.')).toBeOnTheScreen();
     expect(screen.getAllByRole('button')).toHaveLength(2);
   });
 });

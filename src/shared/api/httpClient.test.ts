@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
+import { setSession } from '@/shared/auth/session';
+
 import { ApiError } from './ApiError';
 import { createHttpClient } from './httpClient';
+
+afterEach(() => setSession(null));
 
 const schema = z.object({ id: z.number() });
 
@@ -104,16 +108,87 @@ describe('httpClient.get', () => {
 });
 
 describe('httpClient headers', () => {
-  it('adds the extra headers of every request (development identity)', async () => {
+  it('adds the extra headers of every request', async () => {
     const fetchFn = jest.fn().mockImplementation(async () => jsonResponse(envelope()));
-    const client = createHttpClient('http://api.test', fetchFn, () => ({ 'X-Dev-Roles': 'walker' }));
+    const client = createHttpClient('http://api.test', fetchFn, () => ({ 'X-Custom': 'value' }));
 
     await client.get('/x', schema);
     await client.post('/x', {}, schema);
 
     for (const [, init] of fetchFn.mock.calls) {
-      expect((init as RequestInit).headers).toMatchObject({ 'X-Dev-Roles': 'walker' });
+      expect((init as RequestInit).headers).toMatchObject({ 'X-Custom': 'value' });
     }
+  });
+
+  it('sends the session access token as a Bearer header by default (RNF-002)', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockResolvedValue(jsonResponse(envelope()));
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    await client.get('/x', schema);
+
+    expect((fetchFn.mock.calls[0]![1] as RequestInit).headers).toMatchObject({ Authorization: 'Bearer at-1' });
+  });
+
+  it('sends no Authorization header when there is no session', async () => {
+    const fetchFn = jest.fn().mockResolvedValue(jsonResponse(envelope()));
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    await client.get('/x', schema);
+
+    expect((fetchFn.mock.calls[0]![1] as RequestInit).headers).not.toHaveProperty('Authorization');
+  });
+});
+
+describe('httpClient silent refresh on 401', () => {
+  it('refreshes once and retries the original request with the new token', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    let requestsToX = 0;
+    const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/api/v1/auth/refresh')) {
+        return jsonResponse(envelope({ data: { accessToken: 'at-2', refreshToken: 'rt-2', expiresInSeconds: 900 } }));
+      }
+      requestsToX += 1;
+      return requestsToX === 1
+        ? jsonResponse(envelope({ success: false, data: null, errors: [] }), 401)
+        : jsonResponse(envelope());
+    });
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const result = await client.get('/x', schema);
+
+    expect(result.data).toEqual({ id: 7 });
+    const callsToX = fetchFn.mock.calls.filter(([input]) => String(input).endsWith('/x'));
+    expect(callsToX).toHaveLength(2);
+    expect((callsToX[1]![1] as RequestInit).headers).toMatchObject({ Authorization: 'Bearer at-2' });
+  });
+
+  it('gives up after one failed refresh and surfaces the original 401', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/api/v1/auth/refresh')) {
+        return jsonResponse(envelope({ success: false, data: null, errors: [] }), 401);
+      }
+      return jsonResponse(envelope({ success: false, data: null, errors: [] }), 401);
+    });
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const error = await client.get('/x', schema).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ status: 401 });
+  });
+
+  it('does not attempt a refresh when there is no session to begin with', async () => {
+    const fetchFn = jest
+      .fn()
+      .mockResolvedValue(jsonResponse(envelope({ success: false, data: null, errors: [] }), 401));
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    await client.get('/x', schema).catch(() => undefined);
+
+    expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 });
 

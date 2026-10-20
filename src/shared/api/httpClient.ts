@@ -1,8 +1,9 @@
 import type { z } from 'zod';
 
+import { tryRefreshSession } from '../auth/refreshSession';
+import { getSession } from '../auth/session';
 import { env } from '../config/env';
 import { ApiError } from './ApiError';
-import { devIdentityHeaders } from './devIdentity';
 import { waggoApiResponseSchema, type WaggoApiResponse } from './waggoApiResponse';
 
 type QueryParams = Record<string, string | number | boolean | undefined>;
@@ -10,11 +11,16 @@ type QueryParams = Record<string, string | number | boolean | undefined>;
 // Resolve the global fetch lazily so it can be replaced at runtime (interceptors, test spies).
 const globalFetch: typeof fetch = (input, init) => globalThis.fetch(input, init);
 
-/** `extraHeaders` is read on every request (today: the development identity). */
+function sessionHeaders(): Record<string, string> {
+  const session = getSession();
+  return session ? { Authorization: `Bearer ${session.accessToken}` } : {};
+}
+
+/** `extraHeaders` is read on every request, including the retry after a silent refresh. */
 export function createHttpClient(
   baseUrl: string,
   fetchFn: typeof fetch = globalFetch,
-  extraHeaders: () => Record<string, string> = devIdentityHeaders,
+  extraHeaders: () => Record<string, string> = sessionHeaders,
 ) {
   const root = baseUrl.replace(/\/+$/, '');
 
@@ -26,9 +32,25 @@ export function createHttpClient(
     return `${root}${path.startsWith('/') ? path : `/${path}`}${query ? `?${query}` : ''}`;
   }
 
-  /** Sends the request and unwraps its WaggoApiResponse. Throws ApiError when `success` is false. */
-  async function send<T>(url: string, init: RequestInit, dataSchema: z.ZodType<T>): Promise<WaggoApiResponse<T>> {
-    const response = await fetchFn(url, init);
+  /**
+   * Sends the request and unwraps its WaggoApiResponse. Throws ApiError when `success` is false. A 401 with a
+   * session tries exactly one silent refresh (RNF-002) before giving up, so a short-lived access token never
+   * surfaces as an error the user has to retry themselves.
+   */
+  async function send<T>(
+    url: string,
+    init: RequestInit,
+    dataSchema: z.ZodType<T>,
+    isRetry = false,
+  ): Promise<WaggoApiResponse<T>> {
+    const response = await fetchFn(url, { ...init, headers: { ...init.headers, ...extraHeaders() } });
+
+    if (response.status === 401 && !isRetry && getSession() !== null) {
+      const refreshed = await tryRefreshSession(root, fetchFn);
+      if (refreshed) {
+        return send(url, init, dataSchema, true);
+      }
+    }
 
     const body: unknown = await response.json().catch(() => undefined);
     const envelope = waggoApiResponseSchema(dataSchema).safeParse(body);
@@ -53,11 +75,7 @@ export function createHttpClient(
   return {
     /** GET an endpoint of waggo-api. */
     get<T>(path: string, dataSchema: z.ZodType<T>, params?: QueryParams): Promise<WaggoApiResponse<T>> {
-      return send(
-        buildUrl(path, params),
-        { method: 'GET', headers: { Accept: 'application/json', ...extraHeaders() } },
-        dataSchema,
-      );
+      return send(buildUrl(path, params), { method: 'GET', headers: { Accept: 'application/json' } }, dataSchema);
     },
 
     /** POST a JSON body to an endpoint of waggo-api. */
@@ -66,7 +84,7 @@ export function createHttpClient(
         buildUrl(path),
         {
           method: 'POST',
-          headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...extraHeaders() },
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         },
         dataSchema,
