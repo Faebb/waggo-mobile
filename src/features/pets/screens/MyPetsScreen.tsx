@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
@@ -7,16 +7,16 @@ import { layout, spacing, typography, useColors, useThemedStyles } from '@/share
 import { PetRow } from '../components/PetRow';
 import { useMyPets } from '../hooks/usePets';
 
-type Props = { onAddPress: () => void };
+type Props = { onAddPress: () => void; onPetPress?: (petId: string) => void };
 
 /** RF-004: the owner sees their dogs and can add a new one. */
-export function MyPetsScreen({ onAddPress }: Props) {
+export function MyPetsScreen({ onAddPress, onPetPress }: Props) {
   const colors = useColors();
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.md, padding: spacing.lg },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
+    title: { ...typography.title, color: colors.text, marginBottom: spacing.md },
     error: { ...typography.body, color: colors.danger },
     empty: { gap: spacing.xs, paddingVertical: spacing.lg },
     emptyTitle: { ...typography.subtitle, color: colors.text },
@@ -47,7 +47,14 @@ export function MyPetsScreen({ onAddPress }: Props) {
         {pets && pets.length > 0 && (
           <View>
             {pets.map((pet) => (
-              <PetRow key={pet.id} pet={pet} />
+              <Pressable
+                key={pet.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Ver a ${pet.name}`}
+                onPress={() => onPetPress?.(pet.id)}
+              >
+                <PetRow pet={pet} />
+              </Pressable>
             ))}
           </View>
         )}

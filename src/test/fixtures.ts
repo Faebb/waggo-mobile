@@ -38,6 +38,7 @@ export const requestedWalk = {
   requestedAt: '2026-09-30T15:00:00+00:00',
   startedAt: null as string | null,
   finishedAt: null as string | null,
+  walker: null as { id: string; fullName: string | null } | null,
 };
 
 /** An open request as a walker sees it (`AvailableWalkResponse`). */
@@ -55,7 +56,12 @@ export const availableWalk = {
   distanceKm: null as number | null,
 };
 
-export const acceptedWalk = { ...requestedWalk, status: 'Accepted', walkerId: 'dev-walker' };
+export const acceptedWalk = {
+  ...requestedWalk,
+  status: 'Accepted',
+  walkerId: 'dev-walker',
+  walker: { id: 'dev-walker', fullName: 'Andrés Gómez' },
+};
 
 export const fareQuote = {
   walkType: 'Individual',

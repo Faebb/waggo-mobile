@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { ChipGroup } from '@/shared/ui/ChipGroup';
-import { spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { FareQuoteCard } from '../components/FareQuoteCard';
 import { useFareQuote } from '../hooks/useFareQuote';
@@ -15,7 +15,7 @@ const durationOptions = DURATION_OPTIONS.map((value) => ({ value, label: `${valu
 export function FareQuoteScreen() {
   const colors = useColors();
   const styles = useThemedStyles((colors) => ({
-    container: { flex: 1, padding: spacing.lg, gap: spacing.lg, backgroundColor: colors.background },
+    container: { ...layout.column, padding: spacing.lg, gap: spacing.lg, backgroundColor: colors.background },
     title: { ...typography.title, color: colors.text },
     error: { ...typography.body, color: colors.danger },
   }));

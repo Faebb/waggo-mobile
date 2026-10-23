@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { confirmEmail, login, register, verifyLoginCode } from '../api/authApi';
+import { confirmEmail, login, register, resendLoginCode, signOut, verifyLoginCode } from '../api/authApi';
 
 export function useRegister() {
   return useMutation({
@@ -22,4 +22,13 @@ export function useVerifyLoginCode() {
   return useMutation({
     mutationFn: ({ challengeId, code }: { challengeId: string; code: string }) => verifyLoginCode(challengeId, code),
   });
+}
+
+export function useResendLoginCode() {
+  return useMutation({ mutationFn: (challengeId: string) => resendLoginCode(challengeId) });
+}
+
+/** Revokes the refresh token and clears the session; resolves even when the call fails. */
+export function useSignOut() {
+  return useMutation({ mutationFn: () => signOut() });
 }

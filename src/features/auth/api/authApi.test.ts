@@ -1,7 +1,7 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 import { getSession, setSession } from '@/shared/auth/session';
 
-import { confirmEmail, login, logout, register, verifyLoginCode } from './authApi';
+import { confirmEmail, login, logout, register, resendLoginCode, signOut, verifyLoginCode } from './authApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -63,5 +63,47 @@ describe('authApi (RF-001, RF-005)', () => {
     logout();
 
     expect(getSession()).toBeNull();
+  });
+
+  it('resends the code with POST /api/v1/auth/resend-code and keeps the same challenge', async () => {
+    const fetchFn = respond(envelope({ challengeId: 'challenge-1' }));
+
+    const challenge = await resendLoginCode('challenge-1', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/resend-code',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ challengeId: 'challenge-1' }) }),
+    );
+    expect(challenge).toEqual({ challengeId: 'challenge-1' });
+  });
+
+  it('signs out with POST /api/v1/auth/logout and the stored refresh token, then clears the session', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    const fetchFn = respond(envelope(true));
+
+    await signOut(createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/logout',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ refreshToken: 'rt' }) }),
+    );
+    expect(getSession()).toBeNull();
+  });
+
+  it('clears the session even when the logout call fails', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockRejectedValue(new Error('network down'));
+
+    await signOut(createHttpClient('http://api', fetchFn));
+
+    expect(getSession()).toBeNull();
+  });
+
+  it('only clears the session when there is none to revoke', async () => {
+    const fetchFn = jest.fn();
+
+    await signOut(createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).not.toHaveBeenCalled();
   });
 });

@@ -33,7 +33,7 @@ export function AssignedWalkScreen({ walkId, beaconIntervalMs = BEACON_INTERVAL_
     loading: { margin: spacing.xl },
     content: { gap: spacing.lg, padding: spacing.lg },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    headline: { ...typography.display, color: colors.text },
+    headline: { ...typography.title, color: colors.text },
     sharing: { ...typography.caption, fontWeight: '700', color: colors.primary },
     error: { ...typography.body, color: colors.danger },
   }));

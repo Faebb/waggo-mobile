@@ -14,7 +14,7 @@ export function NotificationsScreen({ onOpenWalk }: Props) {
   const styles = useThemedStyles((colors) => ({
     column: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     error: { ...typography.body, color: colors.danger },
     empty: { ...typography.body, color: colors.muted },
   }));

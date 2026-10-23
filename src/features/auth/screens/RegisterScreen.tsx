@@ -16,7 +16,7 @@ export function RegisterScreen({ onRegistered }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     lead: { ...typography.body, color: colors.muted },
     error: { ...typography.body, color: colors.danger },
   }));

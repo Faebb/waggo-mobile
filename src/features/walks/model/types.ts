@@ -28,6 +28,9 @@ export const ACTIVE_STATUSES: readonly WalkStatus[] = ['Requested', 'Accepted', 
 /** The owner can cancel before the walk starts. */
 export const CANCELLABLE_STATUSES: readonly WalkStatus[] = ['Requested', 'Accepted'];
 
+/** The walker assigned to a walk (`AssignedWalkerResponse`); `fullName` is null if the walker has no profile. */
+export type AssignedWalker = { id: string; fullName: string | null };
+
 /** A walk as the API returns it (`WalkResponse`). Dates are ISO strings. */
 export type Walk = {
   id: string;
@@ -48,6 +51,7 @@ export type Walk = {
   requestedAt: string;
   startedAt: string | null;
   finishedAt: string | null;
+  walker: AssignedWalker | null;
 };
 
 /** Body of `POST /api/v1/walks`. `scheduledFor` null means now. */

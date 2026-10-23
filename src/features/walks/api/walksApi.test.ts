@@ -71,4 +71,22 @@ describe('walksApi (RF-007)', () => {
       getWalk('walk-1', createHttpClient('http://api', respond({ ...requestedWalk, status: 'Teleported' }))),
     ).rejects.toThrow();
   });
+
+  it('reads the assigned walker of the walk (RF-007) and accepts a walk with no walker yet', async () => {
+    const assigned = {
+      ...requestedWalk,
+      status: 'Accepted',
+      walkerId: 'w-1',
+      walker: { id: 'w-1', fullName: 'Andrés Gómez' },
+    };
+
+    const withWalker = await getWalk('walk-1', createHttpClient('http://api', respond(assigned)));
+    const without = await getWalk(
+      'walk-1',
+      createHttpClient('http://api', respond({ ...requestedWalk, walker: null })),
+    );
+
+    expect(withWalker.walker).toEqual({ id: 'w-1', fullName: 'Andrés Gómez' });
+    expect(without.walker).toBeNull();
+  });
 });

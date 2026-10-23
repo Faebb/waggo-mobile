@@ -29,7 +29,7 @@ export function BecomeWalkerScreen({ onRegistered }: Props) {
     content: { gap: spacing.lg, padding: spacing.lg },
     header: { gap: spacing.xs },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     lead: { ...typography.body, color: colors.muted },
     error: { ...typography.body, color: colors.danger },
   }));

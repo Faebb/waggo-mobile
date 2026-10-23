@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useSignOut } from '@/features/auth';
 import { NotificationBell } from '@/features/notifications';
 import { EarningsCard } from '@/features/payments';
 import { formatMoney } from '@/features/pricing';
@@ -15,13 +16,13 @@ import { layout, radius, spacing, typography, useColors, useThemedStyles } from 
 import { OfferCard } from '../components/OfferCard';
 import { useAcceptWalk, useAssignedWalks, useAvailableWalks } from '../hooks/useWalker';
 
-type Props = { onOpenAssigned: (id: string) => void; onOpenNotifications: () => void };
+type Props = { onOpenAssigned: (id: string) => void; onOpenNotifications: () => void; onSignedOut: () => void };
 
 /**
  * RF-007, walker side: open requests (the nearest first once the walker shares the location) with what they earn,
  * accepted with one tap; below, the walks already accepted.
  */
-export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props) {
+export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications, onSignedOut }: Props) {
   const colors = useColors();
   const styles = useThemedStyles((colors) => ({
     safeArea: { flex: 1, backgroundColor: colors.background },
@@ -30,7 +31,7 @@ export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props)
     topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     header: { gap: spacing.xs },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     error: { ...typography.body, color: colors.danger },
     empty: { ...typography.body, color: colors.muted },
     section: { gap: spacing.sm, marginTop: spacing.md },
@@ -53,6 +54,7 @@ export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props)
   const available = useAvailableWalks(near);
   const assigned = useAssignedWalks();
   const accept = useAcceptWalk();
+  const signOut = useSignOut();
 
   async function locate() {
     const coordinates = await getCurrentLocation();
@@ -134,6 +136,13 @@ export function WalkerHomeScreen({ onOpenAssigned, onOpenNotifications }: Props)
             ))}
           </View>
         )}
+
+        <Button
+          label="Cerrar sesión"
+          variant="secondary"
+          onPress={() => signOut.mutate(undefined, { onSettled: onSignedOut })}
+          disabled={signOut.isPending}
+        />
       </ScrollView>
     </SafeAreaView>
   );

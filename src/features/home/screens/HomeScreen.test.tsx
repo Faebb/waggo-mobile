@@ -1,5 +1,6 @@
-import { screen, userEvent } from '@testing-library/react-native';
+import { screen, userEvent, waitFor } from '@testing-library/react-native';
 
+import { getSession, setSession } from '@/shared/auth/session';
 import { luna, max, requestedWalk } from '@/test/fixtures';
 import { mockApi } from '@/test/mockApi';
 import { renderWithProviders } from '@/test/renderWithProviders';
@@ -16,6 +17,7 @@ function renderHome(props: Partial<Props> = {}) {
       onOpenWalks={jest.fn()}
       onOpenWalk={jest.fn()}
       onOpenNotifications={jest.fn()}
+      onSignedOut={jest.fn()}
       {...props}
     />,
   );
@@ -97,5 +99,44 @@ describe('HomeScreen (RF-007)', () => {
     await user.press(await screen.findByRole('button', { name: 'Avisos, 1 sin leer' }));
 
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
+  });
+
+  it('signs out: revokes the refresh token, clears the session and goes to the welcome screen', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks', data: [] },
+      { path: '/api/v1/pets', data: [] },
+      { method: 'POST', path: '/api/v1/auth/logout', data: true },
+    ]);
+    const onSignedOut = jest.fn();
+    const user = userEvent.setup();
+    await renderHome({ onSignedOut });
+
+    await user.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
+
+    await waitFor(() => expect(onSignedOut).toHaveBeenCalledTimes(1));
+    const logoutCall = fetchSpy.mock.calls.find(([url]) => String(url).endsWith('/api/v1/auth/logout')) as [
+      string,
+      RequestInit,
+    ];
+    expect(JSON.parse(String(logoutCall[1].body))).toEqual({ refreshToken: 'rt' });
+    expect(getSession()).toBeNull();
+  });
+
+  it('signs out locally even when the logout call fails', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks', data: [] },
+      { path: '/api/v1/pets', data: [] },
+      { method: 'POST', path: '/api/v1/auth/logout', status: 500, errors: [{ code: 'X', message: 'boom' }] },
+    ]);
+    const onSignedOut = jest.fn();
+    const user = userEvent.setup();
+    await renderHome({ onSignedOut });
+
+    await user.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
+
+    await waitFor(() => expect(onSignedOut).toHaveBeenCalledTimes(1));
+    expect(getSession()).toBeNull();
   });
 });

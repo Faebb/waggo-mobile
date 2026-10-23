@@ -87,7 +87,7 @@ function Frame({ title, children }: { title?: string; children: ReactNode }) {
     content: { gap: spacing.lg, padding: spacing.lg },
     header: { gap: spacing.xs },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
   }));
 
   return (

@@ -34,7 +34,7 @@ describe('LoginScreen (RF-005)', () => {
     await user.type(screen.getByLabelText('Contraseña'), 'Clave123!');
     await user.press(screen.getByRole('button', { name: 'Entrar' }));
 
-    await waitFor(() => expect(onCodeSent).toHaveBeenCalledWith('challenge-1'));
+    await waitFor(() => expect(onCodeSent).toHaveBeenCalledWith('challenge-1', 'ana@mail.com'));
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     expect(JSON.parse(String(init.body))).toEqual({ email: 'ana@mail.com', password: 'Clave123!' });
   });

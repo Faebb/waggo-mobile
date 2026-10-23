@@ -1,21 +1,8 @@
-import { act, render, screen } from '@testing-library/react-native';
-import { Platform, Text } from 'react-native';
+import { Platform } from 'react-native';
 
-import { darkColors, fontFamily, getThemeMode, lightColors, setThemeMode, useColors, useThemeMode } from './theme';
-
-function ModeProbe() {
-  return <Text>{useThemeMode()}</Text>;
-}
-
-function BackgroundProbe() {
-  return <Text>{useColors().background}</Text>;
-}
+import { colors, fontFamily, touch } from './theme';
 
 describe('theme', () => {
-  beforeEach(() => {
-    setThemeMode('dark');
-  });
-
   it('uses Helvetica as the typeface', () => {
     const expected = Platform.select({ ios: 'Helvetica Neue', android: 'sans-serif', default: 'Helvetica' });
 
@@ -23,40 +10,39 @@ describe('theme', () => {
     expect(fontFamily).toMatch(/Helvetica|sans-serif/);
   });
 
-  it('starts in dark mode (ADR-013 default) regardless of the system scheme', () => {
-    expect(getThemeMode()).toBe('dark');
+  it('has one pastel palette with butter yellow as the only action color', () => {
+    expect(colors.primary).toBe('#FFD978');
+    expect(colors.primaryText).toBe('#2A2433');
   });
 
-  it('switches mode and notifies subscribers', async () => {
-    await render(<ModeProbe />);
-
-    expect(screen.getByText('dark')).toBeTruthy();
-
-    await act(async () => setThemeMode('light'));
-
-    expect(screen.getByText('light')).toBeTruthy();
+  it('defines the minimum touch height of 48 dp', () => {
+    expect(touch.minHeight).toBe(48);
   });
 
-  it('does nothing when switching to the already-active mode', async () => {
-    await render(<ModeProbe />);
-
-    await act(async () => setThemeMode('dark'));
-
-    expect(screen.getByText('dark')).toBeTruthy();
-  });
-
-  it('resolves colors to the active palette', async () => {
-    await render(<BackgroundProbe />);
-
-    expect(screen.getByText(darkColors.background)).toBeTruthy();
-
-    await act(async () => setThemeMode('light'));
-
-    expect(screen.getByText(lightColors.background)).toBeTruthy();
-  });
-
-  it('keeps the yellow accent identical across palettes (ADR-013: único acento)', () => {
-    expect(lightColors.primary).toBe(darkColors.primary);
-    expect(lightColors.primaryText).toBe(darkColors.primaryText);
+  it.each([
+    ['text', 'background'],
+    ['text', 'surface'],
+    ['text', 'surface2'],
+    ['muted', 'background'],
+    ['muted', 'surface2'],
+    ['primaryText', 'primary'],
+    ['danger', 'background'],
+    ['success', 'background'],
+    ['onDanger', 'danger'],
+  ] as const)('meets WCAG AA for %s on %s (4.5:1)', (ink, backdrop) => {
+    expect(contrastRatio(colors[ink], colors[backdrop])).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+/** WCAG 2.x relative luminance contrast ratio between two `#RRGGBB` colors. */
+function contrastRatio(a: string, b: string): number {
+  const luminance = (hex: string) => {
+    const [r, g, bl] = [1, 3, 5].map((i) => {
+      const channel = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+  };
+  const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (light + 0.05) / (dark + 0.05);
+}

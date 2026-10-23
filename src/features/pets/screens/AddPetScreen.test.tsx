@@ -29,6 +29,9 @@ function respondWith(data: unknown, status = 200, errors: unknown[] = []) {
   );
 }
 
+// The first render loads React Native lazily; on a cold cache with parallel workers it can exceed Jest's 5 s default.
+jest.setTimeout(30_000);
+
 describe('AddPetScreen (RF-004)', () => {
   let fetchSpy: jest.SpyInstance;
 
@@ -100,5 +103,30 @@ describe('AddPetScreen (RF-004)', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Ya registraste 10 perros, el máximo por cuenta.');
     expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it('sends the optional birth date as birthDate', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(<AddPetScreen onSaved={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Nombre'), 'Luna');
+    await user.type(screen.getByLabelText('Fecha de nacimiento'), '2021-05-10');
+    await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
+
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(1));
+    const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ name: 'Luna', size: 'Medium', birthDate: '2021-05-10' });
+  });
+
+  it('rejects a future birth date without calling the API', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(<AddPetScreen onSaved={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Nombre'), 'Luna');
+    await user.type(screen.getByLabelText('Fecha de nacimiento'), '2999-01-01');
+    await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
+
+    expect(screen.getByText('La fecha de nacimiento no puede ser futura.')).toBeOnTheScreen();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

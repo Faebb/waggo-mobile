@@ -21,7 +21,7 @@ export function AddPetScreen({ onSaved }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     error: { ...typography.body, color: colors.danger },
   }));
   const [form, setForm] = useState<PetForm>(EMPTY_PET_FORM);
@@ -61,6 +61,15 @@ export function AddPetScreen({ onSaved }: Props) {
           options={sizeOptions}
           value={form.size}
           onChange={(size) => setForm((current) => ({ ...current, size }))}
+        />
+        <TextField
+          label="Fecha de nacimiento"
+          value={form.birthDate}
+          onChangeText={update('birthDate')}
+          error={errors.birthDate}
+          hint="Opcional. Formato AAAA-MM-DD"
+          keyboardType="numbers-and-punctuation"
+          maxLength={10}
         />
         <TextField
           label="Peso (kg)"

@@ -6,6 +6,9 @@ import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { BecomeWalkerScreen } from './BecomeWalkerScreen';
 
+// The first render loads React Native lazily; on a cold cache with parallel workers it can exceed Jest's 5 s default.
+jest.setTimeout(30_000);
+
 describe('BecomeWalkerScreen (RF-002)', () => {
   let fetchSpy: jest.SpyInstance;
 

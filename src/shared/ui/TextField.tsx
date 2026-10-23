@@ -1,6 +1,6 @@
 import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { radius, spacing, typography, useColors, useThemedStyles } from './theme';
+import { radius, spacing, touch, typography, useColors, useThemedStyles } from './theme';
 
 type Props = {
   label: string;
@@ -21,7 +21,7 @@ export function TextField({ label, value, onChangeText, hint, error, multiline, 
     label: { ...typography.caption, fontWeight: '700', color: colors.muted },
     input: {
       ...typography.body,
-      minHeight: 48,
+      minHeight: touch.minHeight,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       borderRadius: radius.md,

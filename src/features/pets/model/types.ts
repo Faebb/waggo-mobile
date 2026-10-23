@@ -24,6 +24,7 @@ export type PetDraft = {
   name: string;
   size: PetSize;
   breed?: string;
+  birthDate?: string;
   weightKg?: number;
   medicalNotes?: string;
 };

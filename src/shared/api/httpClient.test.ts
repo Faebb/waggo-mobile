@@ -94,7 +94,22 @@ describe('httpClient.get', () => {
     const error = await client.get('/x', schema).catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ApiError);
-    expect(error).toMatchObject({ status: 502, code: 'Http.502' });
+    expect(error).toMatchObject({ status: 502, code: 'Http.UnexpectedResponse' });
+    expect((error as ApiError).message).toBe('El servidor no respondió como se esperaba. Intenta de nuevo.');
+    expect((error as ApiError).message).not.toContain('502');
+  });
+
+  it('throws an ApiError with a generic Spanish message when success is true but data is null', async () => {
+    const client = createHttpClient(
+      'http://api.test',
+      jest.fn().mockResolvedValue(jsonResponse(envelope({ data: null }))),
+    );
+
+    const error = await client.get('/x', schema).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).errors).toHaveLength(1);
+    expect((error as ApiError).message).toBe('El servidor no respondió como se esperaba. Intenta de nuevo.');
   });
 
   it('throws when data does not match the contract', async () => {
@@ -164,6 +179,33 @@ describe('httpClient silent refresh on 401', () => {
     expect((callsToX[1]![1] as RequestInit).headers).toMatchObject({ Authorization: 'Bearer at-2' });
   });
 
+  it('refreshes once for concurrent 401s and retries both requests with the new token', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/api/v1/auth/refresh')) {
+        return jsonResponse(envelope({ data: { accessToken: 'at-2', refreshToken: 'rt-2', expiresInSeconds: 900 } }));
+      }
+      const authorization = (init?.headers as Record<string, string>).Authorization;
+      return authorization === 'Bearer at-2'
+        ? jsonResponse(envelope())
+        : jsonResponse(envelope({ success: false, data: null, errors: [] }), 401);
+    });
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const [a, b] = await Promise.all([client.get('/a', schema), client.get('/b', schema)]);
+
+    expect(a.data).toEqual({ id: 7 });
+    expect(b.data).toEqual({ id: 7 });
+    const refreshCalls = fetchFn.mock.calls.filter(([input]) => String(input).endsWith('/api/v1/auth/refresh'));
+    expect(refreshCalls).toHaveLength(1);
+    const retries = fetchFn.mock.calls.filter(
+      ([, init]) =>
+        (init as RequestInit).headers &&
+        ((init as RequestInit).headers as Record<string, string>).Authorization === 'Bearer at-2',
+    );
+    expect(retries).toHaveLength(2);
+  });
+
   it('gives up after one failed refresh and surfaces the original 401', async () => {
     setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
     const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL) => {
@@ -178,6 +220,59 @@ describe('httpClient silent refresh on 401', () => {
 
     expect(error).toBeInstanceOf(ApiError);
     expect(error).toMatchObject({ status: 401 });
+  });
+
+  it('refreshes once on a 403 (token without the new role yet) and retries with the new token', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/api/v1/auth/refresh')) {
+        return jsonResponse(envelope({ data: { accessToken: 'at-2', refreshToken: 'rt-2', expiresInSeconds: 900 } }));
+      }
+      const authorization = (init?.headers as Record<string, string>).Authorization;
+      return authorization === 'Bearer at-2'
+        ? jsonResponse(envelope())
+        : jsonResponse(envelope({ success: false, data: null, errors: [] }), 403);
+    });
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const result = await client.get('/x', schema);
+
+    expect(result.data).toEqual({ id: 7 });
+    expect(fetchFn.mock.calls.filter(([input]) => String(input).endsWith('/x'))).toHaveLength(2);
+  });
+
+  it('shares one refresh between concurrent 403s', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/api/v1/auth/refresh')) {
+        return jsonResponse(envelope({ data: { accessToken: 'at-2', refreshToken: 'rt-2', expiresInSeconds: 900 } }));
+      }
+      const authorization = (init?.headers as Record<string, string>).Authorization;
+      return authorization === 'Bearer at-2'
+        ? jsonResponse(envelope())
+        : jsonResponse(envelope({ success: false, data: null, errors: [] }), 403);
+    });
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    await Promise.all([client.get('/a', schema), client.get('/b', schema)]);
+
+    expect(fetchFn.mock.calls.filter(([input]) => String(input).endsWith('/api/v1/auth/refresh'))).toHaveLength(1);
+  });
+
+  it('retries a 403 only once when the new token is still forbidden', async () => {
+    setSession({ accessToken: 'at-1', refreshToken: 'rt-1', expiresAt: Date.now() + 60_000 });
+    const fetchFn = jest.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/api/v1/auth/refresh')) {
+        return jsonResponse(envelope({ data: { accessToken: 'at-2', refreshToken: 'rt-2', expiresInSeconds: 900 } }));
+      }
+      return jsonResponse(envelope({ success: false, data: null, errors: [] }), 403);
+    });
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const error = await client.get('/x', schema).catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ status: 403 });
+    expect(fetchFn.mock.calls.filter(([input]) => String(input).endsWith('/x'))).toHaveLength(2);
   });
 
   it('does not attempt a refresh when there is no session to begin with', async () => {

@@ -11,6 +11,8 @@ type QueryParams = Record<string, string | number | boolean | undefined>;
 // Resolve the global fetch lazily so it can be replaced at runtime (interceptors, test spies).
 const globalFetch: typeof fetch = (input, init) => globalThis.fetch(input, init);
 
+const UNEXPECTED_RESPONSE_MESSAGE = 'El servidor no respondió como se esperaba. Intenta de nuevo.';
+
 function sessionHeaders(): Record<string, string> {
   const session = getSession();
   return session ? { Authorization: `Bearer ${session.accessToken}` } : {};
@@ -45,7 +47,8 @@ export function createHttpClient(
   ): Promise<WaggoApiResponse<T>> {
     const response = await fetchFn(url, { ...init, headers: { ...init.headers, ...extraHeaders() } });
 
-    if (response.status === 401 && !isRetry && getSession() !== null) {
+    // A 403 also refreshes: a walker just approved holds a token that does not carry the new role yet.
+    if ((response.status === 401 || response.status === 403) && !isRetry && getSession() !== null) {
       const refreshed = await tryRefreshSession(root, fetchFn);
       if (refreshed) {
         return send(url, init, dataSchema, true);
@@ -58,7 +61,9 @@ export function createHttpClient(
     if (!envelope.success) {
       if (!response.ok) {
         // Not an envelope (proxy error, server down...).
-        throw new ApiError(response.status, [{ code: `Http.${response.status}`, message: `HTTP ${response.status}` }]);
+        throw new ApiError(response.status, [
+          { code: 'Http.UnexpectedResponse', message: UNEXPECTED_RESPONSE_MESSAGE },
+        ]);
       }
       // 2xx with an unexpected shape: the contract changed. Fail loudly here, not deep in the UI.
       throw envelope.error;
@@ -66,7 +71,10 @@ export function createHttpClient(
 
     const { success, data, pagination, errors, warnings, infos, traceId } = envelope.data;
     if (!success || data === null) {
-      throw new ApiError(response.status, errors, traceId);
+      // An envelope without errors would leave the screen with nothing to show.
+      const shown =
+        errors.length > 0 ? errors : [{ code: 'Http.UnexpectedResponse', message: UNEXPECTED_RESPONSE_MESSAGE }];
+      throw new ApiError(response.status, shown, traceId);
     }
 
     return { data, pagination, warnings, infos, traceId };

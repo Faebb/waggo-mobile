@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { spacing, typography, useThemedStyles } from '@/shared/ui/theme';
+import { spacing, touch, typography, useThemedStyles } from '@/shared/ui/theme';
 
-import { describePet } from '../model/describePet';
+import { describeAge, describePet } from '../model/describePet';
 import type { Pet } from '../model/types';
 
 type Props = { pet: Pet };
@@ -14,14 +14,15 @@ export function PetRow({ pet }: Props) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
+      minHeight: touch.minHeight,
       paddingVertical: spacing.md,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: colors.border,
     },
     initial: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
+      width: touch.minHeight,
+      height: touch.minHeight,
+      borderRadius: touch.minHeight / 2,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.primary,
@@ -29,8 +30,11 @@ export function PetRow({ pet }: Props) {
     initialText: { ...typography.subtitle, color: colors.primaryText },
     body: { flex: 1, gap: spacing.xs },
     name: { ...typography.subtitle, color: colors.text },
+    age: { ...typography.caption, color: colors.muted },
     summary: { ...typography.body, color: colors.muted },
   }));
+
+  const age = describeAge(pet.birthDate);
 
   return (
     <View style={styles.row}>
@@ -40,6 +44,7 @@ export function PetRow({ pet }: Props) {
       <View style={styles.body}>
         <Text style={styles.name}>{pet.name}</Text>
         <Text style={styles.summary}>{describePet(pet)}</Text>
+        {age !== null && <Text style={styles.age}>{age}</Text>}
       </View>
     </View>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, ScrollView, Text, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Animated, ScrollView, Text, View } from 'react-native';
 
 import { PaymentSummary } from '@/features/payments';
 import { useMyPets } from '@/features/pets';
@@ -26,8 +26,9 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
     screen: layout.column,
     loading: { margin: spacing.xl },
     content: { gap: spacing.lg, padding: spacing.lg },
-    headline: { ...typography.display, color: colors.text },
+    headline: { ...typography.title, color: colors.text },
     error: { ...typography.body, color: colors.danger },
+    walker: { ...typography.body, color: colors.muted },
   }));
   const walk = useWalk(walkId, pollIntervalMs);
   const pets = useMyPets();
@@ -55,6 +56,12 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
         <Text accessibilityRole="header" style={styles.headline}>
           {WALK_STATUS_HEADLINES[data.status]}
         </Text>
+
+        {data.walker !== null ? (
+          <Text style={styles.walker}>{`Paseador: ${data.walker.fullName ?? 'asignado'}`}</Text>
+        ) : (
+          data.status === 'Requested' && <Text style={styles.walker}>Buscando paseador…</Text>
+        )}
 
         {(data.status === 'InProgress' || data.status === 'Completed') && (
           <WalkRoute walkId={data.id} live={data.status === 'InProgress'} />
@@ -97,17 +104,28 @@ export function WalkStatusScreen({ walkId, pollIntervalMs = WALK_POLL_INTERVAL_M
   );
 }
 
-/** Yellow dot that pulses while the walk is looking for a walker. Decorative. */
+/** Yellow dot that pulses while the walk is looking for a walker, unless the user reduced motion. Decorative. */
 function StatusMark({ status }: { status: WalkStatus }) {
   const styles = useThemedStyles((colors) => ({
     mark: { width: 20, height: 20, borderRadius: radius.pill, backgroundColor: colors.primary },
     markOff: { backgroundColor: colors.muted },
   }));
   const [pulse] = useState(() => new Animated.Value(1));
+  const [reduceMotion, setReduceMotion] = useState<boolean | null>(null);
   const searching = status === 'Requested';
 
   useEffect(() => {
-    if (!searching) {
+    let active = true;
+    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => active && setReduceMotion(enabled));
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => {
+      active = false;
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!searching || reduceMotion !== false) {
       pulse.setValue(1);
       return;
     }
@@ -119,7 +137,7 @@ function StatusMark({ status }: { status: WalkStatus }) {
     );
     loop.start();
     return () => loop.stop();
-  }, [pulse, searching]);
+  }, [pulse, searching, reduceMotion]);
 
   return (
     <Animated.View

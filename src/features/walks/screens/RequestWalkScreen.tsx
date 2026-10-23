@@ -39,19 +39,22 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     noPets: { gap: spacing.md },
     noPetsText: { ...typography.body, color: colors.muted },
     group: { gap: spacing.sm },
-    ok: { ...typography.caption, fontWeight: '700', color: colors.primary },
+    ok: { ...typography.caption, fontWeight: '700', color: colors.success },
     error: { ...typography.caption, color: colors.danger },
     priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
     priceLabel: { ...typography.body, color: colors.muted },
-    price: { ...typography.title, color: colors.primary },
+    price: { ...typography.title, color: colors.text },
     holdNote: { ...typography.caption, color: colors.muted },
   }));
   const pets = useMyPets();
-  const [petIds, setPetIds] = useState<string[]>([]);
+  // null until the owner taps a dog. An owner with a single dog almost always walks that dog, so it starts selected.
+  const [petIds, setPetIds] = useState<string[] | null>(null);
+  const onlyPetId = pets.data?.length === 1 ? pets.data[0]?.id : undefined;
+  const selectedPetIds = petIds ?? (onlyPetId ? [onlyPetId] : []);
   const [walkType, setWalkType] = useState<WalkType>('Individual');
   const [durationMinutes, setDurationMinutes] = useState<DurationMinutes>(60);
   const [when, setWhen] = useState<When>('now');
@@ -63,7 +66,12 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
   const request = useRequestWalk();
 
   const togglePet = (id: string) =>
-    setPetIds((current) => (current.includes(id) ? current.filter((petId) => petId !== id) : [...current, id]));
+    setPetIds(selectedPetIds.includes(id) ? selectedPetIds.filter((petId) => petId !== id) : [...selectedPetIds, id]);
+
+  function changeAddress(text: string) {
+    setAddress(text);
+    setErrors(({ address: _stale, ...rest }) => rest);
+  }
 
   async function locate() {
     setLocation({ status: 'locating' });
@@ -73,7 +81,7 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
 
   function submit() {
     const found: Errors = {};
-    if (petIds.length === 0) found.pets = 'Elige al menos un perro.';
+    if (selectedPetIds.length === 0) found.pets = 'Elige al menos un perro.';
     if (address.trim() === '') found.address = 'Escribe la dirección de recogida.';
     if (location.status !== 'ready') found.location = 'Usa tu ubicación para que el paseador te encuentre.';
     setErrors(found);
@@ -83,7 +91,7 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
 
     request.mutate(
       {
-        petIds,
+        petIds: selectedPetIds,
         walkType,
         durationMinutes,
         pickupAddress: address.trim(),
@@ -118,7 +126,13 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
           </View>
         )}
         {pets.data && pets.data.length > 0 && (
-          <PetPicker label="¿Quién sale?" pets={pets.data} selected={petIds} onToggle={togglePet} error={errors.pets} />
+          <PetPicker
+            label="¿Quién sale?"
+            pets={pets.data}
+            selected={selectedPetIds}
+            onToggle={togglePet}
+            error={errors.pets}
+          />
         )}
 
         <ChipGroup label="Tipo de paseo" options={walkTypeOptions} value={walkType} onChange={setWalkType} />
@@ -129,7 +143,7 @@ export function RequestWalkScreen({ onRequested, onAddPet }: Props) {
           <TextField
             label="Dirección de recogida"
             value={address}
-            onChangeText={setAddress}
+            onChangeText={changeAddress}
             error={errors.address}
             placeholder="Cra 7 # 45-10, Bogotá"
             maxLength={200}

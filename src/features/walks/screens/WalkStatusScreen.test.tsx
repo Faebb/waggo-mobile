@@ -1,10 +1,14 @@
-import { screen, userEvent } from '@testing-library/react-native';
+import { screen, userEvent, waitFor } from '@testing-library/react-native';
+import { AccessibilityInfo, Animated } from 'react-native';
 
 import { luna, requestedWalk } from '@/test/fixtures';
 import { envelopeResponse, mockApi } from '@/test/mockApi';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { WalkStatusScreen } from './WalkStatusScreen';
+
+// The first render loads React Native lazily; on a cold cache with parallel workers it can exceed Jest's 5 s default.
+jest.setTimeout(30_000);
 
 describe('WalkStatusScreen (RF-007)', () => {
   let fetchSpy: jest.SpyInstance;
@@ -25,6 +29,38 @@ describe('WalkStatusScreen (RF-007)', () => {
     expect(screen.getByText('Cra 7 # 45-10, Bogotá')).toBeOnTheScreen();
     expect(screen.getByText('$ 23.000')).toBeOnTheScreen();
     expect(screen.getByText('Timbre dañado')).toBeOnTheScreen();
+  });
+
+  it('shows the assigned walker by name, and that it is still looking when there is none (RF-007)', async () => {
+    fetchSpy = mockApi([
+      {
+        path: '/api/v1/walks/walk-1',
+        data: {
+          ...requestedWalk,
+          status: 'Accepted',
+          walkerId: 'w-1',
+          walker: { id: 'w-1', fullName: 'Andrés Gómez' },
+        },
+      },
+      { path: '/api/v1/pets', data: [luna] },
+      { path: '/api/v1/walks/walk-1/alerts', data: [] },
+    ]);
+
+    await renderWithProviders(<WalkStatusScreen walkId="walk-1" />);
+
+    expect(await screen.findByText('Paseador: Andrés Gómez')).toBeOnTheScreen();
+    expect(screen.queryByText('Buscando paseador…', { exact: true })).not.toBeOnTheScreen();
+  });
+
+  it('says it is looking for a walker while nobody accepted (RF-007)', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: { ...requestedWalk, walker: null } },
+      { path: '/api/v1/pets', data: [luna] },
+    ]);
+
+    await renderWithProviders(<WalkStatusScreen walkId="walk-1" />);
+
+    expect(await screen.findAllByText('Buscando paseador…')).toHaveLength(2);
   });
 
   it('opens the chat with the walker once someone accepted (RF-013)', async () => {
@@ -111,5 +147,38 @@ describe('WalkStatusScreen (RF-007)', () => {
 
     expect(await screen.findByRole('header', { name: 'Buscando paseador…' })).toBeOnTheScreen();
     expect(await screen.findByRole('header', { name: 'Tu paseador va en camino' })).toBeOnTheScreen();
+  });
+
+  describe('status dot', () => {
+    const searching = () =>
+      mockApi([
+        { path: '/api/v1/walks/walk-1', data: requestedWalk },
+        { path: '/api/v1/pets', data: [luna] },
+      ]);
+
+    afterEach(() => jest.restoreAllMocks());
+
+    it('pulses while looking for a walker', async () => {
+      jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(false);
+      const loop = jest.spyOn(Animated, 'loop');
+      fetchSpy = searching();
+
+      await renderWithProviders(<WalkStatusScreen walkId="walk-1" />);
+
+      await waitFor(() => expect(loop).toHaveBeenCalled());
+    });
+
+    it('does not pulse when the user asked to reduce motion', async () => {
+      const reduceMotion = jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
+      const loop = jest.spyOn(Animated, 'loop');
+      fetchSpy = searching();
+
+      await renderWithProviders(<WalkStatusScreen walkId="walk-1" />);
+      await screen.findByRole('header', { name: 'Buscando paseador…' });
+      await waitFor(() => expect(reduceMotion).toHaveBeenCalled());
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(loop).not.toHaveBeenCalled();
+    });
   });
 });

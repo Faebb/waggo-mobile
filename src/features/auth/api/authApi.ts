@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { httpClient, type HttpClient } from '@/shared/api/httpClient';
-import { setSession } from '@/shared/auth/session';
+import { getSession, setSession } from '@/shared/auth/session';
 
 import type { LoginChallenge, RegisteredAccount, SessionTokens } from '../model/types';
 
@@ -47,6 +47,28 @@ export async function verifyLoginCode(
     expiresAt: Date.now() + data.expiresInSeconds * 1000,
   });
   return data;
+}
+
+/** RF-005 — POST /api/v1/auth/resend-code: a new code for the same challenge (every resend counts as an attempt). */
+export async function resendLoginCode(challengeId: string, client: HttpClient = httpClient): Promise<LoginChallenge> {
+  const { data } = await client.post('/api/v1/auth/resend-code', { challengeId }, challengeSchema);
+  return data;
+}
+
+/**
+ * RF-005 — POST /api/v1/auth/logout with the stored refresh token (revokes it), then clears the local session. The
+ * session is cleared even if the call fails: the user must always be able to leave.
+ */
+export async function signOut(client: HttpClient = httpClient): Promise<void> {
+  const current = getSession();
+  if (current !== null) {
+    try {
+      await client.post('/api/v1/auth/logout', { refreshToken: current.refreshToken }, z.boolean());
+    } catch {
+      // Offline or the server failed: the local sign-out still happens below.
+    }
+  }
+  setSession(null);
 }
 
 /** Clears the session; `httpClient` stops sending a Bearer token right away. */

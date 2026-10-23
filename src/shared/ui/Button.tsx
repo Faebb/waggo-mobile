@@ -31,7 +31,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
   const labelStyles = useThemedStyles((colors) => ({
     primary: { color: colors.primaryText },
     secondary: { color: colors.primary },
-    danger: { color: colors.text },
+    danger: { color: colors.onDanger },
   }));
 
   return (

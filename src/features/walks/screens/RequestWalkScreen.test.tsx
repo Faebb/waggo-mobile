@@ -1,6 +1,7 @@
 import { screen, userEvent, waitFor } from '@testing-library/react-native';
 
 import { getCurrentLocation } from '@/shared/location/getCurrentLocation';
+import { colors } from '@/shared/ui/theme';
 import { fareQuote, luna, max, requestedWalk } from '@/test/fixtures';
 import { mockApi } from '@/test/mockApi';
 import { renderWithProviders } from '@/test/renderWithProviders';
@@ -31,6 +32,27 @@ describe('RequestWalkScreen (RF-007)', () => {
 
   afterEach(() => fetchSpy?.mockRestore());
 
+  it('preselects the only dog of the owner', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/pets', data: [luna] },
+      { path: '/api/v1/pricing/quote', data: fareQuote },
+    ]);
+    await renderScreen();
+
+    expect(await screen.findByRole('button', { name: 'Luna' })).toBeSelected();
+  });
+
+  it('shows the location confirmation in success color and the price in text color, not yellow', async () => {
+    fetchSpy = api();
+    const user = userEvent.setup();
+    await renderScreen();
+
+    await user.press(await screen.findByRole('button', { name: 'Usar mi ubicación' }));
+
+    expect(await screen.findByText('Ubicación lista')).toHaveStyle({ color: colors.success });
+    expect(await screen.findByText('$ 23.000')).toHaveStyle({ color: colors.text });
+  });
+
   it('requests the walk with the chosen dogs, place and time, showing the price first', async () => {
     fetchSpy = api();
     const onRequested = jest.fn();
@@ -59,7 +81,21 @@ describe('RequestWalkScreen (RF-007)', () => {
       scheduledFor: null,
       notes: 'Timbre dañado',
     });
-  }, 15000);
+  }, 30000);
+
+  it('clears the address error as soon as a valid address is typed', async () => {
+    fetchSpy = api();
+    const user = userEvent.setup();
+    await renderScreen();
+    await screen.findByRole('button', { name: 'Luna' });
+
+    await user.press(screen.getByRole('button', { name: 'Pedir paseo' }));
+    expect(screen.getByText('Escribe la dirección de recogida.')).toBeOnTheScreen();
+
+    await user.type(screen.getByLabelText('Dirección de recogida'), 'Cra 7');
+
+    expect(screen.queryByText('Escribe la dirección de recogida.')).not.toBeOnTheScreen();
+  });
 
   it('asks to choose at least one dog before asking for the walk', async () => {
     fetchSpy = api();

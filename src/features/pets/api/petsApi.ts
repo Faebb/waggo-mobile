@@ -25,3 +25,9 @@ export async function registerPet(draft: PetDraft, client: HttpClient = httpClie
   const { data } = await client.post('/api/v1/pets', draft, petSchema);
   return data;
 }
+
+/** RF-004 — GET /api/v1/pets/{id}: one dog of the current owner, with its medical notes already decrypted. */
+export async function getOwnPet(id: string, client: HttpClient = httpClient): Promise<Pet> {
+  const { data } = await client.get(`/api/v1/pets/${encodeURIComponent(id)}`, petSchema);
+  return data;
+}

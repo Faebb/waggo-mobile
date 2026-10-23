@@ -1,85 +1,39 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
-/** Dark theme with yellow as the only accent (vault › ADR-013). The shipped default. */
-export const darkColors = {
-  primary: '#FFC527',
-  primaryText: '#14120A',
-  text: '#F4F1E8',
-  muted: '#9A968A',
-  surface: '#1A1A17',
-  surface2: '#25221D',
-  background: '#0F0F0D',
-  border: '#2C2B26',
-  danger: '#FF6B5E',
-  success: '#4CC38A',
+/**
+ * The only theme: a pastel dark palette. Butter yellow is the only action color; red is reserved for errors and
+ * emergencies. Every text pair meets WCAG AA (`theme.test.tsx`). There is no light mode and no user toggle.
+ */
+export const colors = {
+  primary: '#FFD978',
+  primaryText: '#2A2433',
+  text: '#F3EEF9',
+  muted: '#BDB4CB',
+  surface: '#2A2433',
+  surface2: '#352E42',
+  background: '#1E1A26',
+  border: '#4A4159',
+  danger: '#FF9C94',
+  onDanger: '#2A2433',
+  success: '#A8E6C8',
 } as const;
 
-/** Light theme, same accent and structure as dark (vault › ADR-015). */
-export const lightColors = {
-  primary: '#FFC527',
-  primaryText: '#14120A',
-  text: '#17140F',
-  muted: '#5F584A',
-  surface: '#FFFFFF',
-  surface2: '#F3EEE1',
-  background: '#FAF7EF',
-  border: '#E7E0CE',
-  danger: '#C23B3B',
-  success: '#1F7A52',
-} as const;
-
-export type Colors = Record<keyof typeof darkColors, string>;
-export type ThemeMode = 'light' | 'dark';
-
-const palettes: Record<ThemeMode, Colors> = { dark: darkColors, light: lightColors };
-
-export const THEME_MODE_STORAGE_KEY = 'waggo:theme-mode';
-
-/** ADR-013: the app ships dark by default; the user opts into light from `ThemeToggle`. */
-let mode: ThemeMode = 'dark';
-const listeners = new Set<() => void>();
-
-export function getThemeMode(): ThemeMode {
-  return mode;
-}
-
-export function setThemeMode(next: ThemeMode) {
-  if (next === mode) return;
-  mode = next;
-  listeners.forEach((listener) => listener());
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-export function useThemeMode(): ThemeMode {
-  const [current, setCurrent] = useState(getThemeMode);
-
-  useEffect(() => subscribe(() => setCurrent(getThemeMode())), []);
-
-  return current;
-}
+export type Colors = typeof colors;
 
 export function useColors(): Colors {
-  return palettes[useThemeMode()];
+  return colors;
 }
 
 /**
- * Builds a `StyleSheet` from the active palette, recomputed only when the theme mode changes.
- * `typography`/`spacing`/`radius`/`layout` don't vary by theme (vault › Sistema de diseño), so screens keep
- * importing those directly.
+ * Builds a `StyleSheet` from the palette once per screen mount. The palette never changes at runtime, so the
+ * sheet is not recomputed.
  */
 export function useThemedStyles<T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<unknown>>(
-  factory: (colors: Colors) => T,
+  factory: (palette: Colors) => T,
 ): T {
-  const colors = useColors();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => StyleSheet.create(factory(colors)), [colors]);
+  return useMemo(() => StyleSheet.create(factory(colors)), []);
 }
 
 /** Helvetica where the OS ships it; Android has no Helvetica, so it falls back to its system sans. */
@@ -87,9 +41,12 @@ export const fontFamily = Platform.select({ ios: 'Helvetica Neue', android: 'san
 
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 
+/** Minimum touch target height in dp (WCAG 2.5.5 / Material). */
+export const touch = { minHeight: 48 } as const;
+
 export const radius = { sm: 6, md: 12, pill: 999 } as const;
 
-/** Mobile first (ADR-013): on tablets and web every screen keeps a phone-width column. */
+/** Mobile first: on tablets and web every screen keeps a phone-width column. */
 export const layout = {
   column: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
 } as const;

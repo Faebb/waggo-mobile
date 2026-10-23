@@ -10,6 +10,7 @@ export default function WalkerHome() {
         <WalkerHomeScreen
           onOpenAssigned={(id) => router.push({ pathname: '/paseador/[id]', params: { id } })}
           onOpenNotifications={() => router.push('/paseador/notificaciones')}
+          onSignedOut={() => router.replace('/')}
         />
       </WalkerGate>
     </>

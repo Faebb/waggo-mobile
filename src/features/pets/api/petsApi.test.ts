@@ -1,6 +1,6 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 
-import { listMyPets, registerPet } from './petsApi';
+import { getOwnPet, listMyPets, registerPet } from './petsApi';
 
 const luna = {
   id: '0b3c5f7e-1111-4a4a-8b8b-000000000001',
@@ -32,6 +32,18 @@ describe('petsApi (RF-004)', () => {
 
     expect(fetchFn).toHaveBeenCalledWith('http://api/api/v1/pets', expect.objectContaining({ method: 'GET' }));
     expect(pets).toEqual([luna]);
+  });
+
+  it('reads one pet from GET /api/v1/pets/{id}', async () => {
+    const fetchFn = respond(envelope(luna));
+
+    const pet = await getOwnPet(luna.id, createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      `http://api/api/v1/pets/${luna.id}`,
+      expect.objectContaining({ method: 'GET' }),
+    );
+    expect(pet).toEqual(luna);
   });
 
   it('registers a pet with POST /api/v1/pets and returns it', async () => {

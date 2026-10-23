@@ -22,9 +22,9 @@ export function useWalkAlerts(walkId: string) {
 export function useRaiseEmergency(walkId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (message?: string) => {
       const position = await getCurrentLocation();
-      const draft: EmergencyDraft = position ?? {};
+      const draft: EmergencyDraft = { ...(message !== undefined && { message }), ...position };
       return raiseEmergency(walkId, draft);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: alertKeys.walk(walkId) }),

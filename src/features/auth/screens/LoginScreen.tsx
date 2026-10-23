@@ -9,14 +9,14 @@ import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme'
 import { useLogin } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
-type Props = { onCodeSent: (challengeId: string) => void; onGoToRegister: () => void };
+type Props = { onCodeSent: (challengeId: string, email: string) => void; onGoToRegister: () => void };
 
 /** RF-005, step 1: the right password raises the second factor instead of a session right away. */
 export function LoginScreen({ onCodeSent, onGoToRegister }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     error: { ...typography.body, color: colors.danger },
     link: { ...typography.body, color: colors.primary, textAlign: 'center' },
   }));
@@ -25,7 +25,7 @@ export function LoginScreen({ onCodeSent, onGoToRegister }: Props) {
   const login = useLogin();
 
   function submit() {
-    login.mutate({ email, password }, { onSuccess: (challenge) => onCodeSent(challenge.challengeId) });
+    login.mutate({ email, password }, { onSuccess: (challenge) => onCodeSent(challenge.challengeId, email) });
   }
 
   return (

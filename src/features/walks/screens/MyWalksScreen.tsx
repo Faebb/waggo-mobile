@@ -15,7 +15,7 @@ export function MyWalksScreen({ onOpenWalk }: Props) {
     screen: layout.column,
     content: { gap: spacing.md, padding: spacing.lg },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
+    title: { ...typography.title, color: colors.text, marginBottom: spacing.md },
     error: { ...typography.body, color: colors.danger },
     empty: { ...typography.body, color: colors.muted },
   }));

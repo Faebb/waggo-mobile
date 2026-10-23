@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 
 
 import { useWalk } from '@/features/walks';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { layout, radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { layout, radius, spacing, touch, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { MessageBubble } from '../components/MessageBubble';
 import { useChat, useSendMessage } from '../hooks/useChat';
@@ -21,7 +21,7 @@ export function ChatScreen({ walkId, viewer }: Props) {
     screen: layout.column,
     content: { gap: spacing.md, padding: spacing.lg },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     messages: { gap: spacing.sm },
     empty: { ...typography.body, color: colors.muted },
     error: { ...typography.caption, color: colors.danger },
@@ -30,7 +30,7 @@ export function ChatScreen({ walkId, viewer }: Props) {
     input: {
       ...typography.body,
       flex: 1,
-      minHeight: 44,
+      minHeight: touch.minHeight,
       maxHeight: 120,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
@@ -41,7 +41,7 @@ export function ChatScreen({ walkId, viewer }: Props) {
       color: colors.text,
     },
     send: {
-      height: 44,
+      minHeight: touch.minHeight,
       paddingHorizontal: spacing.md,
       borderRadius: radius.md,
       alignItems: 'center',

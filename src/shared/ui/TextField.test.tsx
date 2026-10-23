@@ -1,6 +1,8 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { useState } from 'react';
+import { StyleSheet } from 'react-native';
 
+import { touch } from './theme';
 import { TextField } from './TextField';
 
 /** Controlled field, as screens use it. */
@@ -19,6 +21,12 @@ function NameField({ onChangeText }: { onChangeText: (text: string) => void }) {
 }
 
 describe('TextField', () => {
+  it('is at least as tall as the minimum touch area', async () => {
+    await render(<NameField onChangeText={jest.fn()} />);
+
+    expect(StyleSheet.flatten(screen.getByLabelText('Nombre').props.style).minHeight).toBe(touch.minHeight);
+  });
+
   it('is found by its label and reports what the user types', async () => {
     const onChangeText = jest.fn();
     const user = userEvent.setup();

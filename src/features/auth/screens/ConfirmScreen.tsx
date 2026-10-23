@@ -11,21 +11,22 @@ import { apiErrorMessages } from '../model/apiErrorMessages';
 
 type Props = { email: string; onConfirmed: () => void };
 
-/** RF-001: the owner of the inbox pastes the token Waggo emailed to activate the account. */
+/** RF-001: the owner of the inbox pastes the confirmation code Waggo emailed to activate the account. */
 export function ConfirmScreen({ email, onConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     lead: { ...typography.body, color: colors.muted },
     highlight: { color: colors.text, fontWeight: '700' },
     error: { ...typography.body, color: colors.danger },
+    success: { ...typography.body, fontWeight: '700', color: colors.primary },
   }));
   const [token, setToken] = useState('');
   const confirmEmail = useConfirmEmail();
 
   function submit() {
-    confirmEmail.mutate(token, { onSuccess: onConfirmed });
+    confirmEmail.mutate(token);
   }
 
   return (
@@ -35,10 +36,16 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
           Confirma tu correo
         </Text>
         <Text style={styles.lead}>
-          Te escribimos a <Text style={styles.highlight}>{email}</Text> con un enlace de confirmación. Pégalo aquí.
+          Te escribimos a <Text style={styles.highlight}>{email}</Text> con un código de confirmación. Escríbelo aquí.
         </Text>
 
-        <TextField label="Enlace de confirmación" value={token} onChangeText={setToken} autoCapitalize="none" />
+        <TextField label="Código de confirmación" value={token} onChangeText={setToken} autoCapitalize="none" />
+
+        {confirmEmail.isSuccess && (
+          <Text accessibilityRole="alert" style={styles.success}>
+            Correo confirmado. Ya puedes iniciar sesión.
+          </Text>
+        )}
 
         {apiErrorMessages(confirmEmail.error, confirmEmail.isError).map((message) => (
           <Text key={message} accessibilityRole="alert" style={styles.error}>
@@ -48,11 +55,15 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
       </ScrollView>
 
       <ActionFooter>
-        <Button
-          label={confirmEmail.isPending ? 'Confirmando…' : 'Confirmar cuenta'}
-          onPress={submit}
-          disabled={confirmEmail.isPending || token.length === 0}
-        />
+        {confirmEmail.isSuccess ? (
+          <Button label="Ir a iniciar sesión" onPress={onConfirmed} />
+        ) : (
+          <Button
+            label={confirmEmail.isPending ? 'Confirmando…' : 'Confirmar cuenta'}
+            onPress={submit}
+            disabled={confirmEmail.isPending || token.length === 0}
+          />
+        )}
       </ActionFooter>
     </View>
   );

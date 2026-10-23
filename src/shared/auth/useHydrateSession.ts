@@ -16,7 +16,7 @@ function isSession(value: unknown): value is Session {
 
 /**
  * Loads the session from the secure keychain/keystore on first mount and persists it afterwards. Mounted once at
- * the app root (`src/app/_layout.tsx`), like `useHydrateThemeMode`; tokens never touch `AsyncStorage`.
+ * the app root (`src/app/_layout.tsx`); tokens never touch `AsyncStorage`.
  */
 export function useHydrateSession() {
   const session = useSession();

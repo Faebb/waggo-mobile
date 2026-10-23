@@ -1,11 +1,16 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { StyleSheet } from 'react-native';
 
 import { spacing, useThemedStyles } from './theme';
 
 type Props = { children: ReactNode };
 
-/** Bottom area of a screen with its main actions, within thumb reach (ADR-013). */
+/**
+ * Bottom area of a screen with its main actions, within thumb reach (ADR-013). It rises with the keyboard. The
+ * keyboard-controller version is used because React Native's own KeyboardAvoidingView does not follow the keyboard on
+ * Android in edge-to-edge mode (Expo SDK 57 default), which left the button hidden behind the keyboard.
+ */
 export function ActionFooter({ children }: Props) {
   const styles = useThemedStyles((colors) => ({
     footer: {
@@ -18,5 +23,9 @@ export function ActionFooter({ children }: Props) {
     },
   }));
 
-  return <View style={styles.footer}>{children}</View>;
+  return (
+    <KeyboardAvoidingView behavior="padding" style={styles.footer}>
+      {children}
+    </KeyboardAvoidingView>
+  );
 }

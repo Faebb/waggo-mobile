@@ -1,5 +1,6 @@
 import { screen, userEvent } from '@testing-library/react-native';
 
+import { layout } from '@/shared/ui/theme';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { FareQuoteScreen } from './FareQuoteScreen';
@@ -42,6 +43,14 @@ describe('FareQuoteScreen (RF-019)', () => {
     await renderWithProviders(<FareQuoteScreen />);
 
     expect(await screen.findByText('$ 23.000')).toBeOnTheScreen();
+  });
+
+  it('lays out in the shared phone-width column like every other screen', async () => {
+    await renderWithProviders(<FareQuoteScreen />);
+
+    const container = screen.getByRole('header', { name: '¿Cuánto cuesta el paseo?' }).parent;
+
+    expect(container).toHaveStyle(layout.column);
   });
 
   it('updates the price when the owner changes type and duration', async () => {

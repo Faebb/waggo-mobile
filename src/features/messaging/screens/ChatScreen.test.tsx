@@ -1,5 +1,7 @@
 import { screen, userEvent, waitFor } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
+import { touch } from '@/shared/ui/theme';
 import { acceptedWalk } from '@/test/fixtures';
 import { mockApi } from '@/test/mockApi';
 import { renderWithProviders } from '@/test/renderWithProviders';
@@ -26,6 +28,20 @@ describe('ChatScreen (RF-013)', () => {
 
     expect(await screen.findByLabelText('Tú: ¿Ya llegaste?')).toBeOnTheScreen();
     expect(screen.getByLabelText('Paseador: Estoy en la portería')).toBeOnTheScreen();
+  });
+
+  it('gives the message box and the send button at least the minimum touch height', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: acceptedWalk },
+      { path: '/api/v1/walks/walk-1/messages', data: [] },
+    ]);
+    await renderWithProviders(<ChatScreen walkId="walk-1" viewer="Owner" />);
+
+    const input = await screen.findByLabelText('Escribe un mensaje');
+    const send = screen.getByRole('button', { name: 'Enviar' });
+
+    expect(StyleSheet.flatten(input.props.style).minHeight).toBe(touch.minHeight);
+    expect(StyleSheet.flatten(send.props.style).minHeight).toBe(touch.minHeight);
   });
 
   it('sends a message and clears the box', async () => {

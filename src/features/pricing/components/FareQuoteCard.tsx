@@ -19,7 +19,7 @@ export function FareQuoteCard({ quote }: Props) {
       borderColor: colors.border,
     },
     subtitle: { ...typography.body, color: colors.muted },
-    total: { ...typography.display, color: colors.primary },
+    total: { ...typography.title, color: colors.primary },
     row: { flexDirection: 'row', justifyContent: 'space-between' },
     muted: { ...typography.caption, color: colors.muted },
   }));

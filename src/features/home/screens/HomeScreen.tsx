@@ -1,10 +1,12 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useSignOut } from '@/features/auth';
 import { NotificationBell } from '@/features/notifications';
 import { useMyPets } from '@/features/pets';
 import { ACTIVE_STATUSES, useMyWalks, WalkRow } from '@/features/walks';
 import { BrandMark } from '@/shared/ui/BrandMark';
+import { Button } from '@/shared/ui/Button';
 import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 type Props = {
@@ -13,13 +15,21 @@ type Props = {
   onOpenWalks: () => void;
   onOpenWalk: (id: string) => void;
   onOpenNotifications: () => void;
+  onSignedOut: () => void;
 };
 
 /**
  * Owner home, inspired by a ride app: one big "where to?" entry to ask for a walk, the walk going on (if any)
  * and shortcuts to the owner's dogs and walks.
  */
-export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk, onOpenNotifications }: Props) {
+export function HomeScreen({
+  onRequestWalk,
+  onOpenPets,
+  onOpenWalks,
+  onOpenWalk,
+  onOpenNotifications,
+  onSignedOut,
+}: Props) {
   const styles = useThemedStyles((colors) => ({
     topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     safeArea: { flex: 1, backgroundColor: colors.background },
@@ -51,6 +61,7 @@ export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk,
     section: { gap: spacing.sm },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
   }));
+  const signOut = useSignOut();
   const pets = useMyPets();
   const walks = useMyWalks();
   const activeWalk = walks.data?.find((walk) => ACTIVE_STATUSES.includes(walk.status));
@@ -95,6 +106,13 @@ export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk,
           />
           <Shortcut title="Mis paseos" detail="Historial y paseos programados" onPress={onOpenWalks} />
         </View>
+
+        <Button
+          label="Cerrar sesión"
+          variant="secondary"
+          onPress={() => signOut.mutate(undefined, { onSettled: onSignedOut })}
+          disabled={signOut.isPending}
+        />
       </ScrollView>
     </SafeAreaView>
   );

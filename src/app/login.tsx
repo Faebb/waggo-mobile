@@ -6,7 +6,9 @@ export default function Login() {
   const { redirect } = useLocalSearchParams<{ redirect?: string }>();
   return (
     <LoginScreen
-      onCodeSent={(challengeId) => router.push({ pathname: '/verificar', params: { challengeId, redirect } })}
+      onCodeSent={(challengeId, email) =>
+        router.push({ pathname: '/verificar', params: { challengeId, email, redirect } })
+      }
       onGoToRegister={() => router.push('/registro')}
     />
   );

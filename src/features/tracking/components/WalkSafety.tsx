@@ -9,11 +9,10 @@ import { EmergencyButton } from './EmergencyButton';
 
 type Props = { walkId: string; viewer: AlertParty };
 
-/** RF-012: latest alert of the walk and the emergency button, for the owner and the walker alike. */
+/** RF-012: the alerts of the walk (as the API orders them, newest first) and the emergency button, for the owner and the walker alike. */
 export function WalkSafety({ walkId, viewer }: Props) {
   const alerts = useWalkAlerts(walkId);
   const raise = useRaiseEmergency(walkId);
-  const latest = alerts.data?.[0];
   const styles = useThemedStyles((colors) => ({
     container: { gap: spacing.md },
     sent: { ...typography.caption, fontWeight: '700', color: colors.text },
@@ -22,8 +21,10 @@ export function WalkSafety({ walkId, viewer }: Props) {
 
   return (
     <View style={styles.container}>
-      {latest && <AlertBanner alert={latest} viewer={viewer} />}
-      <EmergencyButton onConfirm={() => raise.mutate()} sending={raise.isPending} />
+      {alerts.data?.map((alert) => (
+        <AlertBanner key={alert.id} alert={alert} viewer={viewer} />
+      ))}
+      <EmergencyButton onConfirm={(message) => raise.mutate(message)} sending={raise.isPending} />
       {raise.isSuccess && <Text style={styles.sent}>Emergencia enviada. Mantén la calma; el paseo quedó marcado.</Text>}
       {raise.isError && <Text style={styles.error}>No pudimos enviar la emergencia. Intenta de nuevo.</Text>}
     </View>

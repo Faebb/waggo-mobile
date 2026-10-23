@@ -1,4 +1,4 @@
-import { screen, userEvent, waitFor } from '@testing-library/react-native';
+import { screen, userEvent } from '@testing-library/react-native';
 
 import { renderWithProviders } from '@/test/renderWithProviders';
 
@@ -31,10 +31,15 @@ describe('ConfirmScreen (RF-001)', () => {
     await renderWithProviders(<ConfirmScreen email="ana@mail.com" onConfirmed={onConfirmed} />);
 
     expect(screen.getByText('ana@mail.com')).toBeOnTheScreen();
-    await user.type(screen.getByLabelText('Enlace de confirmación'), 'raw-token');
+    expect(screen.getByText(/código de confirmación/)).toBeOnTheScreen();
+    expect(screen.queryByText(/enlace/i)).not.toBeOnTheScreen();
+    await user.type(screen.getByLabelText('Código de confirmación'), 'raw-token');
     await user.press(screen.getByRole('button', { name: 'Confirmar cuenta' }));
 
-    await waitFor(() => expect(onConfirmed).toHaveBeenCalledTimes(1));
+    expect(await screen.findByText('Correo confirmado. Ya puedes iniciar sesión.')).toBeOnTheScreen();
+    expect(onConfirmed).not.toHaveBeenCalled();
+    await user.press(screen.getByRole('button', { name: 'Ir a iniciar sesión' }));
+    expect(onConfirmed).toHaveBeenCalledTimes(1);
     const [url] = fetchSpy.mock.calls[0] as [string];
     expect(url).toMatch(/\/api\/v1\/auth\/confirm\?token=raw-token$/);
   });
@@ -48,7 +53,7 @@ describe('ConfirmScreen (RF-001)', () => {
     const user = userEvent.setup();
     await renderWithProviders(<ConfirmScreen email="ana@mail.com" onConfirmed={jest.fn()} />);
 
-    await user.type(screen.getByLabelText('Enlace de confirmación'), 'wrong-token');
+    await user.type(screen.getByLabelText('Código de confirmación'), 'wrong-token');
     await user.press(screen.getByRole('button', { name: 'Confirmar cuenta' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('El enlace no es válido.');

@@ -1,5 +1,6 @@
 import { screen, userEvent, waitFor } from '@testing-library/react-native';
 
+import { getSession, setSession } from '@/shared/auth/session';
 import { getCurrentLocation } from '@/shared/location/getCurrentLocation';
 import { acceptedWalk, availableWalk } from '@/test/fixtures';
 import { mockApi } from '@/test/mockApi';
@@ -23,7 +24,9 @@ describe('WalkerHomeScreen (RF-007)', () => {
       { path: '/api/v1/walks/assigned', data: [] },
     ]);
 
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} />);
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} onSignedOut={jest.fn()} />,
+    );
 
     expect(await screen.findByText('Individual · 60 min · 1 perro')).toBeOnTheScreen();
     expect(screen.getByText('Grupal · 45 min · 2 perros')).toBeOnTheScreen();
@@ -37,7 +40,9 @@ describe('WalkerHomeScreen (RF-007)', () => {
       { path: '/api/v1/walks/assigned', data: [] },
     ]);
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} />);
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} onSignedOut={jest.fn()} />,
+    );
 
     await user.press(await screen.findByRole('button', { name: 'Ver las más cercanas' }));
 
@@ -53,7 +58,9 @@ describe('WalkerHomeScreen (RF-007)', () => {
     ]);
     const onOpenAssigned = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={onOpenAssigned} onOpenNotifications={jest.fn()} />);
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={onOpenAssigned} onOpenNotifications={jest.fn()} onSignedOut={jest.fn()} />,
+    );
 
     await user.press(await screen.findByRole('button', { name: 'Aceptar' }));
 
@@ -72,7 +79,9 @@ describe('WalkerHomeScreen (RF-007)', () => {
       },
     ]);
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} />);
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} onSignedOut={jest.fn()} />,
+    );
 
     await user.press(await screen.findByRole('button', { name: 'Aceptar' }));
 
@@ -88,7 +97,9 @@ describe('WalkerHomeScreen (RF-007)', () => {
     ]);
     const onOpenAssigned = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<WalkerHomeScreen onOpenAssigned={onOpenAssigned} onOpenNotifications={jest.fn()} />);
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={onOpenAssigned} onOpenNotifications={jest.fn()} onSignedOut={jest.fn()} />,
+    );
 
     expect(await screen.findByText('No hay solicitudes por ahora.')).toBeOnTheScreen();
     await user.press(await screen.findByRole('button', { name: /Cra 7 # 45-10, Bogotá/ }));
@@ -105,11 +116,35 @@ describe('WalkerHomeScreen (RF-007)', () => {
     const onOpenNotifications = jest.fn();
     const user = userEvent.setup();
     await renderWithProviders(
-      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={onOpenNotifications} />,
+      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={onOpenNotifications} onSignedOut={jest.fn()} />,
     );
 
     await user.press(await screen.findByRole('button', { name: 'Avisos' }));
 
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
+  });
+
+  it('signs out: revokes the refresh token, clears the session and goes to the welcome screen', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/available', data: [] },
+      { path: '/api/v1/walks/assigned', data: [] },
+      { method: 'POST', path: '/api/v1/auth/logout', data: true },
+    ]);
+    const onSignedOut = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(
+      <WalkerHomeScreen onOpenAssigned={jest.fn()} onOpenNotifications={jest.fn()} onSignedOut={onSignedOut} />,
+    );
+
+    await user.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
+
+    await waitFor(() => expect(onSignedOut).toHaveBeenCalledTimes(1));
+    const logoutCall = fetchSpy.mock.calls.find(([url]) => String(url).endsWith('/api/v1/auth/logout')) as [
+      string,
+      RequestInit,
+    ];
+    expect(JSON.parse(String(logoutCall[1].body))).toEqual({ refreshToken: 'rt' });
+    expect(getSession()).toBeNull();
   });
 });

@@ -50,6 +50,24 @@ describe('MyPetsScreen (RF-004)', () => {
     expect(screen.getByText('Pequeño')).toBeOnTheScreen();
   });
 
+  it('shows the age of the dogs that have a birth date', async () => {
+    const born = new Date();
+    born.setFullYear(born.getFullYear() - 3);
+    born.setDate(born.getDate() - 2);
+    const birthDate = `${born.getFullYear()}-${String(born.getMonth() + 1).padStart(2, '0')}-${String(born.getDate()).padStart(2, '0')}`;
+    fetchSpy.mockResolvedValue(
+      respondWith([
+        { ...luna, birthDate },
+        { ...max, birthDate: null },
+      ]),
+    );
+
+    await renderWithProviders(<MyPetsScreen onAddPress={jest.fn()} />);
+
+    expect(await screen.findByText('3 años')).toBeOnTheScreen();
+    expect(screen.getAllByText(/años|meses|mes/)).toHaveLength(1);
+  });
+
   it('invites to add the first dog when there are none', async () => {
     fetchSpy.mockResolvedValue(respondWith([]));
 
@@ -68,6 +86,17 @@ describe('MyPetsScreen (RF-004)', () => {
     await user.press(screen.getByRole('button', { name: 'Agregar perro' }));
 
     expect(onAddPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the detail of a dog when the owner taps its row', async () => {
+    fetchSpy.mockResolvedValue(respondWith([luna, max]));
+    const onPetPress = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(<MyPetsScreen onAddPress={jest.fn()} onPetPress={onPetPress} />);
+
+    await user.press(await screen.findByRole('button', { name: /Luna/ }));
+
+    expect(onPetPress).toHaveBeenCalledWith('a1');
   });
 
   it('shows a friendly error when the dogs cannot be loaded', async () => {
