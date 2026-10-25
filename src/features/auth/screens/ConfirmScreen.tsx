@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { AuthHeader } from '@/shared/ui/AuthHeader';
 import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
@@ -16,7 +17,6 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
     lead: { ...typography.body, color: colors.muted },
     highlight: { color: colors.text, fontWeight: '700' },
     error: { ...typography.body, color: colors.danger },
@@ -30,21 +30,22 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text accessibilityRole="header" style={styles.title}>
-          Confirma tu correo
-        </Text>
-        <Text style={styles.lead}>
-          Te escribimos a <Text style={styles.highlight}>{email}</Text> con un enlace de confirmación. Pégalo aquí.
-        </Text>
+      <ScrollView keyboardShouldPersistTaps="handled">
+        <AuthHeader title="Confirma tu correo" />
 
-        <TextField label="Enlace de confirmación" value={token} onChangeText={setToken} autoCapitalize="none" />
-
-        {apiErrorMessages(confirmEmail.error, confirmEmail.isError).map((message) => (
-          <Text key={message} accessibilityRole="alert" style={styles.error}>
-            {message}
+        <View style={styles.content}>
+          <Text style={styles.lead}>
+            Te escribimos a <Text style={styles.highlight}>{email}</Text> con un enlace de confirmación. Pégalo aquí.
           </Text>
-        ))}
+
+          <TextField label="Enlace de confirmación" value={token} onChangeText={setToken} autoCapitalize="none" />
+
+          {apiErrorMessages(confirmEmail.error, confirmEmail.isError).map((message) => (
+            <Text key={message} accessibilityRole="alert" style={styles.error}>
+              {message}
+            </Text>
+          ))}
+        </View>
       </ScrollView>
 
       <ActionFooter>
