@@ -12,7 +12,7 @@ import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { useHydrateThemeMode } from '@/shared/ui/useHydrateThemeMode';
 
 /** Reachable with no session: the welcome screen, the whole sign-in flow and the public fare quote (RF-019). */
-const PUBLIC_SEGMENTS = new Set(['', 'login', 'registro', 'confirmar', 'verificar', 'cotizar']);
+const PUBLIC_SEGMENTS = new Set(['', 'login', 'registro', 'confirmar', 'cotizar']);
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());

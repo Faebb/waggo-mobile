@@ -3,10 +3,9 @@ import { z } from 'zod';
 import { httpClient, type HttpClient } from '@/shared/api/httpClient';
 import { setSession } from '@/shared/auth/session';
 
-import type { LoginChallenge, RegisteredAccount, SessionTokens } from '../model/types';
+import type { RegisteredAccount, SessionTokens } from '../model/types';
 
 const accountSchema = z.object({ id: z.string(), email: z.string() }) satisfies z.ZodType<RegisteredAccount>;
-const challengeSchema = z.object({ challengeId: z.string() }) satisfies z.ZodType<LoginChallenge>;
 const sessionSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
@@ -28,19 +27,9 @@ export async function confirmEmail(token: string, client: HttpClient = httpClien
   await client.get('/api/v1/auth/confirm', z.boolean(), { token });
 }
 
-/** RF-005, step 1 — POST /api/v1/auth/login: a right password raises the second factor (a code emailed). */
-export async function login(email: string, password: string, client: HttpClient = httpClient): Promise<LoginChallenge> {
-  const { data } = await client.post('/api/v1/auth/login', { email, password }, challengeSchema);
-  return data;
-}
-
-/** RF-005, step 2 — POST /api/v1/auth/login/verify: the right code opens the session (RNF-002). */
-export async function verifyLoginCode(
-  challengeId: string,
-  code: string,
-  client: HttpClient = httpClient,
-): Promise<SessionTokens> {
-  const { data } = await client.post('/api/v1/auth/login/verify', { challengeId, code }, sessionSchema);
+/** RF-005 — POST /api/v1/auth/login: a right password and a confirmed account open the session (ADR-017, no second factor). */
+export async function login(email: string, password: string, client: HttpClient = httpClient): Promise<SessionTokens> {
+  const { data } = await client.post('/api/v1/auth/login', { email, password }, sessionSchema);
   setSession({
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
