@@ -55,16 +55,16 @@ src/
       screens/         → pantallas que orquestan datos
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
-  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, ThemeToggle; tema oscuro/claro con amarillo y Helvetica, UX-002)
+  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, ThemeToggle; tema claro/oscuro "Seashell & Sapphire" con Baloo 2 + Inter, UX-002)
   test/                → utilidades de prueba: renderWithProviders, mockApi (API falsa por ruta), fixtures
 ```
 - Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
 - Toda respuesta del backend viene en `WaggoApiResponse`; `shared/api/httpClient` la desenvuelve y lanza `ApiError` con los mensajes en español y el `traceId`.
 
-## Convenciones (ADR-008, ADR-013)
+## Convenciones (ADR-008, ADR-018)
 Solo exports con nombre (default solo en `src/app`), `type` en lugar de `interface`, sin `any`, textos de la UI en español. ESLint y Prettier las hacen cumplir en local y en CI.
 
-Diseño (ADR-013): mobile first, tema oscuro con amarillo como único acento y Helvetica. Las pantallas solo usan los tokens de `src/shared/ui/theme.ts` (`layout.column` para la columna de 480 px) y ponen sus acciones principales en `ActionFooter`.
+Diseño (ADR-018, reemplaza ADR-013): mobile first, tema claro por defecto (oscuro por el selector), acento zafiro, Baloo 2 + Inter. Las pantallas solo usan los tokens de `src/shared/ui/theme.ts` (`layout.column` para la columna de 480 px) y ponen sus acciones principales en `ActionFooter`.
 
 ## Flujo TDD
 1. 🔴 Prueba que falla (de afuera hacia adentro: pantalla → componente/hook → lógica pura).
