@@ -1,6 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 
-import { getSession, setSession, useIsAuthenticated, useSession } from './session';
+import { getSession, setSession, useIsAdmin, useIsAuthenticated, useSession } from './session';
+
+function tokenWithRoles(roles: string[]): string {
+  const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
+  return `${encode({ alg: 'HS256' })}.${encode({ roles })}.signature`;
+}
 
 describe('session', () => {
   afterEach(() => setSession(null));
@@ -30,5 +35,16 @@ describe('session', () => {
     setSession(null);
 
     await waitFor(() => expect(result.current).toBe(false));
+  });
+
+  it('useIsAdmin is true only when the access token carries the admin role', async () => {
+    const { result } = await renderHook(() => useIsAdmin());
+    expect(result.current).toBe(false);
+
+    setSession({ accessToken: tokenWithRoles(['owner']), refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    await waitFor(() => expect(result.current).toBe(false));
+
+    setSession({ accessToken: tokenWithRoles(['owner', 'admin']), refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    await waitFor(() => expect(result.current).toBe(true));
   });
 });

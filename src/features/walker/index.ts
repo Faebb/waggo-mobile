@@ -2,3 +2,4 @@
 export { WalkerGate } from './components/WalkerGate';
 export { AssignedWalkScreen } from './screens/AssignedWalkScreen';
 export { WalkerHomeScreen } from './screens/WalkerHomeScreen';
+export type { WalkerProfile } from './model/types';
