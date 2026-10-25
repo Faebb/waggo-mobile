@@ -33,6 +33,14 @@ describe('ProfileMenuScreen (perfil de usuario)', () => {
     expect(screen.getByText('A')).toBeOnTheScreen();
   });
 
+  it('shows an error message when the profile fails to load', async () => {
+    mockApi([{ path: '/api/v1/users/me', status: 500 }]);
+
+    await renderMenu();
+
+    expect(await screen.findByText('No pudimos cargar tu perfil. Intenta de nuevo.')).toBeOnTheScreen();
+  });
+
   it('falls back to the email when there is no name yet', async () => {
     mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
 

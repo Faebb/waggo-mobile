@@ -24,6 +24,14 @@ describe('EditProfileScreen (perfil de usuario)', () => {
     expect(screen.getByText('ana@mail.com')).toBeOnTheScreen();
   });
 
+  it('shows an error message when the profile fails to load', async () => {
+    mockApi([{ path: '/api/v1/users/me', method: 'GET', status: 500 }]);
+
+    await renderWithProviders(<EditProfileScreen onSaved={jest.fn()} />);
+
+    expect(await screen.findByText('No pudimos cargar tu perfil. Intenta de nuevo.')).toBeOnTheScreen();
+  });
+
   it('saves the new name and phone', async () => {
     const fetchSpy = mockApi([
       {

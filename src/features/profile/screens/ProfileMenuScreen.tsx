@@ -1,10 +1,11 @@
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { logout } from '@/features/auth';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Shortcut } from '@/shared/ui/Shortcut';
-import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { Skeleton } from '@/shared/ui/Skeleton';
+import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMyProfile } from '../hooks/useProfile';
 
@@ -24,7 +25,6 @@ export function ProfileMenuScreen({
   onOpenNotifications,
   onLoggedOut,
 }: Props) {
-  const colors = useColors();
   const styles = useThemedStyles((colors) => ({
     safeArea: { flex: 1, backgroundColor: colors.background },
     column: layout.column,
@@ -37,8 +37,10 @@ export function ProfileMenuScreen({
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.border,
     },
+    headerText: { gap: spacing.xs },
     name: { ...typography.title, color: colors.text },
     email: { ...typography.body, color: colors.muted },
+    error: { ...typography.body, color: colors.danger },
     section: { gap: 0 },
   }));
   const profile = useMyProfile();
@@ -55,7 +57,15 @@ export function ProfileMenuScreen({
           PERFIL
         </Text>
 
-        {profile.isPending && <ActivityIndicator accessibilityLabel="Cargando tu perfil" color={colors.primary} />}
+        {profile.isPending && (
+          <View style={styles.header}>
+            <Skeleton width={64} height={64} radius={radius.pill} />
+            <View style={styles.headerText}>
+              <Skeleton width={140} height={20} />
+              <Skeleton width={180} height={16} />
+            </View>
+          </View>
+        )}
         {profile.data && (
           <View style={styles.header}>
             <Avatar label={profile.data.fullName ?? profile.data.email} />
@@ -64,6 +74,11 @@ export function ProfileMenuScreen({
               <Text style={styles.email}>{profile.data.email}</Text>
             </View>
           </View>
+        )}
+        {profile.isError && (
+          <Text accessibilityRole="alert" style={styles.error}>
+            No pudimos cargar tu perfil. Intenta de nuevo.
+          </Text>
         )}
 
         <View style={styles.section}>

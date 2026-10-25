@@ -1,17 +1,35 @@
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { Skeleton } from '@/shared/ui/Skeleton';
+import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { PetRow } from '../components/PetRow';
 import { useMyPets } from '../hooks/usePets';
 
 type Props = { onAddPress: () => void };
 
+/** Row-shaped placeholder matching `PetRow`, shown three times while the list loads. */
+function PetRowSkeleton() {
+  const styles = useThemedStyles((colors) => ({
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    body: { gap: spacing.xs },
+    hairline: { borderTopWidth: 1, borderTopColor: colors.border },
+  }));
+  return (
+    <View style={[styles.row, styles.hairline]}>
+      <Skeleton width={44} height={44} radius={radius.pill} />
+      <View style={styles.body}>
+        <Skeleton width={120} height={18} />
+        <Skeleton width={90} height={14} />
+      </View>
+    </View>
+  );
+}
+
 /** RF-004: the owner sees their dogs and can add a new one. */
 export function MyPetsScreen({ onAddPress }: Props) {
-  const colors = useColors();
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.md, padding: spacing.lg },
@@ -32,7 +50,13 @@ export function MyPetsScreen({ onAddPress }: Props) {
           Mis perros
         </Text>
 
-        {isPending && <ActivityIndicator accessibilityLabel="Cargando tus perros" color={colors.primary} />}
+        {isPending && (
+          <View>
+            <PetRowSkeleton />
+            <PetRowSkeleton />
+            <PetRowSkeleton />
+          </View>
+        )}
         {isError && (
           <Text accessibilityRole="alert" style={styles.error}>
             No pudimos cargar tus perros. Intenta de nuevo.

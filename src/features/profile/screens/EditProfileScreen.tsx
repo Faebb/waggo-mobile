@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Button } from '@/shared/ui/Button';
+import { Skeleton } from '@/shared/ui/Skeleton';
 import { TextField } from '@/shared/ui/TextField';
-import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMyProfile, useUpdateProfile } from '../hooks/useProfile';
 import { apiErrorMessages } from '../model/apiErrorMessages';
@@ -16,14 +17,37 @@ type Props = { onSaved: () => void };
 
 /** Perfil de usuario: edits full name and phone, like "Edit Profile" of the reference the user shared. */
 export function EditProfileScreen({ onSaved }: Props) {
-  const colors = useColors();
-  const styles = useThemedStyles((colors) => ({ safeArea: { flex: 1, backgroundColor: colors.background } }));
+  const styles = useThemedStyles((colors) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    content: { gap: spacing.lg, padding: spacing.lg },
+    header: { alignItems: 'center', gap: spacing.xs },
+    error: { ...typography.body, color: colors.danger },
+  }));
   const profile = useMyProfile();
+
+  if (profile.isError) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.content}>
+          <Text accessibilityRole="alert" style={styles.error}>
+            No pudimos cargar tu perfil. Intenta de nuevo.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!profile.data) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator accessibilityLabel="Cargando tu perfil" color={colors.primary} />
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Skeleton width={80} height={80} radius={radius.pill} />
+            <Skeleton width={200} height={16} />
+          </View>
+          <Skeleton width="100%" height={56} />
+          <Skeleton width="100%" height={56} />
+        </View>
       </SafeAreaView>
     );
   }
