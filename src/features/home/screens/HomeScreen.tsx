@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AdminLink } from '@/features/admin';
@@ -6,6 +6,7 @@ import { NotificationBell } from '@/features/notifications';
 import { useMyPets } from '@/features/pets';
 import { ACTIVE_STATUSES, useMyWalks, WalkRow } from '@/features/walks';
 import { BrandMark } from '@/shared/ui/BrandMark';
+import { Shortcut } from '@/shared/ui/Shortcut';
 import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 type Props = {
@@ -14,13 +15,14 @@ type Props = {
   onOpenWalks: () => void;
   onOpenWalk: (id: string) => void;
   onOpenNotifications: () => void;
+  onOpenProfile: () => void;
   /** Only given when the signed-in user is an admin (ADR-017); shows the verification queue link. */
   onOpenAdmin?: () => void;
 };
 
 /**
  * Owner home, inspired by a ride app: one big "where to?" entry to ask for a walk, the walk going on (if any)
- * and shortcuts to the owner's dogs and walks.
+ * and shortcuts to the owner's dogs, walks and profile.
  */
 export function HomeScreen({
   onRequestWalk,
@@ -28,6 +30,7 @@ export function HomeScreen({
   onOpenWalks,
   onOpenWalk,
   onOpenNotifications,
+  onOpenProfile,
   onOpenAdmin,
 }: Props) {
   const styles = useThemedStyles((colors) => ({
@@ -102,6 +105,7 @@ export function HomeScreen({
 
         <View style={styles.section}>
           <Text style={styles.eyebrow}>TU CUENTA</Text>
+          <Shortcut title="Mi perfil" detail="Tus datos y tu cuenta" onPress={onOpenProfile} />
           <Shortcut
             title="Mis perros"
             detail={petCount === 1 ? '1 perro' : `${petCount} perros`}
@@ -111,35 +115,5 @@ export function HomeScreen({
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-function Shortcut({ title, detail, onPress }: { title: string; detail: string; onPress: () => void }) {
-  const styles = useThemedStyles((colors) => ({
-    pressed: { opacity: 0.85 },
-    shortcut: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: spacing.md,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: colors.border,
-    },
-    shortcutText: { flex: 1, gap: 2 },
-    shortcutTitle: { ...typography.subtitle, color: colors.text },
-    shortcutDetail: { ...typography.caption, color: colors.muted },
-    chevron: { ...typography.title, color: colors.muted },
-  }));
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [styles.shortcut, pressed && styles.pressed]}
-    >
-      <View style={styles.shortcutText}>
-        <Text style={styles.shortcutTitle}>{title}</Text>
-        <Text style={styles.shortcutDetail}>{detail}</Text>
-      </View>
-      <Text style={styles.chevron}>›</Text>
-    </Pressable>
   );
 }

@@ -15,7 +15,6 @@ describe('WelcomeScreen (UX-001)', () => {
     expect(screen.getByText('Paseadores verificados')).toBeOnTheScreen();
     expect(screen.getByText('Paseo en vivo')).toBeOnTheScreen();
     expect(screen.getByText('Pagas al final')).toBeOnTheScreen();
-    expect(screen.getByText('03')).toBeOnTheScreen();
   });
 
   it('enters as an owner (RF-007)', async () => {

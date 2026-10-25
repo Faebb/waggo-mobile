@@ -1,5 +1,5 @@
 type Route = {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'PUT';
   /** Path of waggo-api without the host, e.g. "/api/v1/pets". A RegExp matches dynamic paths. */
   path: string | RegExp;
   data?: unknown;

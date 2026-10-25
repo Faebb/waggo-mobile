@@ -220,3 +220,19 @@ describe('httpClient.post', () => {
     expect(error).toMatchObject({ status: 400, code: 'Pets.InvalidWeight', errors });
   });
 });
+
+describe('httpClient.put', () => {
+  it('sends the body as JSON and unwraps the envelope', async () => {
+    const fetchFn = jest.fn().mockResolvedValue(jsonResponse(envelope()));
+    const client = createHttpClient('http://api.test', fetchFn);
+
+    const result = await client.put('/api/v1/users/me', { fullName: 'Ana' }, schema);
+
+    expect(fetchFn).toHaveBeenCalledWith('http://api.test/api/v1/users/me', {
+      method: 'PUT',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: 'Ana' }),
+    });
+    expect(result.data).toEqual({ id: 7 });
+  });
+});

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { AuthHeader } from '@/shared/ui/AuthHeader';
 import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
@@ -16,7 +17,6 @@ export function LoginScreen({ onLoggedIn, onGoToRegister }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    title: { ...typography.display, color: colors.text },
     error: { ...typography.body, color: colors.danger },
     link: { ...typography.body, color: colors.primary, textAlign: 'center' },
   }));
@@ -30,36 +30,36 @@ export function LoginScreen({ onLoggedIn, onGoToRegister }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text accessibilityRole="header" style={styles.title}>
-          Inicia sesión
-        </Text>
+      <ScrollView keyboardShouldPersistTaps="handled">
+        <AuthHeader title="Inicia sesión" subtitle="Sigue el paseo de tu perro en vivo" />
 
-        <TextField
-          label="Correo"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoComplete="email"
-        />
-        <TextField
-          label="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoComplete="current-password"
-        />
+        <View style={styles.content}>
+          <TextField
+            label="Correo"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <TextField
+            label="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="current-password"
+          />
 
-        {apiErrorMessages(login.error, login.isError, 'Correo o contraseña incorrectos.').map((message) => (
-          <Text key={message} accessibilityRole="alert" style={styles.error}>
-            {message}
+          {apiErrorMessages(login.error, login.isError, 'Correo o contraseña incorrectos.').map((message) => (
+            <Text key={message} accessibilityRole="alert" style={styles.error}>
+              {message}
+            </Text>
+          ))}
+
+          <Text accessibilityRole="button" onPress={onGoToRegister} style={styles.link}>
+            ¿Nuevo en Waggo? Crea tu cuenta
           </Text>
-        ))}
-
-        <Text accessibilityRole="button" onPress={onGoToRegister} style={styles.link}>
-          ¿Nuevo en Waggo? Crea tu cuenta
-        </Text>
+        </View>
       </ScrollView>
 
       <ActionFooter>
