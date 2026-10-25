@@ -24,17 +24,19 @@ describe('LoginScreen (RF-005)', () => {
 
   afterEach(() => fetchSpy.mockRestore());
 
-  it('sends credentials and reports the challenge id', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith({ challengeId: 'challenge-1' }));
-    const onCodeSent = jest.fn();
+  it('sends credentials and opens the session right away', async () => {
+    fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(respondWith({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
+    const onLoggedIn = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen onCodeSent={onCodeSent} onGoToRegister={jest.fn()} />);
+    await renderWithProviders(<LoginScreen onLoggedIn={onLoggedIn} onGoToRegister={jest.fn()} />);
 
     await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
     await user.type(screen.getByLabelText('Contraseña'), 'Clave123!');
     await user.press(screen.getByRole('button', { name: 'Entrar' }));
 
-    await waitFor(() => expect(onCodeSent).toHaveBeenCalledWith('challenge-1'));
+    await waitFor(() => expect(onLoggedIn).toHaveBeenCalledTimes(1));
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     expect(JSON.parse(String(init.body))).toEqual({ email: 'ana@mail.com', password: 'Clave123!' });
   });
@@ -46,7 +48,7 @@ describe('LoginScreen (RF-005)', () => {
         respondWith(null, 400, [{ code: 'Identity.InvalidCredentials', message: 'Correo o contraseña incorrectos.' }]),
       );
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen onCodeSent={jest.fn()} onGoToRegister={jest.fn()} />);
+    await renderWithProviders(<LoginScreen onLoggedIn={jest.fn()} onGoToRegister={jest.fn()} />);
 
     await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
     await user.type(screen.getByLabelText('Contraseña'), 'wrong');
@@ -56,10 +58,12 @@ describe('LoginScreen (RF-005)', () => {
   });
 
   it('goes to the register screen', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith({ challengeId: 'challenge-1' }));
+    fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(respondWith({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
     const onGoToRegister = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen onCodeSent={jest.fn()} onGoToRegister={onGoToRegister} />);
+    await renderWithProviders(<LoginScreen onLoggedIn={jest.fn()} onGoToRegister={onGoToRegister} />);
 
     await user.press(screen.getByText('¿Nuevo en Waggo? Crea tu cuenta'));
 

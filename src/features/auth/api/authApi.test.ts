@@ -1,7 +1,7 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 import { getSession, setSession } from '@/shared/auth/session';
 
-import { confirmEmail, login, logout, register, verifyLoginCode } from './authApi';
+import { confirmEmail, login, logout, register } from './authApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -41,19 +41,12 @@ describe('authApi (RF-001, RF-005)', () => {
     );
   });
 
-  it('logs in and gets a challenge from POST /api/v1/auth/login', async () => {
-    const fetchFn = respond(envelope({ challengeId: 'challenge-1' }));
-
-    const challenge = await login('ana@mail.com', 'Clave123!', createHttpClient('http://api', fetchFn));
-
-    expect(challenge).toEqual({ challengeId: 'challenge-1' });
-  });
-
-  it('verifying the code opens the session and stores it', async () => {
+  it('logs in and opens the session from POST /api/v1/auth/login', async () => {
     const fetchFn = respond(envelope({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
 
-    await verifyLoginCode('challenge-1', '048213', createHttpClient('http://api', fetchFn));
+    const session = await login('ana@mail.com', 'Clave123!', createHttpClient('http://api', fetchFn));
 
+    expect(session).toMatchObject({ accessToken: 'at', refreshToken: 'rt' });
     expect(getSession()).toMatchObject({ accessToken: 'at', refreshToken: 'rt' });
   });
 
