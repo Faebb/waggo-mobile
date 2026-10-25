@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 
 import { radius, spacing, typography, useThemedStyles } from './theme';
 
-/** Waggo wordmark: yellow square + name (ADR-013). Provisional until there is an official logo. */
+/** Waggo wordmark: accent square + name (ADR-018). Provisional until there is an official logo. */
 export function BrandMark() {
   const styles = useThemedStyles((colors) => ({
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

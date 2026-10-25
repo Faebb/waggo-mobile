@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.faebb.waggo"
@@ -33,7 +33,8 @@
           "locationWhenInUsePermission": "Waggo usa tu ubicación para que el paseador sepa dónde recoger a tu perro."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "scheme": "waggo",
     "experiments": {
