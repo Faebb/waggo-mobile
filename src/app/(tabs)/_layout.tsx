@@ -42,8 +42,11 @@ export default function TabsLayout() {
         options={{ title: 'Mascotas', tabBarIcon: ({ color, size }) => <PawIcon color={asColor(color)} size={size} /> }}
       />
       <Tabs.Screen
-        name="perfil/index"
-        options={{ title: 'Perfil', tabBarIcon: ({ color, size }) => <UserIcon color={asColor(color)} size={size} /> }}
+        name="configuracion/index"
+        options={{
+          title: 'Configuración',
+          tabBarIcon: ({ color, size }) => <UserIcon color={asColor(color)} size={size} />,
+        }}
       />
     </Tabs>
   );

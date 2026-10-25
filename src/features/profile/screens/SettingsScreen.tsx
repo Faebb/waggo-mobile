@@ -5,20 +5,22 @@ import { logout } from '@/features/auth';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Shortcut } from '@/shared/ui/Shortcut';
 import { Skeleton } from '@/shared/ui/Skeleton';
+import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMyProfile } from '../hooks/useProfile';
 
 type Props = {
   onOpenPersonalInfo: () => void;
-  onOpenPets: () => void;
-  onOpenWalks: () => void;
+  /** Owner only: the walker's dogs and walks already show on their own home screen. */
+  onOpenPets?: () => void;
+  onOpenWalks?: () => void;
   onOpenNotifications: () => void;
   onLoggedOut: () => void;
 };
 
-/** Perfil de usuario: entry point to the account, like the "Menu" screen of the reference the user shared. */
-export function ProfileMenuScreen({
+/** Configuración: account settings for both roles, with the profile summary as its first entry. */
+export function SettingsScreen({
   onOpenPersonalInfo,
   onOpenPets,
   onOpenWalks,
@@ -42,6 +44,15 @@ export function ProfileMenuScreen({
     email: { ...typography.body, color: colors.muted },
     error: { ...typography.body, color: colors.danger },
     section: { gap: 0 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    rowTitle: { ...typography.subtitle, color: colors.text },
   }));
   const profile = useMyProfile();
 
@@ -54,7 +65,7 @@ export function ProfileMenuScreen({
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={[styles.column, styles.content]}>
         <Text accessibilityRole="header" style={typography.eyebrow}>
-          PERFIL
+          CONFIGURACIÓN
         </Text>
 
         {profile.isPending && (
@@ -83,12 +94,16 @@ export function ProfileMenuScreen({
 
         <View style={styles.section}>
           <Shortcut title="Información personal" detail="Nombre y celular" onPress={onOpenPersonalInfo} />
-          <Shortcut title="Mis perros" detail="Ver y agregar perros" onPress={onOpenPets} />
-          <Shortcut title="Mis paseos" detail="Historial y en curso" onPress={onOpenWalks} />
+          {onOpenPets && <Shortcut title="Mis perros" detail="Ver y agregar perros" onPress={onOpenPets} />}
+          {onOpenWalks && <Shortcut title="Mis paseos" detail="Historial y en curso" onPress={onOpenWalks} />}
           <Shortcut title="Notificaciones" detail="Avisos del recorrido" onPress={onOpenNotifications} />
         </View>
 
         <View style={styles.section}>
+          <View style={styles.row}>
+            <Text style={styles.rowTitle}>Tema</Text>
+            <ThemeToggle />
+          </View>
           <Shortcut title="Cerrar sesión" detail="Vuelve a la pantalla de inicio" onPress={signOut} />
         </View>
       </ScrollView>

@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
 
-import { ProfileMenuScreen } from '@/features/profile';
+import { SettingsScreen } from '@/features/profile';
 
-export default function ProfileMenu() {
+export default function Settings() {
   return (
-    <ProfileMenuScreen
-      onOpenPersonalInfo={() => router.push('/perfil/info')}
+    <SettingsScreen
+      onOpenPersonalInfo={() => router.push('/configuracion/info')}
       onOpenPets={() => router.push('/mascotas')}
       onOpenWalks={() => router.push('/paseos')}
       onOpenNotifications={() => router.push('/notificaciones')}
