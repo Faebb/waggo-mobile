@@ -44,3 +44,4 @@ yarn-error.*
 .env
 coverage/
 /android
+.claude/launch.json
