@@ -1,11 +1,13 @@
+import { useFonts } from 'expo-font';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
 import { useIsAuthenticated } from '@/shared/auth/session';
 import { useHydrateSession } from '@/shared/auth/useHydrateSession';
-import { typography, useColors, useThemeMode } from '@/shared/ui/theme';
+import { fontsToLoad, typography, useColors, useThemeMode } from '@/shared/ui/theme';
 import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { useHydrateThemeMode } from '@/shared/ui/useHydrateThemeMode';
 
@@ -14,6 +16,7 @@ const PUBLIC_SEGMENTS = new Set(['', 'login', 'registro', 'confirmar', 'verifica
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
+  const [fontsLoaded] = useFonts(fontsToLoad);
   useHydrateThemeMode();
   const sessionHydrated = useHydrateSession();
   const isAuthenticated = useIsAuthenticated();
@@ -27,6 +30,9 @@ export default function RootLayout() {
       router.replace({ pathname: '/login', params: { redirect: `/${segments.join('/')}` } });
     }
   }, [sessionHydrated, isAuthenticated, segments]);
+
+  /** Baloo 2 / Inter (ADR-018) must be ready before the first paint, or screens briefly flash with the system font. */
+  if (!fontsLoaded) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
 
   return (
     <QueryClientProvider client={queryClient}>

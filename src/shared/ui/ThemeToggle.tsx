@@ -7,7 +7,7 @@ const OPTIONS: { mode: ThemeMode; label: string }[] = [
   { mode: 'dark', label: 'Oscuro' },
 ];
 
-/** Segmented control to switch the app's color theme (vault › ADR-015). Swiss style: text only, no icons. */
+/** Segmented control to switch the app's color theme (vault › ADR-015). Text only for now; the mockup (ADR-018) shows a small sun/moon icon per option, not yet added. */
 export function ThemeToggle() {
   const mode = useThemeMode();
   const styles = useThemedStyles((colors) => ({

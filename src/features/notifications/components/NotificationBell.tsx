@@ -6,7 +6,7 @@ import { useNotifications } from '../hooks/useNotifications';
 
 type Props = { onPress: () => void };
 
-/** RF-014: "Avisos" with the number of unread notices, top right of both homes. Text only, no icon (ADR-013). */
+/** RF-014: "Avisos" with the number of unread notices, top right of both homes. Text only for now (ADR-018 allows icons; none added here yet). */
 export function NotificationBell({ onPress }: Props) {
   const styles = useThemedStyles((colors) => ({
     bell: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.xs },

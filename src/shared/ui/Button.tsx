@@ -19,10 +19,10 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
       alignItems: 'center',
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
-      borderRadius: radius.md,
+      borderRadius: radius.pill,
     },
     primary: { backgroundColor: colors.primary },
-    secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.primary },
+    secondary: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.text },
     danger: { backgroundColor: colors.danger },
     pressed: { opacity: 0.85 },
     disabled: { opacity: 0.5 },
@@ -30,7 +30,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
   }));
   const labelStyles = useThemedStyles((colors) => ({
     primary: { color: colors.primaryText },
-    secondary: { color: colors.primary },
+    secondary: { color: colors.text },
     danger: { color: colors.text },
   }));
 
