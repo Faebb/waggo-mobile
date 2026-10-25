@@ -90,6 +90,19 @@ export function createHttpClient(
         dataSchema,
       );
     },
+
+    /** PUT a JSON body to an endpoint of waggo-api. */
+    put<T>(path: string, body: unknown, dataSchema: z.ZodType<T>): Promise<WaggoApiResponse<T>> {
+      return send(
+        buildUrl(path),
+        {
+          method: 'PUT',
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        },
+        dataSchema,
+      );
+    },
   };
 }
 

@@ -16,6 +16,7 @@ function renderHome(props: Partial<Props> = {}) {
       onOpenWalks={jest.fn()}
       onOpenWalk={jest.fn()}
       onOpenNotifications={jest.fn()}
+      onOpenProfile={jest.fn()}
       {...props}
     />,
   );
@@ -97,6 +98,20 @@ describe('HomeScreen (RF-007)', () => {
     await user.press(await screen.findByRole('button', { name: 'Avisos, 1 sin leer' }));
 
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the profile menu', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks', data: [] },
+      { path: '/api/v1/pets', data: [] },
+    ]);
+    const onOpenProfile = jest.fn();
+    const user = userEvent.setup();
+    await renderHome({ onOpenProfile });
+
+    await user.press(await screen.findByRole('button', { name: /Mi perfil/ }));
+
+    expect(onOpenProfile).toHaveBeenCalledTimes(1);
   });
 
   it('hides the admin link when onOpenAdmin is not given', async () => {

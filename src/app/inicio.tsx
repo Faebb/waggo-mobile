@@ -15,6 +15,7 @@ export default function Home() {
         onOpenWalks={() => router.push('/paseos')}
         onOpenWalk={(id) => router.push({ pathname: '/paseos/[id]', params: { id } })}
         onOpenNotifications={() => router.push('/notificaciones')}
+        onOpenProfile={() => router.push('/perfil')}
         onOpenAdmin={isAdmin ? () => router.push('/admin') : undefined}
       />
     </>
