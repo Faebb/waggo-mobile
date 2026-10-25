@@ -98,4 +98,29 @@ describe('HomeScreen (RF-007)', () => {
 
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
   });
+
+  it('hides the admin link when onOpenAdmin is not given', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks', data: [] },
+      { path: '/api/v1/pets', data: [] },
+    ]);
+    await renderHome();
+
+    expect(await screen.findByText('¿Quién sale a pasear hoy?')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Panel de administración' })).not.toBeOnTheScreen();
+  });
+
+  it('opens the admin panel from its link (ADR-017)', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks', data: [] },
+      { path: '/api/v1/pets', data: [] },
+    ]);
+    const onOpenAdmin = jest.fn();
+    const user = userEvent.setup();
+    await renderHome({ onOpenAdmin });
+
+    await user.press(await screen.findByRole('button', { name: 'Panel de administración' }));
+
+    expect(onOpenAdmin).toHaveBeenCalledTimes(1);
+  });
 });

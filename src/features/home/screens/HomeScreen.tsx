@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AdminLink } from '@/features/admin';
 import { NotificationBell } from '@/features/notifications';
 import { useMyPets } from '@/features/pets';
 import { ACTIVE_STATUSES, useMyWalks, WalkRow } from '@/features/walks';
@@ -13,15 +14,25 @@ type Props = {
   onOpenWalks: () => void;
   onOpenWalk: (id: string) => void;
   onOpenNotifications: () => void;
+  /** Only given when the signed-in user is an admin (ADR-017); shows the verification queue link. */
+  onOpenAdmin?: () => void;
 };
 
 /**
  * Owner home, inspired by a ride app: one big "where to?" entry to ask for a walk, the walk going on (if any)
  * and shortcuts to the owner's dogs and walks.
  */
-export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk, onOpenNotifications }: Props) {
+export function HomeScreen({
+  onRequestWalk,
+  onOpenPets,
+  onOpenWalks,
+  onOpenWalk,
+  onOpenNotifications,
+  onOpenAdmin,
+}: Props) {
   const styles = useThemedStyles((colors) => ({
     topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    topBarActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     safeArea: { flex: 1, backgroundColor: colors.background },
     column: layout.column,
     content: { gap: spacing.xl, padding: spacing.lg },
@@ -61,7 +72,10 @@ export function HomeScreen({ onRequestWalk, onOpenPets, onOpenWalks, onOpenWalk,
       <ScrollView contentContainerStyle={[styles.column, styles.content]}>
         <View style={styles.topBar}>
           <BrandMark />
-          <NotificationBell onPress={onOpenNotifications} />
+          <View style={styles.topBarActions}>
+            {onOpenAdmin !== undefined && <AdminLink onPress={onOpenAdmin} />}
+            <NotificationBell onPress={onOpenNotifications} />
+          </View>
         </View>
 
         <Pressable

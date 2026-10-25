@@ -1,8 +1,11 @@
 import { router, Stack } from 'expo-router';
 
 import { HomeScreen } from '@/features/home';
+import { useIsAdmin } from '@/shared/auth/session';
 
 export default function Home() {
+  const isAdmin = useIsAdmin();
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -12,6 +15,7 @@ export default function Home() {
         onOpenWalks={() => router.push('/paseos')}
         onOpenWalk={(id) => router.push({ pathname: '/paseos/[id]', params: { id } })}
         onOpenNotifications={() => router.push('/notificaciones')}
+        onOpenAdmin={isAdmin ? () => router.push('/admin') : undefined}
       />
     </>
   );

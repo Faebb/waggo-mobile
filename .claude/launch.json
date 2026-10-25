@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "waggo-mobile-login-social",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "web", "--", "--port", "19006"],
+      "port": 19006
+    }
+  ]
+}
