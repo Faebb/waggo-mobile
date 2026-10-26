@@ -47,7 +47,11 @@ export default function RootLayout() {
           headerRight: () => <ThemeToggle />,
           contentStyle: { backgroundColor: colors.background },
         }}
-      />
+      >
+        {/* The tab bars (ADR-019) draw their own chrome; each tab screen owns its own in-content header. */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(walker-tabs)" options={{ headerShown: false }} />
+      </Stack>
     </QueryClientProvider>
   );
 }

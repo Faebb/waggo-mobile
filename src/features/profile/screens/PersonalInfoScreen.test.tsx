@@ -32,6 +32,14 @@ describe('PersonalInfoScreen (perfil de usuario)', () => {
     expect(screen.getByText('Sin celular')).toBeOnTheScreen();
   });
 
+  it('shows an error message when the profile fails to load', async () => {
+    mockApi([{ path: '/api/v1/users/me', status: 500 }]);
+
+    await renderWithProviders(<PersonalInfoScreen onEdit={jest.fn()} />);
+
+    expect(await screen.findByText('No pudimos cargar tu perfil. Intenta de nuevo.')).toBeOnTheScreen();
+  });
+
   it('opens the edit screen', async () => {
     mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
     const onEdit = jest.fn();

@@ -105,7 +105,7 @@ export function HomeScreen({
 
         <View style={styles.section}>
           <Text style={styles.eyebrow}>TU CUENTA</Text>
-          <Shortcut title="Mi perfil" detail="Tus datos y tu cuenta" onPress={onOpenProfile} />
+          <Shortcut title="Configuración" detail="Tus datos y tu cuenta" onPress={onOpenProfile} />
           <Shortcut
             title="Mis perros"
             detail={petCount === 1 ? '1 perro' : `${petCount} perros`}

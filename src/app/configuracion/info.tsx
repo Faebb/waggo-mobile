@@ -6,7 +6,7 @@ export default function PersonalInfo() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <PersonalInfoScreen onEdit={() => router.push('/perfil/editar')} />
+      <PersonalInfoScreen onEdit={() => router.push('/configuracion/editar')} />
     </>
   );
 }

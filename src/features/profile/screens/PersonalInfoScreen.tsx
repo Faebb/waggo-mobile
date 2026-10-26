@@ -1,10 +1,11 @@
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/shared/ui/Avatar';
 import { Button } from '@/shared/ui/Button';
 import { DetailRow } from '@/shared/ui/DetailRow';
-import { layout, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { Skeleton } from '@/shared/ui/Skeleton';
+import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useMyProfile } from '../hooks/useProfile';
 
@@ -12,7 +13,6 @@ type Props = { onEdit: () => void };
 
 /** Perfil de usuario: read-only view, like "Personal Profiles" of the reference the user shared. */
 export function PersonalInfoScreen({ onEdit }: Props) {
-  const colors = useColors();
   const styles = useThemedStyles((colors) => ({
     safeArea: { flex: 1, backgroundColor: colors.background },
     column: layout.column,
@@ -20,6 +20,8 @@ export function PersonalInfoScreen({ onEdit }: Props) {
     header: { alignItems: 'center', gap: spacing.sm },
     name: { ...typography.title, color: colors.text },
     email: { ...typography.body, color: colors.muted },
+    rows: { gap: spacing.sm },
+    error: { ...typography.body, color: colors.danger },
   }));
   const profile = useMyProfile();
 
@@ -30,7 +32,20 @@ export function PersonalInfoScreen({ onEdit }: Props) {
           INFORMACIÓN PERSONAL
         </Text>
 
-        {profile.isPending && <ActivityIndicator accessibilityLabel="Cargando tu perfil" color={colors.primary} />}
+        {profile.isPending && (
+          <>
+            <View style={styles.header}>
+              <Skeleton width={80} height={80} radius={radius.pill} />
+              <Skeleton width={160} height={24} />
+              <Skeleton width={200} height={16} />
+            </View>
+            <View style={styles.rows}>
+              <Skeleton width="100%" height={56} />
+              <Skeleton width="100%" height={56} />
+              <Skeleton width="100%" height={56} />
+            </View>
+          </>
+        )}
         {profile.data && (
           <>
             <View style={styles.header}>
@@ -47,6 +62,11 @@ export function PersonalInfoScreen({ onEdit }: Props) {
 
             <Button label="Editar" variant="secondary" onPress={onEdit} />
           </>
+        )}
+        {profile.isError && (
+          <Text accessibilityRole="alert" style={styles.error}>
+            No pudimos cargar tu perfil. Intenta de nuevo.
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>

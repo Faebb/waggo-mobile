@@ -100,7 +100,7 @@ describe('HomeScreen (RF-007)', () => {
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
   });
 
-  it('opens the profile menu', async () => {
+  it('opens the settings menu', async () => {
     fetchSpy = mockApi([
       { path: '/api/v1/walks', data: [] },
       { path: '/api/v1/pets', data: [] },
@@ -109,7 +109,7 @@ describe('HomeScreen (RF-007)', () => {
     const user = userEvent.setup();
     await renderHome({ onOpenProfile });
 
-    await user.press(await screen.findByRole('button', { name: /Mi perfil/ }));
+    await user.press(await screen.findByRole('button', { name: /Configuración/ }));
 
     expect(onOpenProfile).toHaveBeenCalledTimes(1);
   });

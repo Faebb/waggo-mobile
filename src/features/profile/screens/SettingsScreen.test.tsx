@@ -3,11 +3,11 @@ import { screen, userEvent, waitFor } from '@testing-library/react-native';
 import { mockApi } from '@/test/mockApi';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
-import { ProfileMenuScreen } from './ProfileMenuScreen';
+import { SettingsScreen } from './SettingsScreen';
 
-function renderMenu(props: Partial<Parameters<typeof ProfileMenuScreen>[0]> = {}) {
+function renderSettings(props: Partial<Parameters<typeof SettingsScreen>[0]> = {}) {
   return renderWithProviders(
-    <ProfileMenuScreen
+    <SettingsScreen
       onOpenPersonalInfo={jest.fn()}
       onOpenPets={jest.fn()}
       onOpenWalks={jest.fn()}
@@ -18,7 +18,7 @@ function renderMenu(props: Partial<Parameters<typeof ProfileMenuScreen>[0]> = {}
   );
 }
 
-describe('ProfileMenuScreen (perfil de usuario)', () => {
+describe('SettingsScreen (configuración)', () => {
   afterEach(() => jest.restoreAllMocks());
 
   it('shows the name, the email and an avatar with the first letter', async () => {
@@ -26,17 +26,25 @@ describe('ProfileMenuScreen (perfil de usuario)', () => {
       { path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: 'Ana Pérez', phone: null } },
     ]);
 
-    await renderMenu();
+    await renderSettings();
 
     expect(await screen.findByText('Ana Pérez')).toBeOnTheScreen();
     expect(screen.getByText('ana@mail.com')).toBeOnTheScreen();
     expect(screen.getByText('A')).toBeOnTheScreen();
   });
 
+  it('shows an error message when the profile fails to load', async () => {
+    mockApi([{ path: '/api/v1/users/me', status: 500 }]);
+
+    await renderSettings();
+
+    expect(await screen.findByText('No pudimos cargar tu perfil. Intenta de nuevo.')).toBeOnTheScreen();
+  });
+
   it('falls back to the email when there is no name yet', async () => {
     mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
 
-    await renderMenu();
+    await renderSettings();
 
     expect(await screen.findByText('Agrega tu nombre')).toBeOnTheScreen();
   });
@@ -48,7 +56,7 @@ describe('ProfileMenuScreen (perfil de usuario)', () => {
     const onOpenWalks = jest.fn();
     const onOpenNotifications = jest.fn();
     const user = userEvent.setup();
-    await renderMenu({ onOpenPersonalInfo, onOpenPets, onOpenWalks, onOpenNotifications });
+    await renderSettings({ onOpenPersonalInfo, onOpenPets, onOpenWalks, onOpenNotifications });
 
     await user.press(await screen.findByRole('button', { name: /Información personal/ }));
     await user.press(screen.getByRole('button', { name: /Mis perros/ }));
@@ -61,11 +69,31 @@ describe('ProfileMenuScreen (perfil de usuario)', () => {
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
   });
 
+  it('hides "Mis perros" for roles without dogs (e.g. the walker)', async () => {
+    mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
+
+    await renderSettings({ onOpenPets: undefined });
+
+    await screen.findByText('ana@mail.com');
+    expect(screen.queryByRole('button', { name: /Mis perros/ })).toBeNull();
+  });
+
+  it('includes the theme switch', async () => {
+    mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
+
+    await renderSettings();
+    await screen.findByText('ana@mail.com');
+
+    expect(screen.getByText('Tema')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Claro' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Oscuro' })).toBeOnTheScreen();
+  });
+
   it('logs out', async () => {
     mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
     const onLoggedOut = jest.fn();
     const user = userEvent.setup();
-    await renderMenu({ onLoggedOut });
+    await renderSettings({ onLoggedOut });
 
     await user.press(await screen.findByRole('button', { name: /Cerrar sesión/ }));
 
