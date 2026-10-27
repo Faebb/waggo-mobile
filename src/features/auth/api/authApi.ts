@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { httpClient, type HttpClient } from '@/shared/api/httpClient';
-import { setSession } from '@/shared/auth/session';
+import { getSession, setSession } from '@/shared/auth/session';
 
 import type { RegisteredAccount, SessionTokens } from '../model/types';
 
@@ -58,7 +58,18 @@ export async function login(email: string, password: string, client: HttpClient 
   return data;
 }
 
-/** Clears the session; `httpClient` stops sending a Bearer token right away. */
-export function logout(): void {
+/**
+ * RF-005 — POST /api/v1/auth/logout: signs out locally first (`httpClient` stops sending the Bearer token right
+ * away) and then revokes the refresh token on the server. A failed request never keeps the person signed in.
+ */
+export async function logout(client: HttpClient = httpClient): Promise<void> {
+  const refreshToken = getSession()?.refreshToken;
   setSession(null);
+  if (!refreshToken) return;
+
+  try {
+    await client.post('/api/v1/auth/logout', { refreshToken }, z.boolean());
+  } catch {
+    // Offline or the API is down: the refresh token simply expires on its own (30 days).
+  }
 }
