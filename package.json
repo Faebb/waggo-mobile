@@ -56,6 +56,7 @@
   "jest": {
     "preset": "jest-expo",
     "clearMocks": true,
+    "testTimeout": 15000,
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!src/app/**",

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { confirmEmail, login, register, resendConfirmation } from '../api/authApi';
+import { confirmEmail, forgotPassword, login, register, resendConfirmation, resetPassword } from '../api/authApi';
 
 export function useRegister() {
   return useMutation({
@@ -14,6 +14,17 @@ export function useConfirmEmail() {
 
 export function useResendConfirmation() {
   return useMutation({ mutationFn: (email: string) => resendConfirmation(email) });
+}
+
+export function useForgotPassword() {
+  return useMutation({ mutationFn: (email: string) => forgotPassword(email) });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: ({ email, code, newPassword }: { email: string; code: string; newPassword: string }) =>
+      resetPassword(email, code, newPassword),
+  });
 }
 
 export function useLogin() {

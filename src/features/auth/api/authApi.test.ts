@@ -1,7 +1,7 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 import { getSession, setSession } from '@/shared/auth/session';
 
-import { confirmEmail, login, logout, register, resendConfirmation } from './authApi';
+import { confirmEmail, forgotPassword, login, logout, register, resendConfirmation, resetPassword } from './authApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -52,6 +52,31 @@ describe('authApi (RF-001, RF-005)', () => {
     expect(fetchFn).toHaveBeenCalledWith(
       'http://api/api/v1/auth/resend-confirmation',
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ email: 'ana@mail.com' }) }),
+    );
+  });
+
+  it('asks for a recovery code with POST /api/v1/auth/forgot-password', async () => {
+    const fetchFn = respond(envelope(true));
+
+    await forgotPassword('ana@mail.com', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/forgot-password',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ email: 'ana@mail.com' }) }),
+    );
+  });
+
+  it('sets the new password with POST /api/v1/auth/reset-password', async () => {
+    const fetchFn = respond(envelope(true));
+
+    await resetPassword('ana@mail.com', '004821', 'Nueva1234', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/reset-password',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'ana@mail.com', code: '004821', newPassword: 'Nueva1234' }),
+      }),
     );
   });
 

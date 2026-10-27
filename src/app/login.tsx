@@ -8,6 +8,7 @@ export default function Login() {
     <LoginScreen
       onLoggedIn={() => router.replace((redirect ?? '/inicio') as Href)}
       onGoToRegister={() => router.push('/registro')}
+      onGoToForgotPassword={(email) => router.push({ pathname: '/olvide-contrasena', params: { email } })}
     />
   );
 }

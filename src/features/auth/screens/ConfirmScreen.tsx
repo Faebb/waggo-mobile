@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
@@ -8,6 +8,7 @@ import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useConfirmEmail, useResendConfirmation } from '../hooks/useAuth';
+import { useResendCountdown } from '../hooks/useResendCountdown';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
 type Props = { email: string; onConfirmed: () => void };
@@ -27,24 +28,17 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
     error: { ...typography.body, color: colors.danger },
   }));
   const [code, setCode] = useState('');
-  // A code was just emailed, so the next one can only be requested after the wait.
-  const [secondsLeft, setSecondsLeft] = useState(RESEND_WAIT_SECONDS);
   const confirmEmail = useConfirmEmail();
   const resendConfirmation = useResendConfirmation();
-
-  const waiting = secondsLeft > 0;
-  useEffect(() => {
-    if (!waiting) return;
-    const timer = setInterval(() => setSecondsLeft((seconds) => Math.max(0, seconds - 1)), 1000);
-    return () => clearInterval(timer);
-  }, [waiting]);
+  // A code was just emailed, so the next one can only be requested after the wait.
+  const { secondsLeft, waiting, restart } = useResendCountdown(RESEND_WAIT_SECONDS);
 
   function submit() {
     confirmEmail.mutate({ email, code }, { onSuccess: onConfirmed });
   }
 
   function resend() {
-    resendConfirmation.mutate(email, { onSuccess: () => setSecondsLeft(RESEND_WAIT_SECONDS) });
+    resendConfirmation.mutate(email, { onSuccess: restart });
   }
 
   function resendLabel() {

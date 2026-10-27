@@ -2,4 +2,6 @@
 export { RegisterScreen } from './screens/RegisterScreen';
 export { ConfirmScreen } from './screens/ConfirmScreen';
 export { LoginScreen } from './screens/LoginScreen';
+export { ForgotPasswordScreen } from './screens/ForgotPasswordScreen';
+export { ResetPasswordScreen } from './screens/ResetPasswordScreen';
 export { logout } from './api/authApi';
