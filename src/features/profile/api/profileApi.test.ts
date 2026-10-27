@@ -1,7 +1,13 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 import { setSession } from '@/shared/auth/session';
 
-import { changeMyPassword, getMyProfile, updateMyProfile } from './profileApi';
+import {
+  changeMyPassword,
+  confirmMyEmailChange,
+  getMyProfile,
+  requestMyEmailChange,
+  updateMyProfile,
+} from './profileApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -53,6 +59,33 @@ describe('profileApi (perfil de usuario)', () => {
         method: 'PUT',
         body: JSON.stringify({ currentPassword: 'Actual123', newPassword: 'Nueva1234', refreshToken: 'rt' }),
       }),
+    );
+    setSession(null);
+  });
+
+  it('asks to change my email with POST /api/v1/users/me/email', async () => {
+    const fetchFn = respond(envelope(true));
+
+    await requestMyEmailChange('ana.nueva@mail.com', 'Clave123!', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/users/me/email',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ newEmail: 'ana.nueva@mail.com', password: 'Clave123!' }),
+      }),
+    );
+  });
+
+  it('confirms the email change with POST /api/v1/users/me/email/confirm, sending this session refresh token', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    const fetchFn = respond(envelope(true));
+
+    await confirmMyEmailChange('004821', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/users/me/email/confirm',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ code: '004821', refreshToken: 'rt' }) }),
     );
     setSession(null);
   });
