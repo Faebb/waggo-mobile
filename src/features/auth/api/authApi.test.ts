@@ -1,7 +1,7 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 import { getSession, setSession } from '@/shared/auth/session';
 
-import { confirmEmail, login, logout, register } from './authApi';
+import { confirmEmail, login, logout, register, resendConfirmation } from './authApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -30,14 +30,28 @@ describe('authApi (RF-001, RF-005)', () => {
     expect(account).toEqual({ id: 'user-1', email: 'ana@mail.com' });
   });
 
-  it('confirms the account with GET /api/v1/auth/confirm?token=', async () => {
+  it('confirms the account with POST /api/v1/auth/confirm, the email and the 6-digit code', async () => {
     const fetchFn = respond(envelope(true));
 
-    await confirmEmail('raw-token', createHttpClient('http://api', fetchFn));
+    await confirmEmail('ana@mail.com', '004821', createHttpClient('http://api', fetchFn));
 
     expect(fetchFn).toHaveBeenCalledWith(
-      'http://api/api/v1/auth/confirm?token=raw-token',
-      expect.objectContaining({ method: 'GET' }),
+      'http://api/api/v1/auth/confirm',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'ana@mail.com', code: '004821' }),
+      }),
+    );
+  });
+
+  it('asks for a new code with POST /api/v1/auth/resend-confirmation', async () => {
+    const fetchFn = respond(envelope(true));
+
+    await resendConfirmation('ana@mail.com', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/resend-confirmation',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ email: 'ana@mail.com' }) }),
     );
   });
 
