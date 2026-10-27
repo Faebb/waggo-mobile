@@ -9,8 +9,8 @@ import type { Route } from './types';
 
 /** Radius of the agreed zone around the pickup (RF-009, ⚠️ provisional). */
 export const GEOFENCE_RADIUS_METERS = 1500;
-/** A position older than this greys the walker out (design 04 · 2, ⚠️ provisional). */
-export const STALE_AFTER_MS = 60_000;
+/** A position older than this greys the walker out and shows the "sin señal" notice (design 04 · 2; PO: 30 s). */
+export const STALE_AFTER_MS = 30_000;
 
 /** Same values as the walk status; kept here so tracking does not depend on the walks feature. */
 export type WalkPhase = 'Requested' | 'Accepted' | 'InProgress' | 'Completed' | 'Cancelled';
@@ -39,8 +39,8 @@ export type WalkMapScene = {
   follow: boolean;
   /** Spoken summary of the map (design 07 · 16). */
   label: string;
-  /** Minutes since the last position when it is old, else null. */
-  staleMinutes: number | null;
+  /** How long ago the last position was ("45 s", "3 min") when it is old, else null. */
+  staleAgo: string | null;
 };
 
 const toLatLng = ({ latitude, longitude }: LatLng): LatLng => ({ latitude, longitude });
@@ -71,7 +71,7 @@ export function walkMapScene(input: SceneInput): WalkMapScene {
     geofence: null,
     follow: false,
     label: `Mapa con la recogida en ${pickupAddress}.`,
-    staleMinutes: null,
+    staleAgo: null,
   };
 
   if (status === 'Accepted' && viewer === 'Walker' && input.walkerPosition) {
@@ -132,7 +132,7 @@ export function walkMapScene(input: SceneInput): WalkMapScene {
   scene.route = { walked: points, pending: [] };
   scene.center = last;
   scene.follow = true;
-  scene.staleMinutes = stale ? Math.floor(age / 60_000) : null;
+  scene.staleAgo = stale ? ago(age) : null;
   scene.markers = [
     pickupMarker,
     ...alertMarkers,

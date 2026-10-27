@@ -92,14 +92,23 @@ describe('walkMapScene (design 04 and 07 · 14–18, 29–30)', () => {
     expect(scene.label).toContain('Fuera de la zona acordada.');
   });
 
-  it('greys the marker out when the last position is more than a minute old', () => {
+  it('greys the marker out when the last position is more than 30 seconds old', () => {
     const scene = walkMapScene({ ...base, route, now: Date.parse('2026-09-30T15:21:00Z') });
 
     expect(scene.markers.find((marker) => marker.id === 'walker')).toMatchObject({
       stale: true,
       label: 'Luna con tu paseador, actualizado hace 3 min',
     });
-    expect(scene.staleMinutes).toBe(3);
+    expect(scene.staleAgo).toBe('3 min');
+  });
+
+  it('keeps the marker active at 30 seconds and greys it out right after (PO: 30 s threshold)', () => {
+    const at = (seconds: number) =>
+      walkMapScene({ ...base, route, now: Date.parse('2026-09-30T15:18:00Z') + seconds * 1000 });
+
+    expect(at(30).staleAgo).toBeNull();
+    expect(at(31).staleAgo).toBe('31 s');
+    expect(at(31).markers.find((marker) => marker.id === 'walker')).toMatchObject({ stale: true });
   });
 
   it('waits for the first position', () => {

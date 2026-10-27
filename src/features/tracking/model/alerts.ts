@@ -14,10 +14,7 @@ export type WalkAlert = {
   raisedAt: string;
 };
 
-/**
- * ⚠️ provisional (RF-012, pending PO): Colombia's public emergency line, offered as "Llamar al 123" in the emergency
- * sheet (design 07 · 21). The PO still has to confirm the number and the wording.
- */
+/** Colombia's public emergency line, offered as "Llamar al 123" in the emergency sheet (design 07 · 21; PO approved). */
 export const EMERGENCY_PHONE = '123';
 
 /** Body of `POST /api/v1/walks/{id}/emergency`: everything optional, one tap must be enough. */

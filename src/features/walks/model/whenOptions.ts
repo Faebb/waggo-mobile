@@ -14,9 +14,8 @@ export type When = (typeof WHEN_OPTIONS)[number]['value'];
 export type QuickWhen = Exclude<When, 'other'>;
 
 /**
- * ⚠️ provisional (RF-007): how many days ahead a walk can be scheduled. It mirrors the rule in force in the API
- * (`Walk.MaxDaysAhead` = 5: the card authorization could expire before a later walk). The design says "hasta 14
- * días" (proposal 07 · 12), which the API would reject with `Walks.InvalidSchedule`.
+ * RF-007: how many days ahead a walk can be scheduled. PO decision: 5 days, as in the API (`Walk.MaxDaysAhead`: the
+ * card authorization could expire before a later walk). The design's "hasta 14 días" (proposal 07 · 12) is replaced.
  */
 export const MAX_DAYS_AHEAD = 5;
 
