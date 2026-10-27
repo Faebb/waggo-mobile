@@ -40,7 +40,7 @@ describe('ChangeEmailScreen (RF-005)', () => {
   }
 
   it('asks for the code with the new email and the password, then waits for the code', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith(true));
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(respondWith(true)));
     const user = userEvent.setup();
     await renderWithProviders(<ChangeEmailScreen onChanged={jest.fn()} />);
 
@@ -55,7 +55,7 @@ describe('ChangeEmailScreen (RF-005)', () => {
   });
 
   it('keeps the action disabled until the new email and the password are typed', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith(true));
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(respondWith(true)));
     const user = userEvent.setup();
     await renderWithProviders(<ChangeEmailScreen onChanged={jest.fn()} />);
 
@@ -100,7 +100,7 @@ describe('ChangeEmailScreen (RF-005)', () => {
   });
 
   it('confirms the change with the 6-digit code and this session refresh token, then reports it', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith(true));
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(respondWith(true)));
     const onChanged = jest.fn();
     const user = userEvent.setup();
     await renderWithProviders(<ChangeEmailScreen onChanged={onChanged} />);
@@ -116,7 +116,7 @@ describe('ChangeEmailScreen (RF-005)', () => {
   });
 
   it('keeps only digits in the code, stops at six and disables the action until it is complete', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith(true));
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(respondWith(true)));
     const user = userEvent.setup();
     await renderWithProviders(<ChangeEmailScreen onChanged={jest.fn()} />);
     await askForTheCode(user);
@@ -147,7 +147,7 @@ describe('ChangeEmailScreen (RF-005)', () => {
   });
 
   it('lets the person go back and use another email', async () => {
-    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith(true));
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(respondWith(true)));
     const user = userEvent.setup();
     await renderWithProviders(<ChangeEmailScreen onChanged={jest.fn()} />);
     await askForTheCode(user);

@@ -10,6 +10,7 @@ export default function Settings() {
       onOpenWalks={() => router.push('/paseos')}
       onOpenNotifications={() => router.push('/notificaciones')}
       onOpenChangePassword={() => router.push('/configuracion/contrasena')}
+      onOpenChangeEmail={() => router.push('/configuracion/correo')}
       onLoggedOut={() => router.replace('/')}
     />
   );
