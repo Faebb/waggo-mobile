@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import { ApiError } from '@/shared/api/ApiError';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
 import { Banner } from '@/shared/ui/Banner';
@@ -8,7 +9,7 @@ import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, sizes, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
-import { useLogin } from '../hooks/useAuth';
+import { useLogin, useResendConfirmation } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
 type Props = {
@@ -16,13 +17,17 @@ type Props = {
   onGoToRegister: () => void;
   /** Receives the email typed so far, so the recovery screen starts with it. */
   onGoToForgotPassword: (email: string) => void;
+  /** The password was right but the email was never confirmed: receives the email to confirm it. */
+  onAccountNotConfirmed: (email: string) => void;
 };
+
+const ACCOUNT_NOT_CONFIRMED = 'Identity.AccountNotConfirmed';
 
 /**
  * RF-005: a right password and a confirmed account open the session right away (ADR-017, no second factor).
  * Design proposal screen 2. Google/Microsoft are not shown yet: social login is a separate spec still to implement.
  */
-export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword }: Props) {
+export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, onAccountNotConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
@@ -32,9 +37,16 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword }
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const login = useLogin();
+  const resendConfirmation = useResendConfirmation();
 
   function submit() {
-    login.mutate({ email, password }, { onSuccess: onLoggedIn });
+    login.mutate({ email, password }, { onSuccess: onLoggedIn, onError: handleLoginError });
+  }
+
+  function handleLoginError(error: Error) {
+    if (!(error instanceof ApiError) || error.code !== ACCOUNT_NOT_CONFIRMED) return;
+    // Best effort: if the new code cannot be requested, the confirm screen still lets the person ask again.
+    resendConfirmation.mutate(email, { onSettled: () => onAccountNotConfirmed(email) });
   }
 
   return (
