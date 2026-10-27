@@ -22,9 +22,14 @@ export async function register(
   return data;
 }
 
-/** RF-001 — GET /api/v1/auth/confirm: activates the account with the token emailed on registration. */
-export async function confirmEmail(token: string, client: HttpClient = httpClient): Promise<void> {
-  await client.get('/api/v1/auth/confirm', z.boolean(), { token });
+/** RF-001 — POST /api/v1/auth/confirm: activates the account with the 6-digit code emailed on registration. */
+export async function confirmEmail(email: string, code: string, client: HttpClient = httpClient): Promise<void> {
+  await client.post('/api/v1/auth/confirm', { email, code }, z.boolean());
+}
+
+/** RF-001 — POST /api/v1/auth/resend-confirmation: a new code; the API answers the same for any email. */
+export async function resendConfirmation(email: string, client: HttpClient = httpClient): Promise<void> {
+  await client.post('/api/v1/auth/resend-confirmation', { email }, z.boolean());
 }
 
 /** RF-005 — POST /api/v1/auth/login: a right password and a confirmed account open the session (ADR-017, no second factor). */

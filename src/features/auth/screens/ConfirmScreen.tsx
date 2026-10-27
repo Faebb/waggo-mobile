@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
@@ -7,25 +7,49 @@ import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
-import { useConfirmEmail } from '../hooks/useAuth';
+import { useConfirmEmail, useResendConfirmation } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
 type Props = { email: string; onConfirmed: () => void };
 
-/** RF-001: the owner of the inbox pastes the token Waggo emailed to activate the account. */
+const CODE_LENGTH = 6;
+/** Same wait the API enforces between two confirmation emails. */
+const RESEND_WAIT_SECONDS = 60;
+
+/** RF-001: the owner of the inbox types the 6-digit code Waggo emailed to activate the account. */
 export function ConfirmScreen({ email, onConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
     lead: { ...typography.body, color: colors.muted },
     highlight: { color: colors.text, fontWeight: '700' },
+    info: { ...typography.body, color: colors.success },
     error: { ...typography.body, color: colors.danger },
   }));
-  const [token, setToken] = useState('');
+  const [code, setCode] = useState('');
+  // A code was just emailed, so the next one can only be requested after the wait.
+  const [secondsLeft, setSecondsLeft] = useState(RESEND_WAIT_SECONDS);
   const confirmEmail = useConfirmEmail();
+  const resendConfirmation = useResendConfirmation();
+
+  const waiting = secondsLeft > 0;
+  useEffect(() => {
+    if (!waiting) return;
+    const timer = setInterval(() => setSecondsLeft((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [waiting]);
 
   function submit() {
-    confirmEmail.mutate(token, { onSuccess: onConfirmed });
+    confirmEmail.mutate({ email, code }, { onSuccess: onConfirmed });
+  }
+
+  function resend() {
+    resendConfirmation.mutate(email, { onSuccess: () => setSecondsLeft(RESEND_WAIT_SECONDS) });
+  }
+
+  function resendLabel() {
+    if (waiting) return `Reenviar código en ${secondsLeft} s`;
+    return resendConfirmation.isPending ? 'Enviando…' : 'Reenviar código';
   }
 
   return (
@@ -35,12 +59,27 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
 
         <View style={styles.content}>
           <Text style={styles.lead}>
-            Te escribimos a <Text style={styles.highlight}>{email}</Text> con un enlace de confirmación. Pégalo aquí.
+            Te escribimos a <Text style={styles.highlight}>{email}</Text> con un código de {CODE_LENGTH} números.
+            Escríbelo aquí.
           </Text>
 
-          <TextField label="Enlace de confirmación" value={token} onChangeText={setToken} autoCapitalize="none" />
+          <TextField
+            label="Código de confirmación"
+            value={code}
+            onChangeText={(text) => setCode(text.replace(/\D/g, '').slice(0, CODE_LENGTH))}
+            keyboardType="number-pad"
+            maxLength={CODE_LENGTH}
+            autoComplete="one-time-code"
+            hint="El código vence en 30 minutos."
+          />
 
           {apiErrorMessages(confirmEmail.error, confirmEmail.isError).map((message) => (
+            <Text key={message} accessibilityRole="alert" style={styles.error}>
+              {message}
+            </Text>
+          ))}
+          {resendConfirmation.isSuccess && <Text style={styles.info}>Te enviamos un código nuevo.</Text>}
+          {apiErrorMessages(resendConfirmation.error, resendConfirmation.isError).map((message) => (
             <Text key={message} accessibilityRole="alert" style={styles.error}>
               {message}
             </Text>
@@ -52,7 +91,13 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
         <Button
           label={confirmEmail.isPending ? 'Confirmando…' : 'Confirmar cuenta'}
           onPress={submit}
-          disabled={confirmEmail.isPending || token.length === 0}
+          disabled={confirmEmail.isPending || code.length !== CODE_LENGTH}
+        />
+        <Button
+          label={resendLabel()}
+          variant="secondary"
+          onPress={resend}
+          disabled={waiting || resendConfirmation.isPending}
         />
       </ActionFooter>
     </View>
