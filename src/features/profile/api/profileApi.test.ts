@@ -1,5 +1,4 @@
 import { createHttpClient } from '@/shared/api/httpClient';
-
 import { setSession } from '@/shared/auth/session';
 
 import { changeMyPassword, getMyProfile, updateMyProfile } from './profileApi';

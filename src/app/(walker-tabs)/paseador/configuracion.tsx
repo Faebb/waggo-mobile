@@ -7,6 +7,7 @@ export default function WalkerSettings() {
     <SettingsScreen
       onOpenPersonalInfo={() => router.push('/configuracion/info')}
       onOpenNotifications={() => router.push('/paseador/notificaciones')}
+      onOpenChangePassword={() => router.push('/configuracion/contrasena')}
       onLoggedOut={() => router.replace('/')}
     />
   );
