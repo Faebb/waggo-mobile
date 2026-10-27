@@ -31,7 +31,12 @@ describe('LoginScreen (RF-005)', () => {
     const onLoggedIn = jest.fn();
     const user = userEvent.setup();
     await renderWithProviders(
-      <LoginScreen onLoggedIn={onLoggedIn} onGoToRegister={jest.fn()} onGoToForgotPassword={jest.fn()} />,
+      <LoginScreen
+        onLoggedIn={onLoggedIn}
+        onGoToRegister={jest.fn()}
+        onGoToForgotPassword={jest.fn()}
+        onAccountNotConfirmed={jest.fn()}
+      />,
     );
 
     await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
@@ -51,7 +56,12 @@ describe('LoginScreen (RF-005)', () => {
       );
     const user = userEvent.setup();
     await renderWithProviders(
-      <LoginScreen onLoggedIn={jest.fn()} onGoToRegister={jest.fn()} onGoToForgotPassword={jest.fn()} />,
+      <LoginScreen
+        onLoggedIn={jest.fn()}
+        onGoToRegister={jest.fn()}
+        onGoToForgotPassword={jest.fn()}
+        onAccountNotConfirmed={jest.fn()}
+      />,
     );
 
     await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
@@ -68,7 +78,12 @@ describe('LoginScreen (RF-005)', () => {
     const onGoToRegister = jest.fn();
     const user = userEvent.setup();
     await renderWithProviders(
-      <LoginScreen onLoggedIn={jest.fn()} onGoToRegister={onGoToRegister} onGoToForgotPassword={jest.fn()} />,
+      <LoginScreen
+        onLoggedIn={jest.fn()}
+        onGoToRegister={onGoToRegister}
+        onGoToForgotPassword={jest.fn()}
+        onAccountNotConfirmed={jest.fn()}
+      />,
     );
 
     await user.press(screen.getByText('¿Nuevo en Waggo? Crea tu cuenta'));
@@ -81,12 +96,83 @@ describe('LoginScreen (RF-005)', () => {
     const onGoToForgotPassword = jest.fn();
     const user = userEvent.setup();
     await renderWithProviders(
-      <LoginScreen onLoggedIn={jest.fn()} onGoToRegister={jest.fn()} onGoToForgotPassword={onGoToForgotPassword} />,
+      <LoginScreen
+        onLoggedIn={jest.fn()}
+        onGoToRegister={jest.fn()}
+        onGoToForgotPassword={onGoToForgotPassword}
+        onAccountNotConfirmed={jest.fn()}
+      />,
     );
 
     await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
     await user.press(screen.getByText('¿Olvidaste tu contraseña?'));
 
     expect(onGoToForgotPassword).toHaveBeenCalledWith('ana@mail.com');
+  });
+
+  describe('an account that is not confirmed yet', () => {
+    const notConfirmed = () =>
+      respondWith(null, 422, [{ code: 'Identity.AccountNotConfirmed', message: 'Confirma tu correo para entrar.' }]);
+
+    async function tryToLogIn(onAccountNotConfirmed: jest.Mock) {
+      const user = userEvent.setup();
+      await renderWithProviders(
+        <LoginScreen
+          onLoggedIn={jest.fn()}
+          onGoToRegister={jest.fn()}
+          onGoToForgotPassword={jest.fn()}
+          onAccountNotConfirmed={onAccountNotConfirmed}
+        />,
+      );
+      await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
+      await user.type(screen.getByLabelText('Contraseña'), 'Clave123!');
+      await user.press(screen.getByRole('button', { name: 'Entrar' }));
+    }
+
+    it('asks for a new code and sends the person to confirm with the email already typed', async () => {
+      fetchSpy = jest
+        .spyOn(globalThis, 'fetch')
+        .mockImplementationOnce(() => Promise.resolve(notConfirmed()))
+        .mockImplementation(() => Promise.resolve(respondWith(true)));
+      const onAccountNotConfirmed = jest.fn();
+
+      await tryToLogIn(onAccountNotConfirmed);
+
+      await waitFor(() => expect(onAccountNotConfirmed).toHaveBeenCalledWith('ana@mail.com'));
+      const [url, init] = fetchSpy.mock.calls[1] as [string, RequestInit];
+      expect(url).toMatch(/\/api\/v1\/auth\/resend-confirmation$/);
+      expect(JSON.parse(String(init.body))).toEqual({ email: 'ana@mail.com' });
+    });
+
+    it('still sends the person to confirm when the new code cannot be requested', async () => {
+      fetchSpy = jest
+        .spyOn(globalThis, 'fetch')
+        .mockImplementationOnce(() => Promise.resolve(notConfirmed()))
+        .mockImplementation(() => Promise.reject(new Error('offline')));
+      const onAccountNotConfirmed = jest.fn();
+
+      await tryToLogIn(onAccountNotConfirmed);
+
+      await waitFor(() => expect(onAccountNotConfirmed).toHaveBeenCalledWith('ana@mail.com'));
+    });
+
+    it('does not leave the login screen for any other error', async () => {
+      fetchSpy = jest
+        .spyOn(globalThis, 'fetch')
+        .mockImplementation(() =>
+          Promise.resolve(
+            respondWith(null, 400, [
+              { code: 'Identity.InvalidCredentials', message: 'Correo o contraseña incorrectos.' },
+            ]),
+          ),
+        );
+      const onAccountNotConfirmed = jest.fn();
+
+      await tryToLogIn(onAccountNotConfirmed);
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Correo o contraseña incorrectos.');
+      expect(onAccountNotConfirmed).not.toHaveBeenCalled();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
   });
 });
