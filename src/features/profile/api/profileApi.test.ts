@@ -1,6 +1,7 @@
 import { createHttpClient } from '@/shared/api/httpClient';
+import { setSession } from '@/shared/auth/session';
 
-import { getMyProfile, updateMyProfile } from './profileApi';
+import { changeMyPassword, getMyProfile, updateMyProfile } from './profileApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -38,5 +39,21 @@ describe('profileApi (perfil de usuario)', () => {
       expect.objectContaining({ method: 'PUT', body: JSON.stringify({ fullName: 'Ana Pérez', phone: '3001234567' }) }),
     );
     expect(profile).toEqual(updated);
+  });
+
+  it('changes my password with PUT /api/v1/users/me/password, sending this session refresh token', async () => {
+    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+    const fetchFn = respond(envelope(true));
+
+    await changeMyPassword('Actual123', 'Nueva1234', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/users/me/password',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({ currentPassword: 'Actual123', newPassword: 'Nueva1234', refreshToken: 'rt' }),
+      }),
+    );
+    setSession(null);
   });
 });

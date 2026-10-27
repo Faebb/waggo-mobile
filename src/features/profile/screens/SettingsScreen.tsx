@@ -16,6 +16,7 @@ type Props = {
   onOpenPets?: () => void;
   onOpenWalks?: () => void;
   onOpenNotifications: () => void;
+  onOpenChangePassword: () => void;
   onLoggedOut: () => void;
 };
 
@@ -25,6 +26,7 @@ export function SettingsScreen({
   onOpenPets,
   onOpenWalks,
   onOpenNotifications,
+  onOpenChangePassword,
   onLoggedOut,
 }: Props) {
   const styles = useThemedStyles((colors) => ({
@@ -104,6 +106,7 @@ export function SettingsScreen({
             <Text style={styles.rowTitle}>Tema</Text>
             <ThemeToggle />
           </View>
+          <Shortcut title="Cambiar contraseña" detail="Protege tu cuenta" onPress={onOpenChangePassword} />
           <Shortcut title="Cerrar sesión" detail="Vuelve a la pantalla de inicio" onPress={signOut} />
         </View>
       </ScrollView>

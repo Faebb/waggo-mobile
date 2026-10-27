@@ -12,6 +12,7 @@ function renderSettings(props: Partial<Parameters<typeof SettingsScreen>[0]> = {
       onOpenPets={jest.fn()}
       onOpenWalks={jest.fn()}
       onOpenNotifications={jest.fn()}
+      onOpenChangePassword={jest.fn()}
       onLoggedOut={jest.fn()}
       {...props}
     />,
@@ -98,5 +99,16 @@ describe('SettingsScreen (configuración)', () => {
     await user.press(await screen.findByRole('button', { name: /Cerrar sesión/ }));
 
     await waitFor(() => expect(onLoggedOut).toHaveBeenCalledTimes(1));
+  });
+
+  it('opens the change password screen', async () => {
+    mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
+    const onOpenChangePassword = jest.fn();
+    const user = userEvent.setup();
+    await renderSettings({ onOpenChangePassword });
+
+    await user.press(await screen.findByRole('button', { name: /Cambiar contraseña/ }));
+
+    expect(onOpenChangePassword).toHaveBeenCalledTimes(1);
   });
 });

@@ -9,6 +9,7 @@ export default function Settings() {
       onOpenPets={() => router.push('/mascotas')}
       onOpenWalks={() => router.push('/paseos')}
       onOpenNotifications={() => router.push('/notificaciones')}
+      onOpenChangePassword={() => router.push('/configuracion/contrasena')}
       onLoggedOut={() => router.replace('/')}
     />
   );
