@@ -89,11 +89,45 @@ describe('authApi (RF-001, RF-005)', () => {
     expect(getSession()).toMatchObject({ accessToken: 'at', refreshToken: 'rt' });
   });
 
-  it('logout clears the session', () => {
-    setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
+  describe('logout', () => {
+    const openSession = () => setSession({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 60_000 });
 
-    logout();
+    it('clears the session right away, before the server answers', () => {
+      openSession();
 
-    expect(getSession()).toBeNull();
+      void logout(createHttpClient('http://api', jest.fn().mockReturnValue(new Promise(() => {}))));
+
+      expect(getSession()).toBeNull();
+    });
+
+    it('revokes the refresh token with POST /api/v1/auth/logout', async () => {
+      openSession();
+      const fetchFn = respond(envelope(true));
+
+      await logout(createHttpClient('http://api', fetchFn));
+
+      expect(fetchFn).toHaveBeenCalledWith(
+        'http://api/api/v1/auth/logout',
+        expect.objectContaining({ method: 'POST', body: JSON.stringify({ refreshToken: 'rt' }) }),
+      );
+    });
+
+    it('still signs out, without throwing, when the request fails', async () => {
+      openSession();
+      const fetchFn = jest.fn().mockRejectedValue(new Error('offline'));
+
+      await expect(logout(createHttpClient('http://api', fetchFn))).resolves.toBeUndefined();
+
+      expect(getSession()).toBeNull();
+    });
+
+    it('sends nothing when there is no session', async () => {
+      setSession(null);
+      const fetchFn = respond(envelope(true));
+
+      await logout(createHttpClient('http://api', fetchFn));
+
+      expect(fetchFn).not.toHaveBeenCalled();
+    });
   });
 });
