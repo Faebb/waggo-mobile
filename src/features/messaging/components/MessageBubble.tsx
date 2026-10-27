@@ -6,7 +6,10 @@ import { PARTY_NAMES, type WalkMessage, type WalkParty } from '../model/types';
 
 type Props = { message: WalkMessage; viewer: WalkParty };
 
-/** A chat bubble: mine on the right in yellow, the other person's on the left. */
+/**
+ * A chat bubble (design proposal 07 · 20): mine on the right in `primary`, the other person's on the left in
+ * `surface`, with the time inside. Read as "Paseador, 15:02: …".
+ */
 export function MessageBubble({ message, viewer }: Props) {
   const styles = useThemedStyles((colors) => ({
     bubble: {
@@ -14,13 +17,19 @@ export function MessageBubble({ message, viewer }: Props) {
       gap: 2,
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.md,
-      borderRadius: radius.md,
+      borderRadius: radius.lg,
     },
-    mine: { alignSelf: 'flex-end', backgroundColor: colors.primary },
-    theirs: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+    mine: { alignSelf: 'flex-end', backgroundColor: colors.primary, borderBottomRightRadius: radius.sm },
+    theirs: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderBottomLeftRadius: radius.sm,
+    },
     text: { ...typography.body, color: colors.text },
     mineText: { color: colors.primaryText },
-    time: { ...typography.caption, alignSelf: 'flex-end', color: colors.muted },
+    time: { ...typography.micro, alignSelf: 'flex-end', color: colors.muted },
     mineTime: { color: colors.primaryText },
   }));
   const mine = message.sentBy === viewer;
@@ -31,7 +40,7 @@ export function MessageBubble({ message, viewer }: Props) {
   return (
     <View
       accessible
-      accessibilityLabel={`${author}: ${message.text}`}
+      accessibilityLabel={`${author}, ${time}: ${message.text}`}
       style={[styles.bubble, mine ? styles.mine : styles.theirs]}
     >
       <Text style={[styles.text, mine && styles.mineText]}>{message.text}</Text>

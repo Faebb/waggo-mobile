@@ -40,4 +40,16 @@ describe('TextField', () => {
 
     expect(screen.getByText('Opcional')).toBeOnTheScreen();
   });
+
+  it('lets the user show and hide a password', async () => {
+    const user = userEvent.setup();
+    await render(<TextField label="Contraseña" value="Secreta1" onChangeText={jest.fn()} secureTextEntry />);
+
+    expect(screen.getByLabelText('Contraseña')).toHaveProp('secureTextEntry', true);
+
+    await user.press(screen.getByRole('button', { name: 'Mostrar contraseña' }));
+
+    expect(screen.getByLabelText('Contraseña')).toHaveProp('secureTextEntry', false);
+    expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toBeOnTheScreen();
+  });
 });

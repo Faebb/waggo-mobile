@@ -1,85 +1,74 @@
 import { ScrollView, Text, View } from 'react-native';
 
-import { Button } from '@/shared/ui/Button';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
+import { Button } from '@/shared/ui/Button';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { ErrorState } from '@/shared/ui/ErrorState';
 import { Skeleton } from '@/shared/ui/Skeleton';
 import { layout, radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { PetRow } from '../components/PetRow';
 import { useMyPets } from '../hooks/usePets';
+import { MAX_PETS_PER_OWNER } from '../model/types';
 
-type Props = { onAddPress: () => void };
+type Props = { onAddPress: () => void; onOpenPet: (id: string) => void };
 
-/** Row-shaped placeholder matching `PetRow`, shown three times while the list loads. */
-function PetRowSkeleton() {
-  const styles = useThemedStyles((colors) => ({
-    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-    body: { gap: spacing.xs },
-    hairline: { borderTopWidth: 1, borderTopColor: colors.border },
-  }));
-  return (
-    <View style={[styles.row, styles.hairline]}>
-      <Skeleton width={44} height={44} radius={radius.pill} />
-      <View style={styles.body}>
-        <Skeleton width={120} height={18} />
-        <Skeleton width={90} height={14} />
-      </View>
-    </View>
-  );
-}
-
-/** RF-004: the owner sees their dogs and can add a new one. */
-export function MyPetsScreen({ onAddPress }: Props) {
+/** RF-004: the owner sees their dogs, opens one and can add a new one (design proposal 07 · 8). */
+export function MyPetsScreen({ onAddPress, onOpenPet }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.md, padding: spacing.lg },
-    eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text, marginBottom: spacing.md },
-    error: { ...typography.body, color: colors.danger },
-    empty: { gap: spacing.xs, paddingVertical: spacing.lg },
-    emptyTitle: { ...typography.subtitle, color: colors.text },
-    emptyText: { ...typography.body, color: colors.muted },
+    title: { ...typography.title, color: colors.text },
+    counter: { ...typography.caption, color: colors.muted },
+    header: { gap: spacing.xs },
+    skeletons: { gap: spacing.md },
   }));
-  const { data: pets, isPending, isError } = useMyPets();
+  const pets = useMyPets();
 
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.eyebrow}>TUS PERROS</Text>
-        <Text accessibilityRole="header" style={styles.title}>
-          Mis perros
-        </Text>
-
-        {isPending && (
-          <View>
-            <PetRowSkeleton />
-            <PetRowSkeleton />
-            <PetRowSkeleton />
-          </View>
-        )}
-        {isError && (
-          <Text accessibilityRole="alert" style={styles.error}>
-            No pudimos cargar tus perros. Intenta de nuevo.
+        <View style={styles.header}>
+          <Text accessibilityRole="header" style={styles.title}>
+            Mis perros
           </Text>
-        )}
-        {pets?.length === 0 && (
-          <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>Aún no registras perros.</Text>
-            <Text style={styles.emptyText}>Agrégalos una vez y pide paseos en segundos.</Text>
+          {pets.data !== undefined && pets.data.length > 0 && (
+            <Text style={styles.counter}>
+              {pets.data.length} de {MAX_PETS_PER_OWNER} perros
+            </Text>
+          )}
+        </View>
+
+        {pets.isPending && (
+          <View
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel="Cargando tus perros"
+            style={styles.skeletons}
+          >
+            <Skeleton width="100%" height={80} radius={radius.md} />
+            <Skeleton width="100%" height={80} radius={radius.md} />
           </View>
         )}
-        {pets && pets.length > 0 && (
-          <View>
-            {pets.map((pet) => (
-              <PetRow key={pet.id} pet={pet} />
-            ))}
-          </View>
+        {pets.isError && <ErrorState message="No pudimos cargar tus perros." onRetry={() => void pets.refetch()} />}
+        {pets.data?.length === 0 && (
+          <EmptyState
+            title="Aún no tienes perros"
+            message="Agrégalos una vez y elígelos en segundos cada vez que pidas un paseo."
+            actionLabel="Agregar mi primer perro"
+            onAction={onAddPress}
+          />
         )}
+        {pets.data?.map((pet) => (
+          <PetRow key={pet.id} pet={pet} onPress={() => onOpenPet(pet.id)} />
+        ))}
       </ScrollView>
 
-      <ActionFooter>
-        <Button label="Agregar perro" onPress={onAddPress} />
-      </ActionFooter>
+      {pets.data !== undefined && pets.data.length > 0 && (
+        <ActionFooter>
+          <Button label="Agregar perro" onPress={onAddPress} />
+        </ActionFooter>
+      )}
     </View>
   );
 }

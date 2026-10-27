@@ -3,7 +3,9 @@ import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 
 
 import { useWalk } from '@/features/walks';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { layout, radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { Banner } from '@/shared/ui/Banner';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { layout, radius, sizes, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import { MessageBubble } from '../components/MessageBubble';
 import { useChat, useSendMessage } from '../hooks/useChat';
@@ -13,7 +15,8 @@ type Props = { walkId: string; viewer: WalkParty };
 
 /**
  * RF-013: chat between the owner and the walker, like texting the driver of a ride. Open while the walk is accepted
- * or in progress; afterwards it stays readable.
+ * or in progress; afterwards it stays readable (design proposal 07 · 20). A failed send keeps the text and offers
+ * "Reintentar".
  */
 export function ChatScreen({ walkId, viewer }: Props) {
   const colors = useColors();
@@ -21,29 +24,27 @@ export function ChatScreen({ walkId, viewer }: Props) {
     screen: layout.column,
     content: { gap: spacing.md, padding: spacing.lg },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     messages: { gap: spacing.sm },
-    empty: { ...typography.body, color: colors.muted },
-    error: { ...typography.caption, color: colors.danger },
     closed: { ...typography.body, color: colors.muted, textAlign: 'center' },
     composer: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
     input: {
       ...typography.body,
       flex: 1,
-      minHeight: 44,
+      minHeight: sizes.touch,
       maxHeight: 120,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      borderRadius: radius.md,
+      borderRadius: radius.lg,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.borderStrong,
       backgroundColor: colors.surface,
       color: colors.text,
     },
     send: {
-      height: 44,
+      minHeight: sizes.touch,
       paddingHorizontal: spacing.md,
-      borderRadius: radius.md,
+      borderRadius: radius.pill,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.primary,
@@ -75,22 +76,31 @@ export function ChatScreen({ walkId, viewer }: Props) {
         </Text>
 
         {chat.isPending && <ActivityIndicator accessibilityLabel="Cargando mensajes" color={colors.primary} />}
-        {chat.data?.length === 0 && <Text style={styles.empty}>Escríbele para coordinar la recogida.</Text>}
-        <View style={styles.messages}>
+        {chat.isError && (
+          <Banner
+            tone="danger"
+            message="No pudimos cargar los mensajes."
+            actionLabel="Intentar de nuevo"
+            onAction={() => void chat.refetch()}
+          />
+        )}
+        {chat.data?.length === 0 && (
+          <EmptyState
+            title="Coordina la recogida"
+            message={`Escríbele al ${other.toLowerCase()} para ponerse de acuerdo.`}
+          />
+        )}
+        <View style={styles.messages} accessibilityLiveRegion="polite">
           {chat.data?.map((message) => (
             <MessageBubble key={message.id} message={message} viewer={viewer} />
           ))}
         </View>
-        {send.isError && (
-          <Text accessibilityRole="alert" style={styles.error}>
-            No pudimos enviar el mensaje. Intenta de nuevo.
-          </Text>
-        )}
+        {send.isError && <Banner tone="danger" message="No se envió." actionLabel="Reintentar" onAction={submit} />}
       </ScrollView>
 
       {walk.data && !open && (
         <ActionFooter>
-          <Text style={styles.closed}>El chat se cerró cuando terminó el paseo.</Text>
+          <Text style={styles.closed}>El paseo terminó. El chat queda solo para leer.</Text>
         </ActionFooter>
       )}
       {open && (

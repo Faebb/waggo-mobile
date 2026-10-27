@@ -1,31 +1,43 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
-import { spacing, typography, useThemedStyles } from '@/shared/ui/theme';
+import { Banner } from '@/shared/ui/Banner';
+import { spacing, useThemedStyles } from '@/shared/ui/theme';
 
 import { useRaiseEmergency, useWalkAlerts } from '../hooks/useWalkAlerts';
 import type { AlertParty } from '../model/alerts';
 import { AlertBanner } from './AlertBanner';
 import { EmergencyButton } from './EmergencyButton';
 
-type Props = { walkId: string; viewer: AlertParty };
+type Props = {
+  walkId: string;
+  viewer: AlertParty;
+  /** Chat with the other person, offered once the emergency is sent. */
+  onOpenChat?: () => void;
+};
 
-/** RF-012: latest alert of the walk and the emergency button, for the owner and the walker alike. */
-export function WalkSafety({ walkId, viewer }: Props) {
+/**
+ * RF-012: latest alert of the walk and the emergency button with its confirmation sheet, for the owner and the
+ * walker alike (design proposal 07 · 21). A failed send keeps a "Reintentar" with the same message.
+ */
+export function WalkSafety({ walkId, viewer, onOpenChat }: Props) {
   const alerts = useWalkAlerts(walkId);
   const raise = useRaiseEmergency(walkId);
   const latest = alerts.data?.[0];
-  const styles = useThemedStyles((colors) => ({
-    container: { gap: spacing.md },
-    sent: { ...typography.caption, fontWeight: '700', color: colors.text },
-    error: { ...typography.caption, color: colors.danger },
-  }));
+  const styles = useThemedStyles(() => ({ container: { gap: spacing.md } }));
 
   return (
     <View style={styles.container}>
       {latest && <AlertBanner alert={latest} viewer={viewer} />}
-      <EmergencyButton onConfirm={() => raise.mutate()} sending={raise.isPending} />
-      {raise.isSuccess && <Text style={styles.sent}>Emergencia enviada. Mantén la calma; el paseo quedó marcado.</Text>}
-      {raise.isError && <Text style={styles.error}>No pudimos enviar la emergencia. Intenta de nuevo.</Text>}
+      {raise.isSuccess && (
+        <Banner tone="danger" title="Emergencia enviada" message="Mantén la calma; el paseo quedó marcado." />
+      )}
+      <EmergencyButton
+        viewer={viewer}
+        status={raise.status}
+        onConfirm={(message) => raise.mutate(message)}
+        onOpen={raise.reset}
+        onOpenChat={onOpenChat}
+      />
     </View>
   );
 }

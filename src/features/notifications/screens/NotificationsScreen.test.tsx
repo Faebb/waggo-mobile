@@ -54,6 +54,15 @@ describe('NotificationsScreen (RF-014)', () => {
 
     await renderWithProviders(<NotificationsScreen onOpenWalk={jest.fn()} />);
 
-    expect(await screen.findByText('No tienes avisos todavía.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'No tienes avisos todavía' })).toBeOnTheScreen();
+  });
+
+  it('offers to retry when the notices do not load', async () => {
+    fetchSpy = mockApi([]);
+
+    await renderWithProviders(<NotificationsScreen onOpenWalk={jest.fn()} />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos cargar tus avisos.');
+    expect(screen.getByRole('button', { name: 'Intentar de nuevo' })).toBeOnTheScreen();
   });
 });

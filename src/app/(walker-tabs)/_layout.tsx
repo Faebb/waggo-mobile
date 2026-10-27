@@ -2,7 +2,9 @@ import { Tabs } from 'expo-router';
 import { type ColorValue } from 'react-native';
 
 import { HomeIcon } from '@/shared/ui/icons/HomeIcon';
+import { ListIcon } from '@/shared/ui/icons/ListIcon';
 import { UserIcon } from '@/shared/ui/icons/UserIcon';
+import { WalletCheckIcon } from '@/shared/ui/icons/WalletCheckIcon';
 import { typography, useColors } from '@/shared/ui/theme';
 
 /** react-navigation types the tab icon's color as the wider `ColorValue`; this app's palette is always a string. */
@@ -10,7 +12,10 @@ function asColor(color: ColorValue): string {
   return color as string;
 }
 
-/** Walker's main sections, always one tap away (ADR-019): detail screens still push on top, hiding this bar. */
+/**
+ * Walker's main sections, always one tap away (ADR-019, amended by the design proposal: four tabs like the owner —
+ * Inicio, Paseos, Ganancias, Configuración). Detail screens still push on top, hiding this bar.
+ */
 export default function WalkerTabsLayout() {
   const colors = useColors();
 
@@ -21,12 +26,23 @@ export default function WalkerTabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
-        tabBarLabelStyle: { fontFamily: typography.micro.fontFamily, fontSize: 12 },
+        tabBarLabelStyle: { fontFamily: typography.micro.fontFamily, fontSize: typography.micro.fontSize },
       }}
     >
       <Tabs.Screen
         name="paseador/index"
         options={{ title: 'Inicio', tabBarIcon: ({ color, size }) => <HomeIcon color={asColor(color)} size={size} /> }}
+      />
+      <Tabs.Screen
+        name="paseador/paseos"
+        options={{ title: 'Paseos', tabBarIcon: ({ color, size }) => <ListIcon color={asColor(color)} size={size} /> }}
+      />
+      <Tabs.Screen
+        name="paseador/ganancias"
+        options={{
+          title: 'Ganancias',
+          tabBarIcon: ({ color, size }) => <WalletCheckIcon color={asColor(color)} size={size} />,
+        }}
       />
       <Tabs.Screen
         name="paseador/configuracion"

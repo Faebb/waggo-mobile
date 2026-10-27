@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { radius, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
+import { radius, sizes, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 type Props = {
   label: string;
@@ -20,12 +20,13 @@ export function PetPicker({ label, pets, selected, onToggle, error }: Props) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.sm,
+      minHeight: sizes.chip,
       paddingVertical: spacing.xs,
       paddingLeft: spacing.xs,
       paddingRight: spacing.md,
       borderRadius: radius.pill,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.borderStrong,
       backgroundColor: colors.surface,
     },
     chipSelected: { borderColor: colors.primary },

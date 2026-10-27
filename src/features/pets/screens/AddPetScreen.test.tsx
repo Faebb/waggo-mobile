@@ -45,7 +45,8 @@ describe('AddPetScreen (RF-004)', () => {
 
     await user.type(screen.getByLabelText('Nombre'), 'Luna');
     await user.type(screen.getByLabelText('Raza'), 'Criolla');
-    await user.press(screen.getByRole('button', { name: 'Grande' }));
+    await user.press(screen.getByRole('button', { name: 'Grande · >25 kg' }));
+    await user.type(screen.getByLabelText('Nacimiento'), '10052021');
     await user.type(screen.getByLabelText('Peso (kg)'), '30,5');
     await user.type(screen.getByLabelText('Notas médicas'), 'Alérgica al pollo');
     await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
@@ -57,6 +58,7 @@ describe('AddPetScreen (RF-004)', () => {
       name: 'Luna',
       breed: 'Criolla',
       size: 'Large',
+      birthDate: '2021-05-10',
       weightKg: 30.5,
       medicalNotes: 'Alérgica al pollo',
     });
@@ -85,6 +87,45 @@ describe('AddPetScreen (RF-004)', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it('asks for a real birth date without calling the API', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(<AddPetScreen onSaved={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Nombre'), 'Luna');
+    await user.type(screen.getByLabelText('Nacimiento'), '31022021');
+    await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
+
+    expect(screen.getByText('Escribe una fecha real, por ejemplo 10/05/2021.')).toBeOnTheScreen();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not accept a birth date in the future', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(<AddPetScreen onSaved={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Nombre'), 'Luna');
+    await user.type(screen.getByLabelText('Nacimiento'), '01012999');
+    await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
+
+    expect(screen.getByText('La fecha de nacimiento no puede ser futura.')).toBeOnTheScreen();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('marks the birth date when the API rejects it (Pets.InvalidBirthDate)', async () => {
+    fetchSpy.mockResolvedValue(
+      respondWith(null, 400, [{ code: 'Pets.InvalidBirthDate', message: 'Revisa la fecha de nacimiento.' }]),
+    );
+    const user = userEvent.setup();
+    await renderWithProviders(<AddPetScreen onSaved={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Nombre'), 'Luna');
+    await user.type(screen.getByLabelText('Nacimiento'), '01011980');
+    await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
+
+    expect(await screen.findByText('Revisa la fecha de nacimiento.')).toBeOnTheScreen();
+    expect(screen.queryByRole('alert')).not.toBeOnTheScreen();
+  });
+
   it('shows the messages of the API when it rejects the dog', async () => {
     fetchSpy.mockResolvedValue(
       respondWith(null, 422, [
@@ -100,5 +141,21 @@ describe('AddPetScreen (RF-004)', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Ya registraste 10 perros, el máximo por cuenta.');
     expect(onSaved).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Guardar perro' })).toBeDisabled();
+  });
+
+  it('marks the field the API rejects (Pets.InvalidWeight)', async () => {
+    fetchSpy.mockResolvedValue(
+      respondWith(null, 400, [{ code: 'Pets.InvalidWeight', message: 'El peso debe estar entre 0,5 y 100 kg.' }]),
+    );
+    const user = userEvent.setup();
+    await renderWithProviders(<AddPetScreen onSaved={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Nombre'), 'Luna');
+    await user.type(screen.getByLabelText('Peso (kg)'), '120');
+    await user.press(screen.getByRole('button', { name: 'Guardar perro' }));
+
+    expect(await screen.findByText('El peso debe estar entre 0,5 y 100 kg.')).toBeOnTheScreen();
+    expect(screen.queryByRole('alert')).not.toBeOnTheScreen();
   });
 });

@@ -48,6 +48,39 @@ describe('WalkSafety (RF-012)', () => {
       const post = fetchSpy.mock.calls.find(([, init]) => (init as RequestInit | undefined)?.method === 'POST');
       expect(JSON.parse(String((post![1] as RequestInit).body))).toEqual({ latitude: 4.64, longitude: -74.062 });
     });
-    expect(await screen.findByText('Emergencia enviada. Mantén la calma; el paseo quedó marcado.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Mantén la calma' })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: 'Listo' }));
+    expect(screen.getByText('Emergencia enviada')).toBeOnTheScreen();
+  });
+
+  it('keeps a retry and the 123 line when the emergency could not be sent', async () => {
+    mockedLocation.mockResolvedValue(null);
+    fetchSpy = mockApi([{ path: '/api/v1/walks/walk-1/alerts', data: [] }]);
+    const user = userEvent.setup();
+    await renderWithProviders(<WalkSafety walkId="walk-1" viewer="Owner" />);
+
+    await user.press(await screen.findByRole('button', { name: 'Emergencia' }));
+    await user.press(screen.getByRole('button', { name: 'Sí, es una emergencia' }));
+
+    expect(await screen.findByText('No pudimos enviar la alerta. Llama al 123 si es urgente.')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Llamar al 123' })).toBeOnTheScreen();
+  });
+
+  it('offers to write to the other person once the emergency is sent (design 07 · 21)', async () => {
+    mockedLocation.mockResolvedValue(null);
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1/alerts', data: [] },
+      { method: 'POST', path: '/api/v1/walks/walk-1/emergency', data: { ...raised, raisedBy: 'Walker' } },
+    ]);
+    const onOpenChat = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(<WalkSafety walkId="walk-1" viewer="Walker" onOpenChat={onOpenChat} />);
+
+    await user.press(await screen.findByRole('button', { name: 'Emergencia' }));
+    await user.press(screen.getByRole('button', { name: 'Sí, es una emergencia' }));
+    await user.press(await screen.findByRole('button', { name: 'Escribir al dueño' }));
+
+    expect(onOpenChat).toHaveBeenCalledTimes(1);
   });
 });

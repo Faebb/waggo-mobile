@@ -86,7 +86,7 @@ describe('LoginScreen (RF-005)', () => {
       />,
     );
 
-    await user.press(screen.getByText('¿Nuevo en Waggo? Crea tu cuenta'));
+    await user.press(screen.getByRole('button', { name: '¿No tienes cuenta? Crear cuenta' }));
 
     expect(onGoToRegister).toHaveBeenCalledTimes(1);
   });

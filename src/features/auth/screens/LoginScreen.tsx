@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ApiError } from '@/shared/api/ApiError';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
+import { Banner } from '@/shared/ui/Banner';
 import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
-import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
+import { layout, sizes, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { useLogin, useResendConfirmation } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
@@ -22,13 +23,16 @@ type Props = {
 
 const ACCOUNT_NOT_CONFIRMED = 'Identity.AccountNotConfirmed';
 
-/** RF-005: a right password and a confirmed account open the session right away (ADR-017, no second factor). */
+/**
+ * RF-005: a right password and a confirmed account open the session right away (ADR-017, no second factor).
+ * Design proposal screen 2. Google/Microsoft are not shown yet: social login is a separate spec still to implement.
+ */
 export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, onAccountNotConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    error: { ...typography.body, color: colors.danger },
-    link: { ...typography.body, color: colors.primary, textAlign: 'center' },
+    forgot: { alignSelf: 'flex-end', minHeight: sizes.touch, justifyContent: 'center' },
+    forgotText: { ...typography.caption, fontWeight: '700', color: colors.primary },
   }));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,9 +52,13 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
   return (
     <View style={styles.screen}>
       <ScrollView keyboardShouldPersistTaps="handled">
-        <AuthHeader title="Inicia sesión" subtitle="Sigue el paseo de tu perro en vivo" />
+        <AuthHeader title="Inicia sesión" subtitle="Sigue el paseo de tu perro en vivo." />
 
         <View style={styles.content}>
+          {apiErrorMessages(login.error, login.isError, 'Correo o contraseña incorrectos.').map((message) => (
+            <Banner key={message} tone="danger" message={message} />
+          ))}
+
           <TextField
             label="Correo"
             value={email}
@@ -58,32 +66,27 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            editable={!login.isPending}
           />
-          <TextField
-            label="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="current-password"
-          />
-
-          {apiErrorMessages(login.error, login.isError, 'Correo o contraseña incorrectos.').map((message) => (
-            <Text key={message} accessibilityRole="alert" style={styles.error}>
-              {message}
-            </Text>
-          ))}
-
-          <Text accessibilityRole="button" onPress={() => onGoToForgotPassword(email)} style={styles.link}>
-            ¿Olvidaste tu contraseña?
-          </Text>
-          <Text accessibilityRole="button" onPress={onGoToRegister} style={styles.link}>
-            ¿Nuevo en Waggo? Crea tu cuenta
-          </Text>
+          <View>
+            <TextField
+              label="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="current-password"
+              editable={!login.isPending}
+            />
+            <Pressable accessibilityRole="button" onPress={() => onGoToForgotPassword(email)} style={styles.forgot}>
+              <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
 
       <ActionFooter>
-        <Button label={login.isPending ? 'Entrando…' : 'Entrar'} onPress={submit} disabled={login.isPending} />
+        <Button label="Entrar" loadingLabel="Entrando…" loading={login.isPending} onPress={submit} />
+        <Button label="¿No tienes cuenta? Crear cuenta" variant="tertiary" onPress={onGoToRegister} />
       </ActionFooter>
     </View>
   );

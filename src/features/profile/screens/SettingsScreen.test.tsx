@@ -9,8 +9,6 @@ function renderSettings(props: Partial<Parameters<typeof SettingsScreen>[0]> = {
   return renderWithProviders(
     <SettingsScreen
       onOpenPersonalInfo={jest.fn()}
-      onOpenPets={jest.fn()}
-      onOpenWalks={jest.fn()}
       onOpenNotifications={jest.fn()}
       onOpenChangePassword={jest.fn()}
       onOpenChangeEmail={jest.fn()}
@@ -51,33 +49,27 @@ describe('SettingsScreen (configuración)', () => {
     expect(await screen.findByText('Agrega tu nombre')).toBeOnTheScreen();
   });
 
-  it('opens personal info, pets, walks and notifications', async () => {
+  it('opens personal info and notifications', async () => {
     mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
     const onOpenPersonalInfo = jest.fn();
-    const onOpenPets = jest.fn();
-    const onOpenWalks = jest.fn();
     const onOpenNotifications = jest.fn();
     const user = userEvent.setup();
-    await renderSettings({ onOpenPersonalInfo, onOpenPets, onOpenWalks, onOpenNotifications });
+    await renderSettings({ onOpenPersonalInfo, onOpenNotifications });
 
     await user.press(await screen.findByRole('button', { name: /Información personal/ }));
-    await user.press(screen.getByRole('button', { name: /Mis perros/ }));
-    await user.press(screen.getByRole('button', { name: /Mis paseos/ }));
     await user.press(screen.getByRole('button', { name: /Notificaciones/ }));
 
     expect(onOpenPersonalInfo).toHaveBeenCalledTimes(1);
-    expect(onOpenPets).toHaveBeenCalledTimes(1);
-    expect(onOpenWalks).toHaveBeenCalledTimes(1);
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
   });
 
-  it('hides "Mis perros" for roles without dogs (e.g. the walker)', async () => {
+  it('groups the options as in the design: your account and preferences', async () => {
     mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
 
-    await renderSettings({ onOpenPets: undefined });
+    await renderSettings();
 
-    await screen.findByText('ana@mail.com');
-    expect(screen.queryByRole('button', { name: /Mis perros/ })).toBeNull();
+    expect(await screen.findByText('TU CUENTA')).toBeOnTheScreen();
+    expect(screen.getByText('PREFERENCIAS')).toBeOnTheScreen();
   });
 
   it('includes the theme switch', async () => {
@@ -87,8 +79,8 @@ describe('SettingsScreen (configuración)', () => {
     await screen.findByText('ana@mail.com');
 
     expect(screen.getByText('Tema')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Claro' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Oscuro' })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: 'Claro' })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: 'Oscuro' })).toBeOnTheScreen();
   });
 
   it('logs out', async () => {
