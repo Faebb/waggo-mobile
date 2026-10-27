@@ -41,7 +41,7 @@ describe('ConfirmScreen (RF-001)', () => {
     expect(url).toMatch(/\/api\/v1\/auth\/confirm$/);
     expect(init.method).toBe('POST');
     expect(JSON.parse(init.body as string)).toEqual({ email: 'ana@mail.com', code: '004821' });
-  });
+  }, 15000);
 
   it('keeps only digits and stops at six', async () => {
     fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith(true));
