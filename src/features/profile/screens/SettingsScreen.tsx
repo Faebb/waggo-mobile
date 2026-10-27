@@ -57,7 +57,7 @@ export function SettingsScreen({
   const profile = useMyProfile();
 
   function signOut() {
-    logout();
+    void logout();
     onLoggedOut();
   }
 
