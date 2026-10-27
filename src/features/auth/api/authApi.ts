@@ -32,6 +32,21 @@ export async function resendConfirmation(email: string, client: HttpClient = htt
   await client.post('/api/v1/auth/resend-confirmation', { email }, z.boolean());
 }
 
+/** RF-001, RF-005 — POST /api/v1/auth/forgot-password: a 6-digit recovery code; the API answers the same for any email. */
+export async function forgotPassword(email: string, client: HttpClient = httpClient): Promise<void> {
+  await client.post('/api/v1/auth/forgot-password', { email }, z.boolean());
+}
+
+/** RF-001, RF-005 — POST /api/v1/auth/reset-password: the emailed code sets a new password and closes every session. */
+export async function resetPassword(
+  email: string,
+  code: string,
+  newPassword: string,
+  client: HttpClient = httpClient,
+): Promise<void> {
+  await client.post('/api/v1/auth/reset-password', { email, code, newPassword }, z.boolean());
+}
+
 /** RF-005 — POST /api/v1/auth/login: a right password and a confirmed account open the session (ADR-017, no second factor). */
 export async function login(email: string, password: string, client: HttpClient = httpClient): Promise<SessionTokens> {
   const { data } = await client.post('/api/v1/auth/login', { email, password }, sessionSchema);

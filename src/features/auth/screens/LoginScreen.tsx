@@ -10,10 +10,15 @@ import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme'
 import { useLogin } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
-type Props = { onLoggedIn: () => void; onGoToRegister: () => void };
+type Props = {
+  onLoggedIn: () => void;
+  onGoToRegister: () => void;
+  /** Receives the email typed so far, so the recovery screen starts with it. */
+  onGoToForgotPassword: (email: string) => void;
+};
 
 /** RF-005: a right password and a confirmed account open the session right away (ADR-017, no second factor). */
-export function LoginScreen({ onLoggedIn, onGoToRegister }: Props) {
+export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
@@ -56,6 +61,9 @@ export function LoginScreen({ onLoggedIn, onGoToRegister }: Props) {
             </Text>
           ))}
 
+          <Text accessibilityRole="button" onPress={() => onGoToForgotPassword(email)} style={styles.link}>
+            ¿Olvidaste tu contraseña?
+          </Text>
           <Text accessibilityRole="button" onPress={onGoToRegister} style={styles.link}>
             ¿Nuevo en Waggo? Crea tu cuenta
           </Text>

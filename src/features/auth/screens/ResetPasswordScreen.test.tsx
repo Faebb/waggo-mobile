@@ -110,23 +110,21 @@ describe('ResetPasswordScreen (RF-001, RF-005)', () => {
   });
 
   it('shows the message of the API when the new password is weak', async () => {
-    fetchSpy = jest
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(
-        respondWith(null, 400, [
-          {
-            code: 'Identity.WeakPassword',
-            message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.',
-          },
-        ]),
-      );
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
+      respondWith(null, 400, [
+        {
+          code: 'Identity.WeakPassword',
+          message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.',
+        },
+      ]),
+    );
     const user = userEvent.setup();
     await renderWithProviders(<ResetPasswordScreen email="ana@mail.com" onReset={jest.fn()} />);
 
     await fillIn(user, '004821', 'debil');
     await user.press(screen.getByRole('button', { name: SUBMIT }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('al menos 8 caracteres');
+    expect(await screen.findByRole('alert')).toHaveTextContent(/al menos 8 caracteres/);
   });
 
   describe('asking for another code', () => {
