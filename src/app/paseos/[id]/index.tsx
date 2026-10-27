@@ -7,7 +7,11 @@ export default function WalkDetail() {
   return (
     <>
       <Stack.Screen options={{ headerTitle: '' }} />
-      <WalkStatusScreen walkId={id} onOpenChat={() => router.push({ pathname: '/paseos/[id]/chat', params: { id } })} />
+      <WalkStatusScreen
+        walkId={id}
+        onOpenChat={() => router.push({ pathname: '/paseos/[id]/chat', params: { id } })}
+        onRequestAgain={() => router.replace('/paseos/nuevo')}
+      />
     </>
   );
 }

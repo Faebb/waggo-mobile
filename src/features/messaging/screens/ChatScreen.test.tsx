@@ -24,8 +24,8 @@ describe('ChatScreen (RF-013)', () => {
 
     await renderWithProviders(<ChatScreen walkId="walk-1" viewer="Owner" />);
 
-    expect(await screen.findByLabelText('Tú: ¿Ya llegaste?')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Paseador: Estoy en la portería')).toBeOnTheScreen();
+    expect(await screen.findByLabelText(/^Tú, \d{1,2}:\d{2}: ¿Ya llegaste\?$/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/^Paseador, \d{1,2}:\d{2}: Estoy en la portería$/)).toBeOnTheScreen();
   });
 
   it('sends a message and clears the box', async () => {
@@ -59,7 +59,34 @@ describe('ChatScreen (RF-013)', () => {
 
     await renderWithProviders(<ChatScreen walkId="walk-1" viewer="Owner" />);
 
-    expect(await screen.findByText('El chat se cerró cuando terminó el paseo.')).toBeOnTheScreen();
+    expect(await screen.findByText('El paseo terminó. El chat queda solo para leer.')).toBeOnTheScreen();
     expect(screen.queryByLabelText('Escribe un mensaje')).not.toBeOnTheScreen();
+  });
+
+  it('suggests coordinating the pickup when there are no messages yet', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: acceptedWalk },
+      { path: '/api/v1/walks/walk-1/messages', data: [] },
+    ]);
+
+    await renderWithProviders(<ChatScreen walkId="walk-1" viewer="Owner" />);
+
+    expect(await screen.findByRole('header', { name: 'Coordina la recogida' })).toBeOnTheScreen();
+  });
+
+  it('keeps the text and offers to retry when a message was not sent', async () => {
+    fetchSpy = mockApi([
+      { path: '/api/v1/walks/walk-1', data: acceptedWalk },
+      { path: '/api/v1/walks/walk-1/messages', data: [] },
+    ]);
+    const user = userEvent.setup();
+    await renderWithProviders(<ChatScreen walkId="walk-1" viewer="Owner" />);
+
+    await user.type(await screen.findByLabelText('Escribe un mensaje'), 'Voy subiendo');
+    await user.press(screen.getByRole('button', { name: 'Enviar' }));
+
+    expect(await screen.findByText('No se envió.')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeOnTheScreen();
+    expect(screen.getByLabelText('Escribe un mensaje')).toHaveDisplayValue('Voy subiendo');
   });
 });

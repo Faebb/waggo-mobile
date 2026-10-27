@@ -20,6 +20,16 @@ export const lightColors = {
   border: '#E8D2C3',
   danger: '#C23B3B',
   success: '#1F7A52',
+  // Proposed roles (design proposal 03, approved by the PO for implementation): they add contrast roles on top of
+  // the ADR-018 palette without changing any of its colors.
+  /** Label on a `danger` fill (emergency button): 5.3:1. */
+  dangerText: '#FFFFFF',
+  /** Outline of fields and chips, ≥ 3:1 against the background (WCAG 1.4.11); `border` stays for separators. */
+  borderStrong: '#8C7B70',
+  /** Readable warning text on light backgrounds (4.9:1); `warning` stays for fills and icons. */
+  warningText: '#9A5A17',
+  /** Backdrop behind sheets and dialogs. */
+  scrim: '#16212E66',
 } as const;
 
 /** Dark palette, same roles as light (vault › ADR-018). */
@@ -37,6 +47,10 @@ export const darkColors = {
   border: '#2A3B4D',
   danger: '#FF7A7A',
   success: '#4CC38A',
+  dangerText: '#16212E',
+  borderStrong: '#5E7488',
+  warningText: '#F2A65A',
+  scrim: '#0B111899',
 } as const;
 
 export type Colors = Record<keyof typeof lightColors, string>;
@@ -111,6 +125,18 @@ export const fontsToLoad = {
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 
 export const radius = { sm: 8, md: 14, lg: 20, pill: 999 } as const;
+
+/**
+ * Minimum sizes (design proposal 03, approved by the PO): every touch target is at least 44, text fields 48,
+ * chips 44 and the floating map buttons 48.
+ */
+export const sizes = { touch: 44, field: 48, chip: 44, fab: 48 } as const;
+
+/** Soft elevation for cards and sheets floating over the map (design proposal 03). */
+export const shadows = {
+  card: { shadowColor: '#16212E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8 },
+  sheet: { shadowColor: '#16212E', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.16, shadowRadius: 24 },
+} as const;
 
 /** Mobile first (ADR-013, unchanged by ADR-018): on tablets and web every screen keeps a phone-width column. */
 export const layout = {

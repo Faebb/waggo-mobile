@@ -18,13 +18,16 @@ export function useWalkAlerts(walkId: string) {
   });
 }
 
-/** Raises an emergency with the current position when the phone can tell it (never waits for a missing GPS). */
+/**
+ * Raises an emergency with the current position when the phone can tell it (never waits for a missing GPS) and the
+ * optional message (the kind of emergency chosen in the confirmation).
+ */
 export function useRaiseEmergency(walkId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (message?: string) => {
       const position = await getCurrentLocation();
-      const draft: EmergencyDraft = position ?? {};
+      const draft: EmergencyDraft = { ...(position ?? {}), ...(message !== undefined ? { message } : {}) };
       return raiseEmergency(walkId, draft);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: alertKeys.walk(walkId) }),

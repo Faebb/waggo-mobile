@@ -1,75 +1,76 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { WalkerProfile } from '@/features/walker';
+import { Avatar } from '@/shared/ui/Avatar';
 import { Button } from '@/shared/ui/Button';
-import { DetailRow } from '@/shared/ui/DetailRow';
-import { TextField } from '@/shared/ui/TextField';
-import { spacing, typography, useThemedStyles } from '@/shared/ui/theme';
+import { radius, shadows, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
+
+import { formatPhone, formatTimeAgo } from '../model/format';
 
 type Props = {
   profile: WalkerProfile;
   onApprove: () => void;
-  onReject: (reason: string) => void;
+  onReject: () => void;
   approving: boolean;
-  rejecting: boolean;
+  /** Another action of the queue is running: block this card too. */
+  busy: boolean;
 };
 
-/** One row of the admin verification queue: details plus approve/reject (RF-002/RF-003). */
-export function PendingWalkerCard({ profile, onApprove, onReject, approving, rejecting }: Props) {
+/**
+ * One walker of the admin verification queue (RF-002/RF-003; design proposal 07 · 35): initial, name, how long ago
+ * the profile was sent, masked document, phone, experience, "Rechazar" and "Aprobar".
+ */
+export function PendingWalkerCard({ profile, onApprove, onReject, approving, busy }: Props) {
   const styles = useThemedStyles((colors) => ({
     card: {
-      gap: spacing.sm,
-      paddingVertical: spacing.md,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: colors.border,
+      gap: spacing.md,
+      padding: spacing.md,
+      borderRadius: radius.lg,
+      backgroundColor: colors.surface,
+      ...shadows.card,
     },
-    name: { ...typography.subtitle, color: colors.text },
+    header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    who: { flex: 1, gap: spacing.xs },
+    name: { ...typography.body, fontWeight: '700', color: colors.text },
+    caption: { ...typography.caption, color: colors.muted },
+    facts: { flexDirection: 'row', gap: spacing.md },
+    fact: { flex: 1, gap: spacing.xs },
+    label: { ...typography.micro, color: colors.muted },
+    value: { ...typography.body, color: colors.text },
+    experience: { ...typography.caption, color: colors.text },
     actions: { flexDirection: 'row', gap: spacing.sm },
     action: { flex: 1 },
   }));
-  const [rejecting_, setRejecting] = useState(false);
-  const [reason, setReason] = useState('');
-
-  if (rejecting_) {
-    return (
-      <View style={styles.card}>
-        <Text style={styles.name}>{profile.fullName}</Text>
-        <TextField label="Motivo del rechazo" value={reason} onChangeText={setReason} multiline maxLength={300} />
-        <View style={styles.actions}>
-          <View style={styles.action}>
-            <Button label="Cancelar" variant="secondary" onPress={() => setRejecting(false)} disabled={rejecting} />
-          </View>
-          <View style={styles.action}>
-            <Button
-              label={rejecting ? 'Rechazando…' : 'Confirmar rechazo'}
-              variant="danger"
-              onPress={() => onReject(reason)}
-              disabled={rejecting || reason.trim().length === 0}
-            />
-          </View>
-        </View>
-      </View>
-    );
-  }
+  const blocked = approving || busy;
 
   return (
     <View style={styles.card}>
-      <Text style={styles.name}>{profile.fullName}</Text>
-      <DetailRow label="Documento" value={`${profile.documentType} ···· ${profile.documentLast4}`} />
-      <DetailRow label="Celular" value={profile.phone} />
-      {profile.experience !== null && <DetailRow label="Experiencia" value={profile.experience} />}
+      <View style={styles.header}>
+        <Avatar label={profile.fullName} size={44} />
+        <View style={styles.who}>
+          <Text style={styles.name}>{profile.fullName}</Text>
+          <Text style={styles.caption}>Enviado {formatTimeAgo(profile.registeredAt)}</Text>
+        </View>
+      </View>
+      <View style={styles.facts}>
+        <View style={styles.fact}>
+          <Text style={styles.label}>Documento</Text>
+          <Text style={styles.value}>
+            {profile.documentType} •••• {profile.documentLast4}
+          </Text>
+        </View>
+        <View style={styles.fact}>
+          <Text style={styles.label}>Celular</Text>
+          <Text style={styles.value}>{formatPhone(profile.phone)}</Text>
+        </View>
+      </View>
+      {profile.experience !== null && <Text style={styles.experience}>“{profile.experience}”</Text>}
       <View style={styles.actions}>
         <View style={styles.action}>
-          <Button
-            label="Rechazar"
-            variant="danger"
-            onPress={() => setRejecting(true)}
-            disabled={approving || rejecting}
-          />
+          <Button label="Rechazar" variant="secondary" onPress={onReject} disabled={blocked} />
         </View>
         <View style={styles.action}>
-          <Button label={approving ? 'Aprobando…' : 'Aprobar'} onPress={onApprove} disabled={approving || rejecting} />
+          <Button label="Aprobar" loading={approving} loadingLabel="Aprobando…" onPress={onApprove} disabled={busy} />
         </View>
       </View>
     </View>

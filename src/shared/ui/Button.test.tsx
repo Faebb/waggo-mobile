@@ -43,4 +43,26 @@ describe('Button', () => {
     expect(onPress).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
   });
+
+  it('runs the action when pressed (tertiary, a text link)', async () => {
+    const onPress = jest.fn();
+    const user = userEvent.setup();
+    await render(<Button label="Iniciar sesión" variant="tertiary" onPress={onPress} />);
+
+    await user.press(screen.getByRole('button', { name: 'Iniciar sesión' }));
+
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the loading label, announces busy and ignores presses while loading', async () => {
+    const onPress = jest.fn();
+    const user = userEvent.setup();
+    await render(<Button label="Pedir paseo" loadingLabel="Pidiendo…" loading onPress={onPress} />);
+
+    const button = screen.getByRole('button', { name: 'Pidiendo…' });
+    await user.press(button);
+
+    expect(onPress).not.toHaveBeenCalled();
+    expect(button).toBeBusy();
+  });
 });

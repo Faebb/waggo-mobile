@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { radius, spacing, typography, useThemedStyles } from './theme';
+import { radius, sizes, spacing, typography, useThemedStyles } from './theme';
 
 type Option<T extends string | number> = { value: T; label: string };
 
@@ -18,11 +18,13 @@ export function ChipGroup<T extends string | number>({ label, options, value, on
     label: { ...typography.caption, fontWeight: '700', color: colors.muted },
     row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     chip: {
+      minHeight: sizes.chip,
+      justifyContent: 'center',
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.md,
       borderRadius: radius.pill,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.borderStrong,
       backgroundColor: colors.surface,
     },
     chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },

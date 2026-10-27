@@ -64,4 +64,31 @@ describe('RegisterScreen (RF-001)', () => {
 
     expect(screen.getByLabelText('Contraseña').props.secureTextEntry).toBe(true);
   });
+
+  it('checks the password rules live and announces each as met or pending', async () => {
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith({ id: 'u1', email: 'ana@mail.com' }));
+    const user = userEvent.setup();
+    await renderWithProviders(<RegisterScreen onRegistered={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Contraseña'), 'Paseo2');
+
+    expect(screen.getByLabelText('Al menos 8 caracteres: pendiente')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Una mayúscula: cumplida')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Un número: cumplida')).toBeOnTheScreen();
+  });
+
+  it('keeps "Crear cuenta" disabled until the password meets every rule', async () => {
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(respondWith({ id: 'u1', email: 'ana@mail.com' }));
+    const user = userEvent.setup();
+    await renderWithProviders(<RegisterScreen onRegistered={jest.fn()} />);
+
+    await user.type(screen.getByLabelText('Correo'), 'ana@mail.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'Paseo2');
+
+    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeDisabled();
+
+    await user.type(screen.getByLabelText('Contraseña'), '025');
+
+    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeEnabled();
+  });
 });

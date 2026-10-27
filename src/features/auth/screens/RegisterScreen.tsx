@@ -3,22 +3,28 @@ import { ScrollView, Text, View } from 'react-native';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
+import { Banner } from '@/shared/ui/Banner';
 import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
+import { PasswordRules } from '../components/PasswordRules';
 import { useRegister } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
+import { meetsPasswordRules } from '../model/passwordRules';
 
 type Props = { onRegistered: (email: string) => void };
 
-/** RF-001: anyone creates an account; it stays inactive until the confirmation email is answered. */
+/**
+ * RF-001: anyone creates an account; it stays inactive until the confirmation email is answered. Design proposal
+ * screen 3: the password rules are checked live and "Crear cuenta" waits until they are all met.
+ */
 export function RegisterScreen({ onRegistered }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
-    lead: { ...typography.body, color: colors.muted },
-    error: { ...typography.body, color: colors.danger },
+    password: { gap: spacing.sm },
+    legal: { ...typography.caption, color: colors.muted },
   }));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,10 +37,12 @@ export function RegisterScreen({ onRegistered }: Props) {
   return (
     <View style={styles.screen}>
       <ScrollView keyboardShouldPersistTaps="handled">
-        <AuthHeader title="Crea tu cuenta" subtitle="Pide paseos o, cuando quieras, sé paseador" />
+        <AuthHeader title="Crea tu cuenta" subtitle="Una sola cuenta para pedir paseos o pasear." />
 
         <View style={styles.content}>
-          <Text style={styles.lead}>Con un dueño registrado puedes pedir paseos o, cuando quieras, ser paseador.</Text>
+          {apiErrorMessages(register.error, register.isError).map((message) => (
+            <Banner key={message} tone="danger" message={message} />
+          ))}
 
           <TextField
             label="Correo"
@@ -43,29 +51,31 @@ export function RegisterScreen({ onRegistered }: Props) {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            editable={!register.isPending}
           />
-          <TextField
-            label="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="new-password"
-            hint="Al menos 8 caracteres, con una mayúscula y un número."
-          />
+          <View style={styles.password}>
+            <TextField
+              label="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="new-password"
+              editable={!register.isPending}
+            />
+            <PasswordRules password={password} />
+          </View>
 
-          {apiErrorMessages(register.error, register.isError).map((message) => (
-            <Text key={message} accessibilityRole="alert" style={styles.error}>
-              {message}
-            </Text>
-          ))}
+          <Text style={styles.legal}>Al crear tu cuenta aceptas los Términos y la Política de privacidad.</Text>
         </View>
       </ScrollView>
 
       <ActionFooter>
         <Button
-          label={register.isPending ? 'Creando cuenta…' : 'Crear cuenta'}
+          label="Crear cuenta"
+          loadingLabel="Creando cuenta…"
+          loading={register.isPending}
+          disabled={email.trim().length === 0 || !meetsPasswordRules(password)}
           onPress={submit}
-          disabled={register.isPending}
         />
       </ActionFooter>
     </View>

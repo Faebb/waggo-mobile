@@ -10,6 +10,7 @@ export default function AssignedWalk() {
       <AssignedWalkScreen
         walkId={id}
         onOpenChat={() => router.push({ pathname: '/paseador/[id]/chat', params: { id } })}
+        onSeeRequests={() => router.replace('/paseador')}
       />
     </>
   );

@@ -7,6 +7,7 @@ import {
   getThemeMode,
   lightColors,
   setThemeMode,
+  sizes,
   typography,
   useColors,
   useThemeMode,
@@ -61,6 +62,22 @@ describe('theme', () => {
     await act(async () => setThemeMode('dark'));
 
     expect(screen.getByText(darkColors.background)).toBeTruthy();
+  });
+
+  it('adds the proposed accessibility roles without touching the ADR-018 palette (design proposal 03)', () => {
+    expect(lightColors.dangerText).toBe('#FFFFFF');
+    expect(darkColors.dangerText).toBe('#16212E');
+    expect(lightColors.borderStrong).toBe('#8C7B70');
+    expect(darkColors.borderStrong).toBe('#5E7488');
+    expect(lightColors.warningText).toBe('#9A5A17');
+    expect(darkColors.warningText).toBe('#F2A65A');
+    expect(lightColors.primary).toBe('#3059A4');
+  });
+
+  it('sizes fields at 48 and chips at 44, never below the 44 touch target (design proposal 03)', () => {
+    expect(sizes.field).toBe(48);
+    expect(sizes.chip).toBe(44);
+    expect(sizes.touch).toBe(44);
   });
 
   it('keeps AA contrast by using a different accent tone per theme (ADR-018)', () => {

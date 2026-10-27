@@ -21,6 +21,7 @@ export default function Welcome() {
       <WelcomeScreen
         onStartAsOwner={() => goTo('/inicio', isAuthenticated)}
         onStartAsWalker={() => goTo('/paseador', isAuthenticated)}
+        onLogin={() => router.push('/login')}
       />
     </>
   );

@@ -23,7 +23,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
-        tabBarLabelStyle: { fontFamily: typography.micro.fontFamily, fontSize: 12 },
+        tabBarLabelStyle: { fontFamily: typography.micro.fontFamily, fontSize: typography.micro.fontSize },
       }}
     >
       <Tabs.Screen

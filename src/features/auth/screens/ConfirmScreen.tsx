@@ -3,6 +3,7 @@ import { ScrollView, Text, View } from 'react-native';
 
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
+import { Banner } from '@/shared/ui/Banner';
 import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
@@ -17,15 +18,16 @@ const CODE_LENGTH = 6;
 /** Same wait the API enforces between two confirmation emails. */
 const RESEND_WAIT_SECONDS = 60;
 
-/** RF-001: the owner of the inbox types the 6-digit code Waggo emailed to activate the account. */
+/**
+ * RF-001: the owner of the inbox types the 6-digit code Waggo emailed to activate the account. Design proposal
+ * screen 4 (header with the corgi, errors and "code sent" in banners).
+ */
 export function ConfirmScreen({ email, onConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
     screen: layout.column,
     content: { gap: spacing.lg, padding: spacing.lg },
     lead: { ...typography.body, color: colors.muted },
     highlight: { color: colors.text, fontWeight: '700' },
-    info: { ...typography.body, color: colors.success },
-    error: { ...typography.body, color: colors.danger },
   }));
   const [code, setCode] = useState('');
   const confirmEmail = useConfirmEmail();
@@ -57,6 +59,14 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
             Escríbelo aquí.
           </Text>
 
+          {apiErrorMessages(confirmEmail.error, confirmEmail.isError).map((message) => (
+            <Banner key={message} tone="danger" message={message} />
+          ))}
+          {resendConfirmation.isSuccess && <Banner tone="success" message="Te enviamos un código nuevo." />}
+          {apiErrorMessages(resendConfirmation.error, resendConfirmation.isError).map((message) => (
+            <Banner key={message} tone="danger" message={message} />
+          ))}
+
           <TextField
             label="Código de confirmación"
             value={code}
@@ -66,26 +76,16 @@ export function ConfirmScreen({ email, onConfirmed }: Props) {
             autoComplete="one-time-code"
             hint="El código vence en 30 minutos."
           />
-
-          {apiErrorMessages(confirmEmail.error, confirmEmail.isError).map((message) => (
-            <Text key={message} accessibilityRole="alert" style={styles.error}>
-              {message}
-            </Text>
-          ))}
-          {resendConfirmation.isSuccess && <Text style={styles.info}>Te enviamos un código nuevo.</Text>}
-          {apiErrorMessages(resendConfirmation.error, resendConfirmation.isError).map((message) => (
-            <Text key={message} accessibilityRole="alert" style={styles.error}>
-              {message}
-            </Text>
-          ))}
         </View>
       </ScrollView>
 
       <ActionFooter>
         <Button
-          label={confirmEmail.isPending ? 'Confirmando…' : 'Confirmar cuenta'}
+          label="Confirmar cuenta"
+          loadingLabel="Confirmando…"
+          loading={confirmEmail.isPending}
           onPress={submit}
-          disabled={confirmEmail.isPending || code.length !== CODE_LENGTH}
+          disabled={code.length !== CODE_LENGTH}
         />
         <Button
           label={resendLabel()}

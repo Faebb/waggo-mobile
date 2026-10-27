@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { MapRouteIcon } from '@/shared/ui/icons/MapRouteIcon';
 import { ShieldCheckIcon } from '@/shared/ui/icons/ShieldCheckIcon';
 import { WalletCheckIcon } from '@/shared/ui/icons/WalletCheckIcon';
-import { radius, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
+import { radius, sizes, spacing, typography, useColors, useThemedStyles } from '@/shared/ui/theme';
 
 import type { ValuePillar } from '../model/valuePillars';
 
@@ -12,7 +12,7 @@ type Props = { index: number; pillar: ValuePillar };
 /** One icon per pillar, in the order they're declared (vault › Visión del proyecto). */
 const PILLAR_ICONS = [ShieldCheckIcon, MapRouteIcon, WalletCheckIcon];
 
-/** Presentational: one pillar of the value proposition, with an icon badge, separated by a hairline. */
+/** Presentational: one pillar of the value proposition, with a round icon badge (design proposal 07 · 1). */
 export function ValueCard({ index, pillar }: Props) {
   const colors = useColors();
   const styles = useThemedStyles((colors) => ({
@@ -20,20 +20,18 @@ export function ValueCard({ index, pillar }: Props) {
       flexDirection: 'row',
       gap: spacing.md,
       alignItems: 'flex-start',
-      paddingVertical: spacing.md,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: colors.border,
+      paddingVertical: spacing.sm,
     },
     badge: {
-      width: 40,
-      height: 40,
-      borderRadius: radius.md,
+      width: sizes.touch,
+      height: sizes.touch,
+      borderRadius: radius.pill,
       backgroundColor: colors.surface2,
       alignItems: 'center',
       justifyContent: 'center',
     },
     body: { flex: 1, gap: spacing.xs },
-    title: { ...typography.subtitle, color: colors.text },
+    title: { ...typography.body, fontFamily: typography.eyebrow.fontFamily, color: colors.text },
     description: { ...typography.body, color: colors.muted },
   }));
   const Icon = PILLAR_ICONS[index % PILLAR_ICONS.length];

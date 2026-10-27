@@ -19,7 +19,7 @@ Mientras no exista el login (ADR-011), la app elige su identidad con los headers
 ## Inicio rápido
 ```bash
 npm install
-cp .env.example .env        # ajusta EXPO_PUBLIC_API_URL (por defecto http://localhost:8080)
+cp .env.example .env        # ajusta EXPO_PUBLIC_API_URL (por defecto http://localhost:8080) y, si quieres, EXPO_PUBLIC_MAP_TILE_URL
 npm start                   # a = Android, i = iOS, w = Web
 ```
 
@@ -43,7 +43,8 @@ src/
     home/              → inicio del dueño, estilo Uber: "¿Quién sale a pasear hoy?" (RF-007)
     walks/             → pedir paseo, estado del paseo y mis paseos (RF-007)
     walker/            → lado del paseador: registro y verificación, solicitudes cercanas, aceptar, iniciar y terminar (RF-002, RF-003, RF-007, RF-008)
-    tracking/          → ruta en vivo (SVG), métricas, envío de la posición, emergencias y alertas automáticas (RF-008 – RF-012)
+    tracking/          → mapa del paseo (WalkMap: ruta en vivo, zona acordada, perro), métricas, envío de la posición, emergencias y alertas automáticas (RF-008 – RF-012)
+    places/            → búsqueda de direcciones y dirección de un punto con Nominatim de OpenStreetMap (sin autocompletar)
     messaging/         → chat del dueño con el paseador durante el paseo (RF-013)
     pets/              → mis perros y agregar perro (RF-004)
     payments/          → estado del pago de cada paseo y ganancias del paseador (RF-015 – RF-018)
@@ -55,11 +56,19 @@ src/
       screens/         → pantallas que orquestan datos
       model/           → tipos y lógica pura
       index.ts         → API pública de la feature
-  shared/              → api (httpClient, ApiError), config (env), ui (Button, ChipGroup, TextField, ActionFooter, ThemeToggle; tema claro/oscuro "Seashell & Sapphire" con Baloo 2 + Inter, UX-002)
+  shared/              → api (httpClient, ApiError), config (env), map (WaggoMap: Leaflet + OpenStreetMap en WebView / iframe), location, ui (Button, ChipGroup, TextField, ActionFooter, ThemeToggle; tema claro/oscuro "Seashell & Sapphire" con Baloo 2 + Inter, UX-002)
   test/                → utilidades de prueba: renderWithProviders, mockApi (API falsa por ruta), fixtures
 ```
 - Reglas: `app → features → shared`; una feature solo se importa por su `index.ts`; las pruebas van junto al archivo.
 - Toda respuesta del backend viene en `WaggoApiResponse`; `shared/api/httpClient` la desenvuelve y lanza `ApiError` con los mensajes en español y el `traceId`.
+
+## Mapas (OpenStreetMap)
+Decisión del PO: los mapas son de OpenStreetMap. `src/shared/map/WaggoMap` dibuja Leaflet 1.9.4 (cdnjs, con SRI) dentro de `react-native-webview` en iOS/Android (funciona en Expo Go, sin development build) y de un `<iframe srcDoc>` en web, con el mismo HTML (`buildMapHtml`) y mensajes tipados con Zod (`protocol.ts`). La búsqueda de direcciones usa Nominatim (`src/features/places`): una petición por segundo como máximo, sin autocompletar mientras se escribe, con caché.
+
+- **Tiles**: `EXPO_PUBLIC_MAP_TILE_URL` (plantilla `https://…/{z}/{x}/{y}.png`). Vacía → `https://tile.openstreetmap.org/{z}/{x}/{y}.png`.
+- **Importante**: los tiles públicos de OSM y Nominatim **no son para producción de alto tráfico** ([política de tiles](https://operations.osmfoundation.org/policies/tiles/), [política de Nominatim](https://operations.osmfoundation.org/policies/nominatim/)). Antes de lanzar hay que pasar a un proveedor de tiles/geocodificación o autoalojarlos y cambiar la variable.
+- La atribución "© OpenStreetMap contributors" es obligatoria y siempre visible; no la tapes ni la ocultes.
+- El estilo del mapa no se puede personalizar como en Mapbox: el tema oscuro invierte los tiles con un filtro CSS.
 
 ## Convenciones (ADR-008, ADR-018)
 Solo exports con nombre (default solo en `src/app`), `type` en lugar de `interface`, sin `any`, textos de la UI en español. ESLint y Prettier las hacen cumplir en local y en CI.

@@ -11,15 +11,15 @@ describe('ThemeToggle', () => {
   it('marks the active mode as selected', async () => {
     await render(<ThemeToggle />);
 
-    expect(screen.getByRole('button', { name: 'Oscuro' })).toBeSelected();
-    expect(screen.getByRole('button', { name: 'Claro' })).not.toBeSelected();
+    expect(screen.getByRole('radio', { name: 'Oscuro' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Claro' })).not.toBeChecked();
   });
 
   it('switches to light mode when "Claro" is pressed', async () => {
     const user = userEvent.setup();
     await render(<ThemeToggle />);
 
-    await user.press(screen.getByRole('button', { name: 'Claro' }));
+    await user.press(screen.getByRole('radio', { name: 'Claro' }));
 
     expect(getThemeMode()).toBe('light');
   });
@@ -29,7 +29,7 @@ describe('ThemeToggle', () => {
     const user = userEvent.setup();
     await render(<ThemeToggle />);
 
-    await user.press(screen.getByRole('button', { name: 'Oscuro' }));
+    await user.press(screen.getByRole('radio', { name: 'Oscuro' }));
 
     expect(getThemeMode()).toBe('dark');
   });

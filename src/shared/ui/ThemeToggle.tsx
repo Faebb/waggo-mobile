@@ -1,39 +1,52 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { radius, spacing, typography, useThemedStyles, useThemeMode, setThemeMode, type ThemeMode } from './theme';
+import {
+  radius,
+  setThemeMode,
+  sizes,
+  spacing,
+  typography,
+  useThemedStyles,
+  useThemeMode,
+  type ThemeMode,
+} from './theme';
 
 const OPTIONS: { mode: ThemeMode; label: string }[] = [
   { mode: 'light', label: 'Claro' },
   { mode: 'dark', label: 'Oscuro' },
 ];
 
-/** Segmented control to switch the app's color theme (vault › ADR-015). Text only for now; the mockup (ADR-018) shows a small sun/moon icon per option, not yet added. */
+/** Segmented control to switch the app's color theme (vault › ADR-015). A radio group (design proposal 07 · 23). */
 export function ThemeToggle() {
   const mode = useThemeMode();
   const styles = useThemedStyles((colors) => ({
     track: {
       flexDirection: 'row',
       gap: spacing.xs,
-      padding: 4,
-      marginRight: spacing.md,
+      padding: spacing.xs,
       borderRadius: radius.pill,
       backgroundColor: colors.surface2,
     },
-    option: { paddingVertical: spacing.xs, paddingHorizontal: spacing.md, borderRadius: radius.pill },
+    option: {
+      minHeight: sizes.touch,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.pill,
+    },
     optionActive: { backgroundColor: colors.primary },
     label: { ...typography.caption, fontWeight: '700', color: colors.muted },
     labelActive: { color: colors.primaryText },
   }));
 
   return (
-    <View style={styles.track}>
+    <View accessibilityRole="radiogroup" accessibilityLabel="Tema" style={styles.track}>
       {OPTIONS.map((option) => {
         const active = option.mode === mode;
         return (
           <Pressable
             key={option.mode}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: active }}
             onPress={() => setThemeMode(option.mode)}
             style={[styles.option, active && styles.optionActive]}
           >

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ApiError } from '@/shared/api/ApiError';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
-import { BrandMark } from '@/shared/ui/BrandMark';
+import { Banner } from '@/shared/ui/Banner';
 import { Button } from '@/shared/ui/Button';
 import { ChipGroup } from '@/shared/ui/ChipGroup';
 import { TextField } from '@/shared/ui/TextField';
@@ -29,9 +29,8 @@ export function BecomeWalkerScreen({ onRegistered }: Props) {
     content: { gap: spacing.lg, padding: spacing.lg },
     header: { gap: spacing.xs },
     eyebrow: { ...typography.eyebrow, color: colors.muted },
-    title: { ...typography.display, color: colors.text },
+    title: { ...typography.title, color: colors.text },
     lead: { ...typography.body, color: colors.muted },
-    error: { ...typography.body, color: colors.danger },
   }));
   const [form, setForm] = useState<WalkerForm>(EMPTY_WALKER_FORM);
   const [errors, setErrors] = useState<WalkerFormErrors>({});
@@ -60,7 +59,6 @@ export function BecomeWalkerScreen({ onRegistered }: Props) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.screen}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <BrandMark />
           <View style={styles.header}>
             <Text style={styles.eyebrow}>MODO PASEADOR</Text>
             <Text accessibilityRole="header" style={styles.title}>
@@ -111,18 +109,15 @@ export function BecomeWalkerScreen({ onRegistered }: Props) {
             maxLength={500}
           />
 
-          {apiMessages.length > 0 && (
-            <Text accessibilityRole="alert" style={styles.error}>
-              {apiMessages.join('\n')}
-            </Text>
-          )}
+          {apiMessages.length > 0 && <Banner tone="danger" message={apiMessages.join('\n')} />}
         </ScrollView>
 
         <ActionFooter>
           <Button
-            label={register.isPending ? 'Enviando…' : 'Enviar para verificación'}
+            label="Enviar para verificación"
+            loadingLabel="Enviando…"
+            loading={register.isPending}
             onPress={send}
-            disabled={register.isPending}
           />
         </ActionFooter>
       </View>

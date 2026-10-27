@@ -38,6 +38,9 @@ describe('WalkerGate (RF-002, RF-003)', () => {
 
     expect(await screen.findByRole('header', { name: 'Estamos verificando tu perfil' })).toBeOnTheScreen();
     expect(screen.getByText('CC ···· 4050')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Datos enviados: hecho')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Revisamos tu documento: en curso')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Listo para pasear: pendiente')).toBeOnTheScreen();
     expect(screen.queryByText('Solicitudes')).toBeNull();
   });
 

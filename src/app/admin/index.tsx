@@ -1,6 +1,6 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 
-import { AdminWalkersScreen } from '@/features/admin';
+import { AdminScreen } from '@/features/admin';
 import { useIsAdmin } from '@/shared/auth/session';
 
 export default function AdminHome() {
@@ -10,10 +10,6 @@ export default function AdminHome() {
     return <Redirect href="/inicio" />;
   }
 
-  return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <AdminWalkersScreen />
-    </>
-  );
+  // "Ver paseo" (Operación, slices 2–3) has no admin walk view yet; it reuses the walk detail until the spec says so.
+  return <AdminScreen onOpenWalk={(id) => router.push({ pathname: '/paseos/[id]', params: { id } })} />;
 }
