@@ -36,3 +36,21 @@ export async function changeMyPassword(
   const refreshToken = getSession()?.refreshToken;
   await client.put('/api/v1/users/me/password', { currentPassword, newPassword, refreshToken }, z.boolean());
 }
+
+/** RF-005 — POST /api/v1/users/me/email: a 6-digit code goes to the NEW inbox; the email does not change yet. */
+export async function requestMyEmailChange(
+  newEmail: string,
+  password: string,
+  client: HttpClient = httpClient,
+): Promise<void> {
+  await client.post('/api/v1/users/me/email', { newEmail, password }, z.boolean());
+}
+
+/**
+ * RF-005 — POST /api/v1/users/me/email/confirm: the code applies the new email. Sends this session's refresh token so
+ * it stays open while the API closes the other sessions.
+ */
+export async function confirmMyEmailChange(code: string, client: HttpClient = httpClient): Promise<void> {
+  const refreshToken = getSession()?.refreshToken;
+  await client.post('/api/v1/users/me/email/confirm', { code, refreshToken }, z.boolean());
+}

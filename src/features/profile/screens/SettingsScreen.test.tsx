@@ -13,6 +13,7 @@ function renderSettings(props: Partial<Parameters<typeof SettingsScreen>[0]> = {
       onOpenWalks={jest.fn()}
       onOpenNotifications={jest.fn()}
       onOpenChangePassword={jest.fn()}
+      onOpenChangeEmail={jest.fn()}
       onLoggedOut={jest.fn()}
       {...props}
     />,
@@ -110,5 +111,16 @@ describe('SettingsScreen (configuración)', () => {
     await user.press(await screen.findByRole('button', { name: /Cambiar contraseña/ }));
 
     expect(onOpenChangePassword).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the change email screen', async () => {
+    mockApi([{ path: '/api/v1/users/me', data: { id: 'u1', email: 'ana@mail.com', fullName: null, phone: null } }]);
+    const onOpenChangeEmail = jest.fn();
+    const user = userEvent.setup();
+    await renderSettings({ onOpenChangeEmail });
+
+    await user.press(await screen.findByRole('button', { name: /Cambiar correo/ }));
+
+    expect(onOpenChangeEmail).toHaveBeenCalledTimes(1);
   });
 });

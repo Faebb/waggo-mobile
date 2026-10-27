@@ -8,6 +8,7 @@ export default function WalkerSettings() {
       onOpenPersonalInfo={() => router.push('/configuracion/info')}
       onOpenNotifications={() => router.push('/paseador/notificaciones')}
       onOpenChangePassword={() => router.push('/configuracion/contrasena')}
+      onOpenChangeEmail={() => router.push('/configuracion/correo')}
       onLoggedOut={() => router.replace('/')}
     />
   );
