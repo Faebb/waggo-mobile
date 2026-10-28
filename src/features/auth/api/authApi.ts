@@ -50,12 +50,26 @@ export async function resetPassword(
 /** RF-005 — POST /api/v1/auth/login: a right password and a confirmed account open the session (ADR-017, no second factor). */
 export async function login(email: string, password: string, client: HttpClient = httpClient): Promise<SessionTokens> {
   const { data } = await client.post('/api/v1/auth/login', { email, password }, sessionSchema);
+  openSession(data);
+  return data;
+}
+
+/**
+ * RF-001, RF-005 (ADR-017) — POST /api/v1/auth/login/google: the idToken Google gave the browser opens the session.
+ * The API creates the account or links it to the one with that email; the session is the same as a password login.
+ */
+export async function googleLogin(idToken: string, client: HttpClient = httpClient): Promise<SessionTokens> {
+  const { data } = await client.post('/api/v1/auth/login/google', { idToken }, sessionSchema);
+  openSession(data);
+  return data;
+}
+
+function openSession(data: SessionTokens) {
   setSession({
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
     expiresAt: Date.now() + data.expiresInSeconds * 1000,
   });
-  return data;
 }
 
 /**

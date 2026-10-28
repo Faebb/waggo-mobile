@@ -1,15 +1,15 @@
 /**
  * @jest-environment jsdom
  */
-import type { GoogleIdentityApi } from './googleIdentity';
+import type * as GoogleIdentity from './googleIdentity';
 
-type Loader = typeof import('./googleIdentity');
+type Loader = typeof GoogleIdentity;
 
 /** A fresh copy of the module per test: the script loader remembers the page it already loaded. */
 function freshModule(): Loader {
   let module!: Loader;
   jest.isolateModules(() => {
-    module = require('./googleIdentity') as Loader;
+    module = jest.requireActual<Loader>('./googleIdentity');
   });
   return module;
 }
@@ -17,7 +17,7 @@ function freshModule(): Loader {
 function fakeGoogle() {
   const initialize = jest.fn();
   const renderButton = jest.fn();
-  const google = { accounts: { id: { initialize, renderButton } } } satisfies GoogleIdentityApi;
+  const google = { accounts: { id: { initialize, renderButton } } } satisfies GoogleIdentity.GoogleIdentityApi;
   return { google, initialize, renderButton };
 }
 

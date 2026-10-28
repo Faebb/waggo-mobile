@@ -2,7 +2,6 @@ import { screen, userEvent, waitFor } from '@testing-library/react-native';
 import { Pressable, Text } from 'react-native';
 
 import { GoogleSignInButton } from '@/shared/auth/GoogleSignInButton';
-
 import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { RegisterScreen } from './RegisterScreen';
@@ -127,7 +126,10 @@ describe('RegisterScreen (RF-001)', () => {
     googleButtonThatSignsInWith('forged-token');
     fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
       respondWith(null, 400, [
-        { code: 'Identity.ExternalTokenInvalid', message: 'No pudimos validar tu cuenta de Google o Microsoft, intenta de nuevo.' },
+        {
+          code: 'Identity.ExternalTokenInvalid',
+          message: 'No pudimos validar tu cuenta de Google o Microsoft, intenta de nuevo.',
+        },
       ]),
     );
     const onLoggedIn = jest.fn();
@@ -139,5 +141,4 @@ describe('RegisterScreen (RF-001)', () => {
     expect(await screen.findByText(/No pudimos validar tu cuenta de Google/)).toBeOnTheScreen();
     expect(onLoggedIn).not.toHaveBeenCalled();
   });
-
 });

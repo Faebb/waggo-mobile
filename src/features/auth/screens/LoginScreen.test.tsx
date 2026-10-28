@@ -2,7 +2,6 @@ import { screen, userEvent, waitFor } from '@testing-library/react-native';
 import { Pressable, Text } from 'react-native';
 
 import { GoogleSignInButton } from '@/shared/auth/GoogleSignInButton';
-
 import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { LoginScreen } from './LoginScreen';
@@ -197,12 +196,14 @@ describe('LoginScreen (RF-005)', () => {
       .mockResolvedValue(respondWith({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
     const onLoggedIn = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen
+    await renderWithProviders(
+      <LoginScreen
         onLoggedIn={onLoggedIn}
         onGoToRegister={jest.fn()}
         onGoToForgotPassword={jest.fn()}
         onAccountNotConfirmed={jest.fn()}
-      />,);
+      />,
+    );
 
     await user.press(screen.getByRole('button', { name: 'Continuar con Google' }));
 
@@ -216,22 +217,26 @@ describe('LoginScreen (RF-005)', () => {
     googleButtonThatSignsInWith('forged-token');
     fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
       respondWith(null, 400, [
-        { code: 'Identity.ExternalTokenInvalid', message: 'No pudimos validar tu cuenta de Google o Microsoft, intenta de nuevo.' },
+        {
+          code: 'Identity.ExternalTokenInvalid',
+          message: 'No pudimos validar tu cuenta de Google o Microsoft, intenta de nuevo.',
+        },
       ]),
     );
     const onLoggedIn = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen
+    await renderWithProviders(
+      <LoginScreen
         onLoggedIn={onLoggedIn}
         onGoToRegister={jest.fn()}
         onGoToForgotPassword={jest.fn()}
         onAccountNotConfirmed={jest.fn()}
-      />,);
+      />,
+    );
 
     await user.press(screen.getByRole('button', { name: 'Continuar con Google' }));
 
     expect(await screen.findByText(/No pudimos validar tu cuenta de Google/)).toBeOnTheScreen();
     expect(onLoggedIn).not.toHaveBeenCalled();
   });
-
 });

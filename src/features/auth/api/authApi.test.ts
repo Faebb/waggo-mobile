@@ -151,5 +151,4 @@ describe('authApi (RF-001, RF-005)', () => {
     expect(session.accessToken).toBe('at');
     expect(getSession()?.refreshToken).toBe('rt');
   });
-
 });
