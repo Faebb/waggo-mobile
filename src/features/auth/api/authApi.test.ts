@@ -7,6 +7,7 @@ import {
   googleLogin,
   login,
   logout,
+  microsoftLogin,
   register,
   resendConfirmation,
   resetPassword,
@@ -147,6 +148,19 @@ describe('authApi (RF-001, RF-005)', () => {
     expect(fetchFn).toHaveBeenCalledWith(
       'http://api/api/v1/auth/login/google',
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ idToken: 'google-id-token' }) }),
+    );
+    expect(session.accessToken).toBe('at');
+    expect(getSession()?.refreshToken).toBe('rt');
+  });
+
+  it('signs in with Microsoft with POST /api/v1/auth/login/microsoft and the idToken, and opens the session', async () => {
+    const fetchFn = respond(envelope({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
+
+    const session = await microsoftLogin('microsoft-id-token', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/login/microsoft',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ idToken: 'microsoft-id-token' }) }),
     );
     expect(session.accessToken).toBe('at');
     expect(getSession()?.refreshToken).toBe('rt');
