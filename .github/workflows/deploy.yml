@@ -26,6 +26,8 @@ env:
   WEB_BUCKET: ${{ vars.WEB_BUCKET }}
   WEB_DISTRIBUTION_ID: ${{ vars.WEB_DISTRIBUTION_ID }}
   EXPO_PUBLIC_API_URL: https://api.mywaggo.com
+  # Public OAuth web client id of Google sign-in (ADR-017); not a secret, it appears in every login URL.
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: 929223145489-o8h3msml8tmrfgh9i44c446l22svsn4u.apps.googleusercontent.com
 
 jobs:
   deploy-web:

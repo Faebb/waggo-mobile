@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ApiError } from '@/shared/api/ApiError';
+import { GoogleSignInButton } from '@/shared/auth/GoogleSignInButton';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
 import { Banner } from '@/shared/ui/Banner';
@@ -9,7 +10,7 @@ import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, sizes, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
-import { useLogin, useResendConfirmation } from '../hooks/useAuth';
+import { useGoogleLogin, useLogin, useResendConfirmation } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
 type Props = {
@@ -25,7 +26,7 @@ const ACCOUNT_NOT_CONFIRMED = 'Identity.AccountNotConfirmed';
 
 /**
  * RF-005: a right password and a confirmed account open the session right away (ADR-017, no second factor).
- * Design proposal screen 2. Google/Microsoft are not shown yet: social login is a separate spec still to implement.
+ * Design proposal screen 2. On the web there is also Google's button (ADR-017); Microsoft is not shown yet.
  */
 export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, onAccountNotConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
@@ -37,10 +38,15 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const login = useLogin();
+  const googleLogin = useGoogleLogin();
   const resendConfirmation = useResendConfirmation();
 
   function submit() {
     login.mutate({ email, password }, { onSuccess: onLoggedIn, onError: handleLoginError });
+  }
+
+  function signInWithGoogle(idToken: string) {
+    googleLogin.mutate(idToken, { onSuccess: onLoggedIn });
   }
 
   function handleLoginError(error: Error) {
@@ -55,7 +61,14 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
         <AuthHeader title="Inicia sesión" subtitle="Sigue el paseo de tu perro en vivo." />
 
         <View style={styles.content}>
-          {apiErrorMessages(login.error, login.isError, 'Correo o contraseña incorrectos.').map((message) => (
+          {[
+            ...apiErrorMessages(login.error, login.isError, 'Correo o contraseña incorrectos.'),
+            ...apiErrorMessages(
+              googleLogin.error,
+              googleLogin.isError,
+              'No pudimos iniciar sesión con Google. Intenta de nuevo.',
+            ),
+          ].map((message) => (
             <Banner key={message} tone="danger" message={message} />
           ))}
 
@@ -81,6 +94,8 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
               <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
             </Pressable>
           </View>
+
+          <GoogleSignInButton onIdToken={signInWithGoogle} />
         </View>
       </ScrollView>
 

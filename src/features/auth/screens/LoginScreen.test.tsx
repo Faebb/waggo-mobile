@@ -1,8 +1,21 @@
 import { screen, userEvent, waitFor } from '@testing-library/react-native';
+import { Pressable, Text } from 'react-native';
 
+import { GoogleSignInButton } from '@/shared/auth/GoogleSignInButton';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { LoginScreen } from './LoginScreen';
+
+jest.mock('@/shared/auth/GoogleSignInButton');
+
+/** Stands in for the Google button: pressing it is "the person signed in with Google" and hands over the idToken. */
+function googleButtonThatSignsInWith(idToken: string) {
+  jest.mocked(GoogleSignInButton).mockImplementation(({ onIdToken }) => (
+    <Pressable accessibilityRole="button" onPress={() => onIdToken(idToken)}>
+      <Text>Continuar con Google</Text>
+    </Pressable>
+  ));
+}
 
 function respondWith(data: unknown, status = 200, errors: unknown[] = []) {
   return new Response(
@@ -174,5 +187,56 @@ describe('LoginScreen (RF-005)', () => {
       expect(onAccountNotConfirmed).not.toHaveBeenCalled();
       expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('signs in with Google: sends the idToken to the API and continues like a password login', async () => {
+    googleButtonThatSignsInWith('google-id-token');
+    fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(respondWith({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
+    const onLoggedIn = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(
+      <LoginScreen
+        onLoggedIn={onLoggedIn}
+        onGoToRegister={jest.fn()}
+        onGoToForgotPassword={jest.fn()}
+        onAccountNotConfirmed={jest.fn()}
+      />,
+    );
+
+    await user.press(screen.getByRole('button', { name: 'Continuar con Google' }));
+
+    await waitFor(() => expect(onLoggedIn).toHaveBeenCalledTimes(1));
+    const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/api\/v1\/auth\/login\/google$/);
+    expect(JSON.parse(String(init.body))).toEqual({ idToken: 'google-id-token' });
+  });
+
+  it('shows the message of the API when Google sign-in is refused', async () => {
+    googleButtonThatSignsInWith('forged-token');
+    fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
+      respondWith(null, 400, [
+        {
+          code: 'Identity.ExternalTokenInvalid',
+          message: 'No pudimos validar tu cuenta de Google o Microsoft, intenta de nuevo.',
+        },
+      ]),
+    );
+    const onLoggedIn = jest.fn();
+    const user = userEvent.setup();
+    await renderWithProviders(
+      <LoginScreen
+        onLoggedIn={onLoggedIn}
+        onGoToRegister={jest.fn()}
+        onGoToForgotPassword={jest.fn()}
+        onAccountNotConfirmed={jest.fn()}
+      />,
+    );
+
+    await user.press(screen.getByRole('button', { name: 'Continuar con Google' }));
+
+    expect(await screen.findByText(/No pudimos validar tu cuenta de Google/)).toBeOnTheScreen();
+    expect(onLoggedIn).not.toHaveBeenCalled();
   });
 });

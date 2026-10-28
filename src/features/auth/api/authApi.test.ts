@@ -1,7 +1,16 @@
 import { createHttpClient } from '@/shared/api/httpClient';
 import { getSession, setSession } from '@/shared/auth/session';
 
-import { confirmEmail, forgotPassword, login, logout, register, resendConfirmation, resetPassword } from './authApi';
+import {
+  confirmEmail,
+  forgotPassword,
+  googleLogin,
+  login,
+  logout,
+  register,
+  resendConfirmation,
+  resetPassword,
+} from './authApi';
 
 const envelope = (data: unknown) => ({
   success: true,
@@ -129,5 +138,17 @@ describe('authApi (RF-001, RF-005)', () => {
 
       expect(fetchFn).not.toHaveBeenCalled();
     });
+  });
+  it('signs in with Google with POST /api/v1/auth/login/google and the idToken, and keeps the session', async () => {
+    const fetchFn = respond(envelope({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
+
+    const session = await googleLogin('google-id-token', createHttpClient('http://api', fetchFn));
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://api/api/v1/auth/login/google',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ idToken: 'google-id-token' }) }),
+    );
+    expect(session.accessToken).toBe('at');
+    expect(getSession()?.refreshToken).toBe('rt');
   });
 });

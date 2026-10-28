@@ -1,6 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { confirmEmail, forgotPassword, login, register, resendConfirmation, resetPassword } from '../api/authApi';
+import {
+  confirmEmail,
+  forgotPassword,
+  googleLogin,
+  login,
+  register,
+  resendConfirmation,
+  resetPassword,
+} from '../api/authApi';
 
 export function useRegister() {
   return useMutation({
@@ -31,4 +39,8 @@ export function useLogin() {
   return useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) => login(email, password),
   });
+}
+
+export function useGoogleLogin() {
+  return useMutation({ mutationFn: (idToken: string) => googleLogin(idToken) });
 }
