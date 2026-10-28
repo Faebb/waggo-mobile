@@ -1,0 +1,73 @@
+name: Deploy web
+
+# Every merge to main (a PR with green CI, see ci.yml) publishes the web build to AWS (ADR-020, INF-001):
+# expo export -> S3 -> CloudFront invalidation. AWS access is OIDC only: no access keys are stored in GitHub.
+# The iOS and Android apps are not part of this workflow (EAS Build, phase CD-3).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Two deploys never run at once; a newer one waits for the one in progress.
+concurrency:
+  group: deploy-web-production
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  # Repository variables (Settings > Secrets and variables > Actions > Variables): they keep the AWS account id out of
+  # the public repo. None is a secret: the role only trusts this repo's main branch through OIDC.
+  AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  WEB_BUCKET: ${{ vars.WEB_BUCKET }}
+  WEB_DISTRIBUTION_ID: ${{ vars.WEB_DISTRIBUTION_ID }}
+  EXPO_PUBLIC_API_URL: https://api.mywaggo.com
+
+jobs:
+  deploy-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build the web app
+        run: npm run export:web
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Hashed assets first, so a visitor holding the old index.html still finds its files while the new one lands.
+      - name: Upload the hashed assets (cached for a year)
+        run: >
+          aws s3 sync dist/_expo "s3://${WEB_BUCKET}/_expo"
+          --cache-control "public,max-age=31536000,immutable"
+
+      - name: Upload the rest (index.html and friends, always revalidated) and remove deleted files
+        run: >
+          aws s3 sync dist "s3://${WEB_BUCKET}" --delete --exclude "_expo/*"
+          --cache-control "no-cache"
+
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "${WEB_DISTRIBUTION_ID}" --paths "/*"
+
+      - name: Smoke test
+        run: |
+          for attempt in 1 2 3 4 5; do
+            STATUS="$(curl -s -o /dev/null -w '%{http_code}' https://app.mywaggo.com/)" && [ "$STATUS" = "200" ] && exit 0
+            echo "Attempt $attempt: HTTP $STATUS"; sleep 10
+          done
+          echo "::error::https://app.mywaggo.com did not answer 200 after the deploy."
+          exit 1
