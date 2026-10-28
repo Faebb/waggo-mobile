@@ -5,7 +5,12 @@ import { env } from '@/shared/config/env';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
 import { MicrosoftSignInButton as MicrosoftSignInButtonOnIos } from './MicrosoftSignInButton';
-import { MicrosoftSignInButton } from './MicrosoftSignInButton.web';
+
+// The base module resolves to the native container in Jest: the web one is loaded by its full name.
+const { MicrosoftSignInButton } = jest.requireActual<{ MicrosoftSignInButton: typeof MicrosoftSignInButtonOnIos }>(
+  './MicrosoftSignInButton.web',
+);
+const mutableEnv = env as { microsoftClientId?: string };
 
 jest.mock('expo-auth-session', () => ({
   ResponseType: { Code: 'code' },
@@ -22,7 +27,7 @@ const request = { codeVerifier: 'verifier-123' };
 
 describe('MicrosoftSignInButton on the web', () => {
   beforeEach(() => {
-    env.microsoftClientId = 'ms-client-id';
+    mutableEnv.microsoftClientId = 'ms-client-id';
     jest.mocked(useAuthRequest).mockReturnValue([request, null, promptAsync] as never);
   });
   afterEach(() => jest.clearAllMocks());
@@ -81,7 +86,10 @@ describe('MicrosoftSignInButton on the web', () => {
 
   it('does not hand over anything when the exchange fails or brings no idToken', async () => {
     promptAsync.mockResolvedValue({ type: 'success', params: { code: 'the-code' } });
-    jest.mocked(exchangeCodeAsync).mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce({} as never);
+    jest
+      .mocked(exchangeCodeAsync)
+      .mockRejectedValueOnce(new Error('network'))
+      .mockResolvedValueOnce({} as never);
     const onIdToken = jest.fn();
     const user = userEvent.setup();
     await renderWithProviders(<MicrosoftSignInButton onIdToken={onIdToken} />);
@@ -94,7 +102,7 @@ describe('MicrosoftSignInButton on the web', () => {
   });
 
   it('shows nothing without EXPO_PUBLIC_MICROSOFT_CLIENT_ID', async () => {
-    env.microsoftClientId = undefined;
+    mutableEnv.microsoftClientId = undefined;
 
     const { toJSON } = await renderWithProviders(<MicrosoftSignInButton onIdToken={jest.fn()} />);
 

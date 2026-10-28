@@ -258,18 +258,20 @@ describe('LoginScreen (RF-005)', () => {
       .mockResolvedValue(respondWith({ accessToken: 'at', refreshToken: 'rt', expiresInSeconds: 900 }));
     const onLoggedIn = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen
+    await renderWithProviders(
+      <LoginScreen
         onLoggedIn={onLoggedIn}
         onGoToRegister={jest.fn()}
         onGoToForgotPassword={jest.fn()}
         onAccountNotConfirmed={jest.fn()}
-      />);
+      />,
+    );
 
     await user.press(screen.getByRole('button', { name: 'Continuar con Microsoft' }));
 
     await waitFor(() => expect(onLoggedIn).toHaveBeenCalledTimes(1));
     const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
-    expect(url).toMatch(//api/v1/auth/login/microsoft$/);
+    expect(url).toMatch(/\/api\/v1\/auth\/login\/microsoft$/);
     expect(JSON.parse(String(init.body))).toEqual({ idToken: 'microsoft-id-token' });
   });
 
@@ -285,12 +287,14 @@ describe('LoginScreen (RF-005)', () => {
     );
     const onLoggedIn = jest.fn();
     const user = userEvent.setup();
-    await renderWithProviders(<LoginScreen
+    await renderWithProviders(
+      <LoginScreen
         onLoggedIn={onLoggedIn}
         onGoToRegister={jest.fn()}
         onGoToForgotPassword={jest.fn()}
         onAccountNotConfirmed={jest.fn()}
-      />);
+      />,
+    );
 
     await user.press(screen.getByRole('button', { name: 'Continuar con Microsoft' }));
 

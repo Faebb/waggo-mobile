@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { GoogleSignInButton } from '@/shared/auth/GoogleSignInButton';
+import { SocialSignIn } from '@/shared/auth/SocialSignIn';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
 import { Banner } from '@/shared/ui/Banner';
@@ -10,13 +10,13 @@ import { TextField } from '@/shared/ui/TextField';
 import { layout, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
 import { PasswordRules } from '../components/PasswordRules';
-import { useGoogleLogin, useRegister } from '../hooks/useAuth';
+import { useGoogleLogin, useMicrosoftLogin, useRegister } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 import { meetsPasswordRules } from '../model/passwordRules';
 
 type Props = {
   onRegistered: (email: string) => void;
-  /** Signing up with Google needs no email code: the session opens right away. */
+  /** Signing up with Google or Microsoft needs no email code: the session opens right away. */
   onLoggedIn: () => void;
 };
 
@@ -35,9 +35,14 @@ export function RegisterScreen({ onRegistered, onLoggedIn }: Props) {
   const [password, setPassword] = useState('');
   const register = useRegister();
   const googleLogin = useGoogleLogin();
+  const microsoftLogin = useMicrosoftLogin();
 
   function submit() {
     register.mutate({ email, password }, { onSuccess: (account) => onRegistered(account.email) });
+  }
+
+  function signUpWithMicrosoft(idToken: string) {
+    microsoftLogin.mutate(idToken, { onSuccess: onLoggedIn });
   }
 
   function signUpWithGoogle(idToken: string) {
@@ -56,6 +61,11 @@ export function RegisterScreen({ onRegistered, onLoggedIn }: Props) {
               googleLogin.error,
               googleLogin.isError,
               'No pudimos crear tu cuenta con Google. Intenta de nuevo.',
+            ),
+            ...apiErrorMessages(
+              microsoftLogin.error,
+              microsoftLogin.isError,
+              'No pudimos crear tu cuenta con Microsoft. Intenta de nuevo.',
             ),
           ].map((message) => (
             <Banner key={message} tone="danger" message={message} />
@@ -82,7 +92,7 @@ export function RegisterScreen({ onRegistered, onLoggedIn }: Props) {
             <PasswordRules password={password} />
           </View>
 
-          <GoogleSignInButton onIdToken={signUpWithGoogle} />
+          <SocialSignIn onGoogleIdToken={signUpWithGoogle} onMicrosoftIdToken={signUpWithMicrosoft} />
 
           <Text style={styles.legal}>Al crear tu cuenta aceptas los Términos y la Política de privacidad.</Text>
         </View>

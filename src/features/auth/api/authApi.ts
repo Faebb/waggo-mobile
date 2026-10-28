@@ -64,6 +64,13 @@ export async function googleLogin(idToken: string, client: HttpClient = httpClie
   return data;
 }
 
+/** RF-001, RF-005 (ADR-017) — POST /api/v1/auth/login/microsoft: same as Google, with the idToken Microsoft gave the browser. */
+export async function microsoftLogin(idToken: string, client: HttpClient = httpClient): Promise<SessionTokens> {
+  const { data } = await client.post('/api/v1/auth/login/microsoft', { idToken }, sessionSchema);
+  openSession(data);
+  return data;
+}
+
 function openSession(data: SessionTokens) {
   setSession({
     accessToken: data.accessToken,

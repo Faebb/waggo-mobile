@@ -5,6 +5,7 @@ import {
   forgotPassword,
   googleLogin,
   login,
+  microsoftLogin,
   register,
   resendConfirmation,
   resetPassword,
@@ -43,4 +44,8 @@ export function useLogin() {
 
 export function useGoogleLogin() {
   return useMutation({ mutationFn: (idToken: string) => googleLogin(idToken) });
+}
+
+export function useMicrosoftLogin() {
+  return useMutation({ mutationFn: (idToken: string) => microsoftLogin(idToken) });
 }

@@ -166,7 +166,7 @@ describe('RegisterScreen (RF-001)', () => {
 
     await waitFor(() => expect(onLoggedIn).toHaveBeenCalledTimes(1));
     const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
-    expect(url).toMatch(//api/v1/auth/login/microsoft$/);
+    expect(url).toMatch(/\/api\/v1\/auth\/login\/microsoft$/);
     expect(JSON.parse(String(init.body))).toEqual({ idToken: 'microsoft-id-token' });
   });
 

@@ -8,4 +8,6 @@ export const env = {
   mapTileUrl: process.env.EXPO_PUBLIC_MAP_TILE_URL,
   /** OAuth web client id of Google sign-in (ADR-017). Public value; empty → no Google button on the web. */
   googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  /** Application (client) id of the Microsoft Entra app (ADR-017). Public value; empty → no Microsoft button on the web. */
+  microsoftClientId: process.env.EXPO_PUBLIC_MICROSOFT_CLIENT_ID,
 } as const;

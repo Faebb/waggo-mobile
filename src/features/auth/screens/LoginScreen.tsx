@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ApiError } from '@/shared/api/ApiError';
-import { GoogleSignInButton } from '@/shared/auth/GoogleSignInButton';
+import { SocialSignIn } from '@/shared/auth/SocialSignIn';
 import { ActionFooter } from '@/shared/ui/ActionFooter';
 import { AuthHeader } from '@/shared/ui/AuthHeader';
 import { Banner } from '@/shared/ui/Banner';
@@ -10,7 +10,7 @@ import { Button } from '@/shared/ui/Button';
 import { TextField } from '@/shared/ui/TextField';
 import { layout, sizes, spacing, typography, useThemedStyles } from '@/shared/ui/theme';
 
-import { useGoogleLogin, useLogin, useResendConfirmation } from '../hooks/useAuth';
+import { useGoogleLogin, useLogin, useMicrosoftLogin, useResendConfirmation } from '../hooks/useAuth';
 import { apiErrorMessages } from '../model/apiErrorMessages';
 
 type Props = {
@@ -26,7 +26,7 @@ const ACCOUNT_NOT_CONFIRMED = 'Identity.AccountNotConfirmed';
 
 /**
  * RF-005: a right password and a confirmed account open the session right away (ADR-017, no second factor).
- * Design proposal screen 2. On the web there is also Google's button (ADR-017); Microsoft is not shown yet.
+ * Design proposal screen 2. On the web there are also the Google and Microsoft buttons (ADR-017).
  */
 export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, onAccountNotConfirmed }: Props) {
   const styles = useThemedStyles((colors) => ({
@@ -39,6 +39,7 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
   const [password, setPassword] = useState('');
   const login = useLogin();
   const googleLogin = useGoogleLogin();
+  const microsoftLogin = useMicrosoftLogin();
   const resendConfirmation = useResendConfirmation();
 
   function submit() {
@@ -47,6 +48,10 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
 
   function signInWithGoogle(idToken: string) {
     googleLogin.mutate(idToken, { onSuccess: onLoggedIn });
+  }
+
+  function signInWithMicrosoft(idToken: string) {
+    microsoftLogin.mutate(idToken, { onSuccess: onLoggedIn });
   }
 
   function handleLoginError(error: Error) {
@@ -67,6 +72,11 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
               googleLogin.error,
               googleLogin.isError,
               'No pudimos iniciar sesión con Google. Intenta de nuevo.',
+            ),
+            ...apiErrorMessages(
+              microsoftLogin.error,
+              microsoftLogin.isError,
+              'No pudimos iniciar sesión con Microsoft. Intenta de nuevo.',
             ),
           ].map((message) => (
             <Banner key={message} tone="danger" message={message} />
@@ -95,7 +105,7 @@ export function LoginScreen({ onLoggedIn, onGoToRegister, onGoToForgotPassword, 
             </Pressable>
           </View>
 
-          <GoogleSignInButton onIdToken={signInWithGoogle} />
+          <SocialSignIn onGoogleIdToken={signInWithGoogle} onMicrosoftIdToken={signInWithMicrosoft} />
         </View>
       </ScrollView>
 

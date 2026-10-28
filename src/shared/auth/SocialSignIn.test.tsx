@@ -8,6 +8,8 @@ import { GoogleSignInButton } from './GoogleSignInButton';
 import { MicrosoftSignInButton } from './MicrosoftSignInButton';
 import { SocialSignIn } from './SocialSignIn';
 
+const mutableEnv = env as { googleWebClientId?: string; microsoftClientId?: string };
+
 jest.mock('./GoogleSignInButton');
 jest.mock('./MicrosoftSignInButton');
 jest.mock('@/shared/config/env', () => ({ env: {} }));
@@ -21,13 +23,13 @@ describe('SocialSignIn', () => {
   });
   afterEach(() => {
     Platform.OS = originalOs;
-    env.googleWebClientId = undefined;
-    env.microsoftClientId = undefined;
+    mutableEnv.googleWebClientId = undefined;
+    mutableEnv.microsoftClientId = undefined;
   });
 
   it('draws one "o" divider and both buttons on the web when a provider is configured', async () => {
     Platform.OS = 'web';
-    env.microsoftClientId = 'ms';
+    mutableEnv.microsoftClientId = 'ms';
 
     await renderWithProviders(<SocialSignIn onGoogleIdToken={jest.fn()} onMicrosoftIdToken={jest.fn()} />);
 
@@ -44,7 +46,7 @@ describe('SocialSignIn', () => {
     expect(screen.queryByText('o')).toBeNull();
 
     Platform.OS = 'ios';
-    env.googleWebClientId = 'g';
+    mutableEnv.googleWebClientId = 'g';
     rerender(<SocialSignIn onGoogleIdToken={jest.fn()} onMicrosoftIdToken={jest.fn()} />);
     expect(screen.queryByText('o')).toBeNull();
   });
