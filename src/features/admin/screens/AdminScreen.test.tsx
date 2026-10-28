@@ -90,7 +90,7 @@ describe('AdminScreen (RF-002/RF-003 panel)', () => {
 
     await user.press(screen.getByRole('button', { name: 'Rechazar' }));
     expect(screen.getByRole('header', { name: 'Rechazar a Andrés Gómez' })).toBeTruthy();
-    await user.type(screen.getByLabelText('Motivo del rechazo'), 'Documento ilegible');
+    await user.type(screen.getByLabelText('Motivo del rechazo (opcional)'), 'Documento ilegible');
     await user.press(screen.getByRole('button', { name: 'Confirmar rechazo' }));
 
     await waitFor(() => expect(screen.queryByText('CC •••• 4050')).toBeNull());
@@ -98,18 +98,24 @@ describe('AdminScreen (RF-002/RF-003 panel)', () => {
     expect(JSON.parse(String(rejectCall?.[1]?.body))).toEqual({ reason: 'Documento ilegible' });
   });
 
-  it('keeps "Confirmar rechazo" disabled until the reason has 5 characters (example 6)', async () => {
-    mockApi([{ path: QUEUE, data: [pendingWalkerProfile] }]);
+  it('rejects a walker without a reason: it is optional (example 6)', async () => {
+    const rejected = { ...pendingWalkerProfile, status: 'Rejected', rejectionReason: null };
+    const fetchSpy = mockApi([
+      { path: QUEUE, data: [pendingWalkerProfile] },
+      { method: 'POST', path: '/api/v1/admin/walkers/wp-1/reject', data: rejected },
+    ]);
     const user = userEvent.setup();
     await renderWithProviders(<AdminScreen onOpenWalk={jest.fn()} />);
     await screen.findByText('Andrés Gómez');
 
     await user.press(screen.getByRole('button', { name: 'Rechazar' }));
-    expect(screen.getByRole('button', { name: 'Confirmar rechazo' })).toBeDisabled();
-    await user.type(screen.getByLabelText('Motivo del rechazo'), 'Doc');
+    expect(screen.getByLabelText('Motivo del rechazo (opcional)')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Confirmar rechazo' })).toBeEnabled();
+    await user.press(screen.getByRole('button', { name: 'Confirmar rechazo' }));
 
-    expect(screen.getByRole('button', { name: 'Confirmar rechazo' })).toBeDisabled();
-    expect(screen.getByText('Escribe al menos 5 caracteres.')).toBeTruthy();
+    await waitFor(() => expect(screen.queryByText('CC •••• 4050')).toBeNull());
+    const rejectCall = fetchSpy.mock.calls.find(([url]) => String(url).includes('/reject'));
+    expect(JSON.parse(String(rejectCall?.[1]?.body))).toEqual({ reason: '' });
   });
 
   it('closes the reject sheet with "Cancelar" without calling the API', async () => {

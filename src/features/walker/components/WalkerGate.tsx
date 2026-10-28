@@ -58,7 +58,7 @@ export function WalkerGate({ children }: Props) {
   if (mine.status === 'Rejected') {
     return (
       <Frame title="No pudimos verificar tu perfil">
-        <Text style={styles.reason}>{mine.rejectionReason}</Text>
+        {mine.rejectionReason ? <Text style={styles.reason}>{mine.rejectionReason}</Text> : null}
         <Text style={styles.lead}>Si crees que es un error, escríbenos por soporte y lo revisamos contigo.</Text>
         <ProfileDetails profile={mine} />
       </Frame>

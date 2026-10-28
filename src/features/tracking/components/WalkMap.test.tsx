@@ -59,7 +59,7 @@ describe('WalkMap (RF-008 on OpenStreetMap)', () => {
     expect(markers).toMatchObject({
       markers: expect.arrayContaining([expect.objectContaining({ kind: 'dog', text: 'L' })]),
     });
-    expect(screen.getByText(/Última posición hace \d+ min/)).toBeOnTheScreen();
+    expect(screen.getByText(/Última posición hace \d+ (s|min)/)).toBeOnTheScreen();
   });
 
   it('frames the whole route at the end', async () => {

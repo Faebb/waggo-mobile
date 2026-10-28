@@ -10,8 +10,8 @@ import { radius, shadows, sizes, spacing, typography, useColors, useThemedStyles
 import { formatTimeAgo } from '../model/format';
 import type { ActiveWalkSummary, AdminOperations, OperationAlert } from '../model/operations';
 
-/** ⚠️ provisional (design proposal 07 · 36): a walk in progress with no point for this long shows "Sin señal". */
-const SIGNAL_LOST_AFTER_MS = 2 * 60_000;
+/** A walk in progress with no point for this long shows "Sin señal" (design proposal 07 · 36; PO: 30 s). */
+const SIGNAL_LOST_AFTER_MS = 30_000;
 
 type OperationView = 'alerts' | 'walks';
 

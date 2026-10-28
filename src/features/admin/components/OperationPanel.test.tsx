@@ -94,6 +94,23 @@ describe('OperationPanel (RF-002/RF-003 panel, slices 2–3)', () => {
     expect(screen.getByText('Aceptado')).toBeTruthy();
   });
 
+  it('flags "Sin señal" once the last signal is more than 30 seconds old (PO threshold)', async () => {
+    const user = userEvent.setup();
+    const at = (seconds: number) => ({
+      ...operations,
+      activeWalks: [
+        { ...operations.activeWalks[0], lastSignalAt: new Date(NOW.getTime() - seconds * 1000).toISOString() },
+      ],
+    });
+    const { rerender } = await render(<OperationPanel operations={at(30)} onOpenWalk={jest.fn()} now={NOW} />);
+    await user.press(screen.getByRole('tab', { name: /En curso/ }));
+    expect(screen.queryByText('Sin señal')).toBeNull();
+
+    await rerender(<OperationPanel operations={at(31)} onOpenWalk={jest.fn()} now={NOW} />);
+
+    expect(screen.getByText('Sin señal')).toBeTruthy();
+  });
+
   it('says when there are no active alerts', async () => {
     await render(<OperationPanel operations={{ ...operations, alerts: [] }} onOpenWalk={jest.fn()} now={NOW} />);
 

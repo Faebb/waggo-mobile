@@ -123,13 +123,13 @@ function SceneView({
         height={height}
         failureMessage="El paseo sigue y te mostramos los datos aquí abajo."
       />
-      {scene.staleMinutes !== null && (
+      {scene.staleAgo !== null && (
         <Banner
           tone="info"
           message={
             viewer === 'Walker'
-              ? `Sin señal desde hace ${scene.staleMinutes} min. Guardamos tus posiciones y las enviaremos al reconectar.`
-              : `Última posición hace ${scene.staleMinutes} min. El teléfono del paseador guarda la ruta y la enviará al reconectarse.`
+              ? `Sin señal desde hace ${scene.staleAgo}. Guardamos tus posiciones y las enviaremos al reconectar.`
+              : `Última posición hace ${scene.staleAgo}. El teléfono del paseador guarda la ruta y la enviará al reconectarse.`
           }
         />
       )}
